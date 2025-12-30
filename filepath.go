@@ -97,9 +97,26 @@ func pathClean(path string) (string, byte) {
 	return path, sep
 }
 
-// extractBase returns the base filename from a cleaned path.
-// Returns empty string for special cases like ".", "/", "\\".
-func extractBase(cleaned string, sep byte) string {
+// extractBase returns the base filename from a cleaned path if prefix is empty.
+// If prefix is set, it attempts to return the relative path from that prefix.
+func extractBase(cleaned string, sep byte, prefix string) string {
+	// If prefix is set, try to strip it
+	if prefix != "" {
+		if HasPrefix(cleaned, prefix) {
+			rel := cleaned[len(prefix):]
+			// check if it's a full component match
+			isRoot := len(prefix) == 1 && (prefix[0] == '/' || prefix[0] == '\\')
+			if isRoot || len(rel) == 0 || rel[0] == '/' || rel[0] == '\\' {
+				if len(rel) > 0 && (rel[0] == '/' || rel[0] == '\\') {
+					return rel[1:]
+				}
+				return rel
+			}
+		}
+		return cleaned
+	}
+
+	// Default behavior: extract filename after last separator
 	// Special cases
 	if cleaned == "." || cleaned == "\\" || cleaned == "/" {
 		return ""
@@ -148,7 +165,7 @@ func (c *Conv) PathBase() *Conv {
 	// clear output buffer - PathBase will write the resulting base
 	c.ResetBuffer(BuffOut)
 
-	base := extractBase(cleaned, sep)
+	base := extractBase(cleaned, sep, "")
 	if base == "" {
 		// Special case: write the cleaned value (., /, or \)
 		c.WrString(BuffOut, cleaned)
@@ -179,7 +196,7 @@ func (c *Conv) PathExt() *Conv {
 	c.ResetBuffer(BuffOut)
 
 	// get the base filename using helper
-	base := extractBase(cleaned, sep)
+	base := extractBase(cleaned, sep, "")
 	if base == "" {
 		// Special cases like ".", "/", "\\" have no extension
 		return c
