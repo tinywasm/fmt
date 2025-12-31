@@ -65,7 +65,7 @@ Convert("file.TXT").PathExt().ToLower().String() // -> ".txt"
 Use `PathShort()` to convert absolute paths into relative paths starting with `./`. It is particularly useful for log messages where you want to hide long system paths.
 
 > [!NOTE] 
-> This feature is only available in **standard environments** (`!wasm`). In WebAssembly, it behaves as a no-op.
+> This feature uses platform-specific logic to determine the base path: `os.Getwd()` in standard environments and `window.location.origin` in WebAssembly.
 
 ### Features
 - **Auto-detection**: If no base path is set, it uses `os.Getwd()` automatically.
@@ -97,4 +97,19 @@ Convert(msg).PathShort().String()
 SetPathBase("/")
 Convert("/etc/passwd").PathShort().String()
 // -> "./etc/passwd"
+```
+
+## GetPathBase
+
+Standalone function that returns the default base path automatically used by `PathShort` when no custom base is set via `SetPathBase`.
+
+| Environment | Behavior |
+|-------------|----------|
+| **Standard** | Returns current working directory via `os.Getwd()`. |
+| **WASM**     | Returns the domain root via `window.location.origin`. |
+
+Example:
+```go
+base := GetPathBase()
+println("Base path is:", base)
 ```
