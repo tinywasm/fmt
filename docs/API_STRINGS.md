@@ -18,6 +18,7 @@ Replace common `strings` package functions with fmt equivalents:
 | `strings.TrimPrefix()` | `Convert(s).TrimPrefix(prefix).String()` |
 | `strings.TrimSuffix()` | `Convert(s).TrimSuffix(suffix).String()` |
 | `strings.HasPrefix()` | `HasPrefix(s, prefix)` |
+| (Utility) | `HasUpperPrefix(s)` |
 | `strings.HasSuffix()` | `HasSuffix(s, suffix)` |
 
 ## Other String Transformations
@@ -39,6 +40,7 @@ count := Count("abracadabra", "abra")       // out: 2
 
 // Prefix / Suffix checks
 isPref := HasPrefix("hello", "he")          // out: true
+isUpper := HasUpperPrefix("Hello")          // out: true
 isSuf := HasSuffix("file.txt", ".txt")      // out: true
 
 // Note: this library follows the standard library semantics for prefixes/suffixes:
@@ -51,11 +53,12 @@ if pos >= 0 {
     extension := "image.backup.jpg"[pos+1:]           // out: "jpg"
 }
 
-// ⚠️ Note: Index, Contains and LastIndex are global functions, not methods.
+// ⚠️ Note: Index, Contains, LastIndex and HasUpperPrefix are global functions, not methods.
 // Do NOT use: Convert(s).Contains(substr) // ❌ Incorrect, will not compile
 // Use:        Index(s, substr)            // ✅ Correct
 //             Contains(s, substr)         // ✅ Correct
 //             LastIndex(s, substr)        // ✅ Correct
+//             HasUpperPrefix(s)           // ✅ Correct
 
 // Replace operations
 Convert("hello world").Replace("world", "Go").String() // out: "hello Go"

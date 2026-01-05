@@ -94,3 +94,31 @@ func TestCapitalizeChaining(t *testing.T) {
 		})
 	}
 }
+
+func TestHasUpperPrefix(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected bool
+	}{
+		{"Empty string", "", false},
+		{"ASCII uppercase", "Hello", true},
+		{"ASCII lowercase", "hello", false},
+		{"Accented uppercase Á", "Ángel", true},
+		{"Accented uppercase É", "Éxito", true},
+		{"Accented lowercase á", "ángel", false},
+		{"Number first", "123abc", false},
+		{"Space first", " Hello", false},
+		{"Single uppercase", "A", true},
+		{"Single lowercase", "a", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := HasUpperPrefix(tt.input)
+			if got != tt.expected {
+				t.Errorf("HasUpperPrefix(%q) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}

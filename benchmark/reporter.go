@@ -343,7 +343,7 @@ func (r *ReportGenerator) updateREADMESection(sectionTitle, newContent string) e
 
 // capitalizeFirst capitalizes the first letter of a string
 func capitalizeFirst(s string) string {
-	if len(s) == 0 {
+	if len(s) == 0 || HasUpperPrefix(s) {
 		return s
 	}
 	if s[0] >= 'a' && s[0] <= 'z' {

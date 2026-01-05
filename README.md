@@ -62,6 +62,9 @@ out := builder.String() // Finalize the string hiding the error
 out, err := builder.StringErr() // OR finalize with error handling
 
 // out: "Apple - Banana - Piñata - Ñandu", err: nil
+
+// Check for uppercase prefix (supports Unicode)
+isUpper := HasUpperPrefix("Ápple") // out: true
 ```
 
 ## Documentation
