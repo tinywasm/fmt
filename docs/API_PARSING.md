@@ -1,13 +1,49 @@
-# Key-Value Parsing
+# Parsing API
 
-fmt provides key-value parsing functionality to extract values from strings with separators.
+The `fmt` package provides tools for parsing structured strings, such as Go struct tags and key-value pairs.
 
-## Usage
+## Struct Tag Parsing
+
+### TagValue
+`TagValue(key string) (string, bool)`
+
+Searches for the value of a specific key in a Go struct tag-like string.
 
 ```go
-// Key-value parsing with the new API:
-value, err := Convert("user:admin").ExtractValue()            // out: "admin", nil
-value, err := Convert("count=42").ExtractValue("=")          // out: "42", nil
+val, found := fmt.Convert(`json:"name" Label:"Nombre"`).TagValue("Label")
+// val: "Nombre", found: true
 ```
 
-The `ExtractValue()` method splits the string on the first occurrence of the separator (default ":") and returns the value part. If a custom separator is provided, it uses that instead.
+### TagPairs
+`TagPairs(key string) []KeyValue`
+
+Parses a Go struct tag-like string and extracts multiple key-value pairs from a specific tag's value (e.g., comma-separated pairs).
+
+```go
+pairs := fmt.Convert(`options:"key1:text1,key2:text2"`).TagPairs("options")
+// pairs: []KeyValue{{Key: "key1", Value: "text1"}, {Key: "key2", Value: "text2"}}
+```
+
+## Key-Value Extraction
+
+### ExtractValue
+`ExtractValue(delimiters ...string) (string, error)`
+
+Extracts the value after the first occurrence of a delimiter. Defaults to `:`.
+
+```go
+val, err := fmt.Convert("key:value").ExtractValue(":")
+// val: "value", err: nil
+```
+
+## Types
+
+### KeyValue
+Represents a simple key-value pair extracted from a string.
+
+```go
+type KeyValue struct {
+    Key   string
+    Value string
+}
+```
