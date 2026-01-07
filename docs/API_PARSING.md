@@ -17,7 +17,11 @@ val, found := fmt.Convert(`json:"name" Label:"Nombre"`).TagValue("Label")
 ### TagPairs
 `TagPairs(key string) []KeyValue`
 
-Parses a Go struct tag-like string and extracts multiple key-value pairs from a specific tag's value (e.g., comma-separated pairs).
+Parses a Go struct tag-like string and extracts multiple key-value pairs from a specific tag's value. This is useful for tags that contain comma-separated key-value pairs.
+
+- Pairs are separated by `,`.
+- Key and value within a pair are separated by `:`.
+- If a pair does not contain a `:`, it is considered invalid and skipped.
 
 ```go
 pairs := fmt.Convert(`options:"key1:text1,key2:text2"`).TagPairs("options")
@@ -29,10 +33,15 @@ pairs := fmt.Convert(`options:"key1:text1,key2:text2"`).TagPairs("options")
 ### ExtractValue
 `ExtractValue(delimiters ...string) (string, error)`
 
-Extracts the value after the first occurrence of a delimiter. Defaults to `:`.
+Extracts the value part from a "key:value" string.
 
 ```go
-val, err := fmt.Convert("key:value").ExtractValue(":")
+// Default delimiter (:)
+val, err := fmt.Convert("key:value").ExtractValue()
+// val: "value", err: nil
+
+// Custom delimiter
+val, err := fmt.Convert("key=value").ExtractValue("=")
 // val: "value", err: nil
 ```
 
@@ -43,7 +52,7 @@ Represents a simple key-value pair extracted from a string.
 
 ```go
 type KeyValue struct {
-    Key   string
-    Value string
+    Key   string // The identifier or key
+    Value string // The associated value or text
 }
 ```
