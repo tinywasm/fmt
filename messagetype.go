@@ -18,7 +18,8 @@ var Msg = struct {
 	Parse     MessageType // Parse/decode error
 	Timeout   MessageType // Timeout error
 	Broadcast MessageType // Broadcast/send error
-}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+	Debug     MessageType // / Debug message
+}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 // Helper methods for MessageType
 func (t MessageType) IsNormal() bool  { return t == Msg.Normal }
@@ -26,6 +27,7 @@ func (t MessageType) IsInfo() bool    { return t == Msg.Info }
 func (t MessageType) IsError() bool   { return t == Msg.Error }
 func (t MessageType) IsWarning() bool { return t == Msg.Warning }
 func (t MessageType) IsSuccess() bool { return t == Msg.Success }
+func (t MessageType) IsDebug() bool   { return t == Msg.Debug }
 
 // Network/SSE helper methods
 func (t MessageType) IsConnect() bool   { return t == Msg.Connect }
@@ -59,6 +61,8 @@ func (t MessageType) String() string {
 		return "Timeout"
 	case Msg.Broadcast:
 		return "Broadcast"
+	case Msg.Debug:
+		return "Debug"
 	default:
 		return "Normal"
 	}
@@ -71,7 +75,10 @@ var (
 		[]byte("undeclared"), []byte("undefined"), []byte("fatal"),
 	}
 	warningPatterns = [][]byte{
-		[]byte("warning"), []byte("warn"), []byte("debug"),
+		[]byte("warning"), []byte("warn"),
+	}
+	debugPatterns = [][]byte{
+		[]byte("debug"),
 	}
 	successPatterns = [][]byte{
 		[]byte("success"), []byte("completed"), []byte("successful"), []byte("done"),
@@ -110,6 +117,9 @@ func (c *Conv) detectMessageTypeFromBuffer(dest BuffDest) MessageType {
 	}
 	if c.bufferContainsPattern(BuffWork, infoPatterns) {
 		return Msg.Info
+	}
+	if c.bufferContainsPattern(BuffWork, debugPatterns) {
+		return Msg.Debug
 	}
 	return Msg.Normal
 }

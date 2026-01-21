@@ -82,6 +82,21 @@ func TestStringTypeDetection(t *testing.T) {
 		}
 	})
 
+	t.Run("Debug keywords", func(t *testing.T) {
+		debugKeywords := []string{
+			"debug: something happening",
+			"[debug] status",
+			"DEBUG: uppercase",
+			"DeBuG: Mixed Case",
+		}
+		for _, keyword := range debugKeywords {
+			_, msgType := Convert(keyword).StringType()
+			if msgType != Msg.Debug {
+				t.Errorf("Expected Debug for keyword %q, got %v", keyword, msgType)
+			}
+		}
+	})
+
 	t.Run("Normal message", func(t *testing.T) {
 		_, msgType := Convert("Hello world").StringType()
 		if msgType != Msg.Normal {
@@ -123,11 +138,20 @@ func TestSSERelatedTypes(t *testing.T) {
 			}
 		}
 
-		nonNetworkTypes := []MessageType{Msg.Normal, Msg.Info, Msg.Error, Msg.Warning, Msg.Success, Msg.Parse}
+		nonNetworkTypes := []MessageType{Msg.Normal, Msg.Info, Msg.Error, Msg.Warning, Msg.Success, Msg.Parse, Msg.Debug}
 		for _, nnt := range nonNetworkTypes {
 			if nnt.IsNetworkError() {
 				t.Errorf("Expected %v NOT to be a network error", nnt)
 			}
+		}
+	})
+
+	t.Run("IsDebug", func(t *testing.T) {
+		if !Msg.Debug.IsDebug() {
+			t.Error("Expected Msg.Debug.IsDebug() to be true")
+		}
+		if Msg.Info.IsDebug() {
+			t.Error("Expected Msg.Info.IsDebug() to be false")
 		}
 	})
 }

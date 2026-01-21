@@ -31,6 +31,7 @@ if msgType.IsError() {
 // Msg.Error     - Error messages and failures
 // Msg.Warning   - Warning and caution messages
 // Msg.Success   - Success and completion messages
+// Msg.Debug     - Debugging messages
 //
 // Network/SSE specific:
 // Msg.Connect   - Connection error
