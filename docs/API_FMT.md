@@ -5,7 +5,7 @@ Replace `fmt` package functions for formatting:
 | Go Standard | fmt Equivalent |
 |-------------|----------------------|
 | `fmt.Sprintf()` | `Sprintf(format, args...)` |
-| `fmt.Sprint()` | `Convert(v).String()` |
+| `fmt.Sprint()` | `Sprint(v)` |
 | `fmt.Fprintf()` | `Fprintf(w, format, args...)` |
 | `fmt.Sscanf()` | `Sscanf(src, format, args...)` |
 
