@@ -6,6 +6,8 @@ Replace `fmt` package functions for formatting:
 |-------------|----------------------|
 | `fmt.Sprintf()` | `Sprintf(format, args...)` |
 | `fmt.Sprint()` | `Sprint(v)` |
+| `fmt.Println()` | `Println(args...)` |
+| `fmt.Printf()` | `Printf(format, args...)` |
 | `fmt.Fprintf()` | `Fprintf(w, format, args...)` |
 | `fmt.Sscanf()` | `Sscanf(src, format, args...)` |
 

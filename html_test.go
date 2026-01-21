@@ -264,7 +264,6 @@ func TestEscapeHTML_CompareStdLib(t *testing.T) {
 				}
 			}
 
-			t.Logf("Input:  %q\nOutput: %q", tc.in, got)
 		})
 	}
 }
@@ -291,7 +290,6 @@ func TestEscapeAttr_CompareStdLib(t *testing.T) {
 				t.Errorf("Unescaped dangerous characters in attribute: %q", got)
 			}
 
-			t.Logf("Input:  %q\nOutput: %q", tc.in, got)
 		})
 	}
 }

@@ -16,3 +16,13 @@ func (c *Conv) getSystemLang() lang {
 		os.Getenv("LC_MESSAGES"),
 	)
 }
+
+// Println prints arguments to stdout followed by newline (like fmt.Println)
+func Println(args ...any) {
+	os.Stdout.WriteString(GetConv().SmartArgs(BuffOut, " ", false, false, args...).String() + "\n")
+}
+
+// Printf prints formatted output to stdout (like fmt.Printf)
+func Printf(format string, args ...any) {
+	os.Stdout.WriteString(Sprintf(format, args...))
+}

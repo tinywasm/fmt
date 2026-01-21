@@ -19,8 +19,8 @@ func TestPathShort(t *testing.T) {
 		want string
 	}{
 		{
-			name: "relative from auto wd",
-			base: "", // use auto
+			name: "relative from explicit wd",
+			base: wd, // Use explicit wd instead of auto-detection (WASM auto-detects URL origin)
 			path: PathJoin(wd, "web/public").String(),
 			want: "./web/public",
 		},

@@ -22,3 +22,13 @@ func (c *Conv) getSystemLang() lang {
 	// Use the centralized parser.
 	return c.langParser(language.String())
 }
+
+// Println prints arguments to console.log (like fmt.Println)
+func Println(args ...any) {
+	js.Global().Get("console").Call("log", GetConv().SmartArgs(BuffOut, " ", false, false, args...).String())
+}
+
+// Printf prints formatted output to console.log (like fmt.Printf)
+func Printf(format string, args ...any) {
+	js.Global().Get("console").Call("log", Sprintf(format, args...))
+}
