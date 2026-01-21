@@ -51,7 +51,7 @@ func TestConcurrentConvert(t *testing.T) {
 				String()
 
 			if out != expectedResult {
-				counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, expectedResult))
+				counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, expectedResult))
 			}
 		}(i)
 	}
@@ -144,10 +144,10 @@ func TestConcurrentUtilityFunctions(t *testing.T) {
 					defer wg.Done()
 					out, err := tc.function()
 					if err != nil {
-						counter.addError(Fmt("goroutine %d: error: %v", id, err))
+						counter.addError(Sprintf("goroutine %d: error: %v", id, err))
 					}
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -344,10 +344,10 @@ func TestConcurrentNumericOperations(t *testing.T) {
 					defer wg.Done()
 					out, err := tc.function()
 					if err != nil {
-						counter.addError(Fmt("goroutine %d: error: %v", id, err))
+						counter.addError(Sprintf("goroutine %d: error: %v", id, err))
 					}
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -396,7 +396,7 @@ func TestConcurrentStringPointerOperations(t *testing.T) {
 
 				expected := "elMurcielagoRapido"
 				if testText != expected {
-					counter.addError(Fmt("goroutine %d: got %q, want %q", id, testText, expected))
+					counter.addError(Sprintf("goroutine %d: got %q, want %q", id, testText, expected))
 				}
 			}(i)
 		}
@@ -425,21 +425,21 @@ func TestConcurrentFormattingOperations(t *testing.T) {
 		{
 			name: "Fmt with String",
 			function: func() string {
-				return Fmt("Hello %s", "World")
+				return Sprintf("Hello %s", "World")
 			},
 			expected: "Hello World",
 		},
 		{
 			name: "Fmt with Integer",
 			function: func() string {
-				return Fmt("Number: %d", 42)
+				return Sprintf("Number: %d", 42)
 			},
 			expected: "Number: 42",
 		},
 		{
 			name: "Fmt with Float",
 			function: func() string {
-				return Fmt("Pi: %.2f", 3.14159)
+				return Sprintf("Pi: %.2f", 3.14159)
 			},
 			expected: "Pi: 3.14",
 		},
@@ -471,7 +471,7 @@ func TestConcurrentFormattingOperations(t *testing.T) {
 					defer wg.Done()
 					out := tc.function()
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -553,7 +553,7 @@ func TestConcurrentAdvancedCaseOperations(t *testing.T) {
 					defer wg.Done()
 					out := tc.function()
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -621,7 +621,7 @@ func TestConcurrentTruncateOperations(t *testing.T) {
 					defer wg.Done()
 					out := tc.function()
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -704,7 +704,7 @@ func TestConcurrentUtilityOperations(t *testing.T) {
 					defer wg.Done()
 					out := tc.function()
 					if out != tc.expected {
-						counter.addError(Fmt("goroutine %d: got %q, want %q", id, out, tc.expected))
+						counter.addError(Sprintf("goroutine %d: got %q, want %q", id, out, tc.expected))
 					}
 				}(i)
 			}
@@ -848,23 +848,23 @@ func TestConcurrentStringInterning(t *testing.T) {
 				defer wg.Done()
 
 				// Each goroutine performs multiple formatting operations that
-				// trigger string interning through Fmt() -> sprintf() -> internStringFromBytes()
+				// trigger string interning through Sprintf() -> sprintf() -> internStringFromBytes()
 				for j := 0; j < iterations; j++ {
 					testStr := testStrings[j%len(testStrings)]
 
 					// This triggers the internStringFromBytes() path that had the race condition
-					result1 := Fmt("Test %s %d", testStr, j)
-					result2 := Fmt("Data: %s=%d", testStr, id)
+					result1 := Sprintf("Test %s %d", testStr, j)
+					result2 := Sprintf("Data: %s=%d", testStr, id)
 
 					// Verify results are correct
 					expected1 := "Test " + testStr + " " + Convert(j).String()
 					expected2 := "Data: " + testStr + "=" + Convert(id).String()
 
 					if result1 != expected1 {
-						counter.addError(Fmt("goroutine %d, iteration %d: result1 got %q, want %q", id, j, result1, expected1))
+						counter.addError(Sprintf("goroutine %d, iteration %d: result1 got %q, want %q", id, j, result1, expected1))
 					}
 					if result2 != expected2 {
-						counter.addError(Fmt("goroutine %d, iteration %d: result2 got %q, want %q", id, j, result2, expected2))
+						counter.addError(Sprintf("goroutine %d, iteration %d: result2 got %q, want %q", id, j, result2, expected2))
 					}
 				}
 			}(i)
@@ -908,10 +908,10 @@ func TestConcurrentStringCacheStress(t *testing.T) {
 				for j := 0; j < iterations; j++ {
 					// Mix of operations that trigger string interning
 					operations := []func() string{
-						func() string { return Fmt("ID_%d_ITER_%d", id, j) },
+						func() string { return Sprintf("ID_%d_ITER_%d", id, j) },
 						func() string { return Convert(id).Thousands().String() },
-						func() string { return Convert(Fmt("goroutine_%d", id)).ToUpper().String() },
-						func() string { return Fmt("%.2f", float64(j)/10.0) },
+						func() string { return Convert(Sprintf("goroutine_%d", id)).ToUpper().String() },
+						func() string { return Sprintf("%.2f", float64(j)/10.0) },
 						func() string { return Convert("cache_test").Repeat(2).String() },
 					}
 
@@ -921,7 +921,7 @@ func TestConcurrentStringCacheStress(t *testing.T) {
 
 					// Basic validation - ensure out is not empty
 					if out == "" {
-						counter.addError(Fmt("goroutine %d, iteration %d: got empty out", id, j))
+						counter.addError(Sprintf("goroutine %d, iteration %d: got empty out", id, j))
 					}
 				}
 			}(i)

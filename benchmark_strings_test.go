@@ -197,7 +197,7 @@ func BenchmarkHighDemandProcesses(b *testing.B) {
 
 	b.Run("FormatOperations", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			out := Fmt("User %s has %d messages with %.2f%% completion", "Alice", 42, 85.5)
+			out := Sprintf("User %s has %d messages with %.2f%% completion", "Alice", 42, 85.5)
 			_ = out
 		}
 	})

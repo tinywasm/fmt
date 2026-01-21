@@ -23,7 +23,7 @@ func main() {
 	result4 := fmt.Convert(items).Join(", ").String()
 
 	// Test 5: Fmt operations
-	result5 := fmt.Fmt("Result: %s | Number: %s | Upper: %s | List: %s",
+	result5 := fmt.Sprintf("Result: %s | Number: %s | Upper: %s | List: %s",
 		result1, result2, result3, result4)
 
 	// Use results to prevent optimization

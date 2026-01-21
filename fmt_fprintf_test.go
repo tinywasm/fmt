@@ -178,7 +178,7 @@ func BenchmarkFprintf_vs_Fmt(b *testing.B) {
 	b.Run("Fmt+Write", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			buf.Reset()
-			result := Fmt(format, args...)
+			result := Sprintf(format, args...)
 			buf.WriteString(result)
 		}
 	})

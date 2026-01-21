@@ -29,14 +29,14 @@ type OptimizationConfig struct {
 func FormatSize(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
-		return Fmt("%d B", bytes)
+		return Sprintf("%d B", bytes)
 	}
 	div, exp := int64(unit), 0
 	for n := bytes / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
 	}
-	return Fmt("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+	return Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
 // FileExists checks if a file exists
@@ -106,20 +106,20 @@ func extractOptLevel(filename string) string {
 
 // LogStep prints a formatted step message
 func LogStep(message string) {
-	os.Stdout.Write([]byte(Fmt("📋 %s\n", message)))
+	os.Stdout.Write([]byte(Sprintf("📋 %s\n", message)))
 }
 
 // LogSuccess prints a formatted success message
 func LogSuccess(message string) {
-	os.Stdout.Write([]byte(Fmt("✅ %s\n", message)))
+	os.Stdout.Write([]byte(Sprintf("✅ %s\n", message)))
 }
 
 // LogError prints a formatted error message
 func LogError(message string) {
-	os.Stdout.Write([]byte(Fmt("❌ %s\n", message)))
+	os.Stdout.Write([]byte(Sprintf("❌ %s\n", message)))
 }
 
 // LogInfo prints a formatted info message
 func LogInfo(message string) {
-	os.Stdout.Write([]byte(Fmt("ℹ️  %s\n", message)))
+	os.Stdout.Write([]byte(Sprintf("ℹ️  %s\n", message)))
 }

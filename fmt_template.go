@@ -6,9 +6,9 @@ import "io"
 // FORMAT TEMPLATE SYSTEM - Printf-style formatting operations
 // =============================================================================
 
-// Fmt formats a string using a printf-style format string and arguments.
-// Example: Fmt("Hello %s", "world") returns "Hello world"
-func Fmt(format string, args ...any) string {
+// Sprintf formats a string using a printf-style format string and arguments.
+// Example: Sprintf("Hello %s", "world") returns "Hello world"
+func Sprintf(format string, args ...any) string {
 	// Inline unifiedFormat logic - eliminated wrapper function
 	return GetConv().wrFormat(BuffOut, getCurrentLang(), format, args...).String()
 }

@@ -64,7 +64,7 @@ func TestFmtWithCustomTypeString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := Fmt(tt.format, tt.args...)
+			result := Sprintf(tt.format, tt.args...)
 
 			if tt.bug {
 				// Para casos con bug, verificamos el comportamiento ACTUAL (incorrecto)
@@ -109,7 +109,7 @@ func TestFmtCustomTypeWithOtherFormats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := Fmt(tt.format, tt.args...)
+			result := Sprintf(tt.format, tt.args...)
 			if result != tt.expected {
 				t.Errorf("Expected %q, got %q", tt.expected, result)
 			} else {
@@ -128,18 +128,18 @@ func TestFmtStringerInterface(t *testing.T) {
 
 	// Implementar String() para version dentro del test
 	var _ = func(v version) string {
-		return Fmt("%d.%d", v.major, v.minor)
+		return Sprintf("%d.%d", v.major, v.minor)
 	}
 
 	// version con método String()
 	v := version{1, 4}
 
 	// Intentar formatear con %v (debería funcionar si AnyToBuff maneja String())
-	result := Fmt("PDF Version: %v", v)
+	result := Sprintf("PDF Version: %v", v)
 	t.Logf("Result with %%v: %q", result)
 
 	// Intentar formatear con %s (actualmente fallará)
-	result2 := Fmt("PDF Version: %s", v)
+	result2 := Sprintf("PDF Version: %s", v)
 	t.Logf("Result with %%s: %q", result2)
 
 	if result2 == "" {

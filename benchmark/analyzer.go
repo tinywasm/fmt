@@ -31,10 +31,10 @@ type MemoryComparison struct {
 
 func main() {
 	if len(os.Args) < 2 {
-		println(Fmt("Usage: go run analyzer.go [binary|memory|all]"))
-		println(Fmt("  binary  - Analyze binary sizes"))
-		println(Fmt("  memory  - Analyze memory allocations"))
-		println(Fmt("  all     - Run both analyses"))
+		println(Sprintf("Usage: go run analyzer.go [binary|memory|all]"))
+		println(Sprintf("  binary  - Analyze binary sizes"))
+		println(Sprintf("  memory  - Analyze memory allocations"))
+		println(Sprintf("  all     - Run both analyses"))
 		return
 	}
 
@@ -50,7 +50,7 @@ func main() {
 		println()
 		analyzeMemoryAllocations()
 	default:
-		LogError(Fmt("Unknown mode: %s", mode))
+		LogError(Sprintf("Unknown mode: %s", mode))
 		return
 	}
 }
@@ -104,7 +104,7 @@ func measureBinarySizes() []BinaryInfo {
 
 	binaryDir := "bench-binary-size"
 	if !FileExists(binaryDir) {
-		LogError(Fmt("Binary directory %s not found", binaryDir))
+		LogError(Sprintf("Binary directory %s not found", binaryDir))
 		return nil
 	}
 
@@ -115,7 +115,7 @@ func measureBinarySizes() []BinaryInfo {
 	for _, pattern := range patterns {
 		binaries, err := FindBinaries(binaryDir, []string{pattern})
 		if err != nil {
-			LogError(Fmt("Error finding binaries: %v", err))
+			LogError(Sprintf("Error finding binaries: %v", err))
 			continue
 		}
 		allBinaries = append(allBinaries, binaries...)
@@ -128,11 +128,11 @@ func measureBinarySizes() []BinaryInfo {
 func displayBinaryResults(binaries []BinaryInfo) {
 	println("\n📊 Binary Size Results:")
 	println("========================")
-	println(Fmt("%-20s %-8s %-12s %-10s", "File", "Type", "Library", "Size"))
+	println(Sprintf("%-20s %-8s %-12s %-10s", "File", "Type", "Library", "Size"))
 	println(Convert("-").Repeat(55).String())
 
 	for _, binary := range binaries {
-		println(Fmt("%-20s %-8s %-12s %-10s",
+		println(Sprintf("%-20s %-8s %-12s %-10s",
 			binary.Name, binary.Type, binary.Library, binary.SizeStr))
 	}
 	println("")
@@ -147,8 +147,8 @@ func displayOptimizationTable(binaries []BinaryInfo) {
 
 	for _, opt := range optimizations {
 		println("")
-		println(Fmt("%s Optimization (%s):", opt.Name, opt.Description))
-		println(Fmt("%-15s %-15s %-15s %-15s", "", "Standard", "fmt", "Improvement"))
+		println(Sprintf("%s Optimization (%s):", opt.Name, opt.Description))
+		println(Sprintf("%-15s %-15s %-15s %-15s", "", "Standard", "fmt", "Improvement"))
 		println(Convert("-").Repeat(65).String())
 
 		// Find matching binaries for this optimization level
@@ -159,13 +159,13 @@ func displayOptimizationTable(binaries []BinaryInfo) {
 
 		if standardNative.Name != "" && tinystringNative.Name != "" {
 			improvement := calculateImprovement(standardNative.Size, tinystringNative.Size)
-			println(Fmt("%-15s %-15s %-15s %-15s", "Native",
+			println(Sprintf("%-15s %-15s %-15s %-15s", "Native",
 				standardNative.SizeStr, tinystringNative.SizeStr, improvement))
 		}
 
 		if standardWasm.Name != "" && tinystringWasm.Name != "" {
 			improvement := calculateImprovement(standardWasm.Size, tinystringWasm.Size)
-			println(Fmt("%-15s %-15s %-15s %-15s", "WebAssembly",
+			println(Sprintf("%-15s %-15s %-15s %-15s", "WebAssembly",
 				standardWasm.SizeStr, tinystringWasm.SizeStr, improvement))
 		}
 	}
@@ -194,9 +194,9 @@ func calculateImprovement(original, improved int64) string {
 
 	improvement := float64(original-improved) / float64(original) * 100
 	if improvement > 0 {
-		return Fmt("%.1f%% smaller", improvement)
+		return Sprintf("%.1f%% smaller", improvement)
 	} else if improvement < 0 {
-		return Fmt("%.1f%% larger", -improvement)
+		return Sprintf("%.1f%% larger", -improvement)
 	}
 	return "Same size"
 }
@@ -288,7 +288,7 @@ func runBenchmarks(library string) []BenchmarkResult {
 
 	benchDir := filepath.Join("bench-memory-alloc", library)
 	if !FileExists(benchDir) {
-		LogError(Fmt("Benchmark directory %s not found", benchDir))
+		LogError(Sprintf("Benchmark directory %s not found", benchDir))
 		return results
 	}
 	cmd := exec.Command("go", "test", "-bench=.", "-benchmem", "-run=^$")
@@ -296,7 +296,7 @@ func runBenchmarks(library string) []BenchmarkResult {
 
 	output, err := cmd.Output()
 	if err != nil {
-		LogError(Fmt("Failed to run benchmarks in %s: %v", benchDir, err))
+		LogError(Sprintf("Failed to run benchmarks in %s: %v", benchDir, err))
 		return results
 	}
 
@@ -358,13 +358,13 @@ func findBenchmark(results []BenchmarkResult, name string) BenchmarkResult {
 func displayMemoryResults(comparisons []MemoryComparison) {
 	println("\n🧠 Memory Allocation Results:")
 	println("============================")
-	println(Fmt("%-35s %-12s %-15s %-15s %-15s",
+	println(Sprintf("%-35s %-12s %-15s %-15s %-15s",
 		"Category", "Library", "Bytes/Op", "Allocs/Op", "Time/Op"))
 	println(Convert("-").Repeat(95).String())
 
 	for _, comparison := range comparisons {
 		if comparison.Standard.Name != "" {
-			println(Fmt("%-35s %-12s %-15s %-15d %-15s",
+			println(Sprintf("%-35s %-12s %-15s %-15d %-15s",
 				comparison.Category, "standard",
 				FormatSize(comparison.Standard.BytesPerOp),
 				comparison.Standard.AllocsPerOp,
@@ -372,7 +372,7 @@ func displayMemoryResults(comparisons []MemoryComparison) {
 		}
 
 		if comparison.fmt.Name != "" {
-			println(Fmt("%-35s %-12s %-15s %-15d %-15s",
+			println(Sprintf("%-35s %-12s %-15s %-15d %-15s",
 				"", "tinystring",
 				FormatSize(comparison.fmt.BytesPerOp),
 				comparison.fmt.AllocsPerOp,
@@ -385,7 +385,7 @@ func displayMemoryResults(comparisons []MemoryComparison) {
 				allocImprovement := calculateMemoryImprovement(
 					comparison.Standard.AllocsPerOp, comparison.fmt.AllocsPerOp)
 
-				println(Fmt("%-35s %-12s %-15s %-15s %-15s",
+				println(Sprintf("%-35s %-12s %-15s %-15s %-15s",
 					"  → Improvement", "", memImprovement, allocImprovement, ""))
 			}
 		}
@@ -397,7 +397,7 @@ func displayMemoryResults(comparisons []MemoryComparison) {
 func updateREADMEWithBinaryData(binaries []BinaryInfo) {
 	reporter := NewReportGenerator("./README.md")
 	if err := reporter.UpdateBinaryData(binaries); err != nil {
-		LogError(Fmt("Failed to update README with binary data: %v", err))
+		LogError(Sprintf("Failed to update README with binary data: %v", err))
 	}
 }
 
@@ -405,6 +405,6 @@ func updateREADMEWithBinaryData(binaries []BinaryInfo) {
 func updateREADMEWithMemoryData(comparisons []MemoryComparison) {
 	reporter := NewReportGenerator("./README.md")
 	if err := reporter.UpdateMemoryData(comparisons); err != nil {
-		LogError(Fmt("Failed to update README with memory data: %v", err))
+		LogError(Sprintf("Failed to update README with memory data: %v", err))
 	}
 }

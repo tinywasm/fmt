@@ -4,7 +4,7 @@ Replace `fmt` package functions for formatting:
 
 | Go Standard | fmt Equivalent |
 |-------------|----------------------|
-| `fmt.Sprintf()` | `Fmt(format, args...)` |
+| `fmt.Sprintf()` | `Sprintf(format, args...)` |
 | `fmt.Sprint()` | `Convert(v).String()` |
 | `fmt.Fprintf()` | `Fprintf(w, format, args...)` |
 | `fmt.Sscanf()` | `Sscanf(src, format, args...)` |
@@ -13,15 +13,15 @@ Replace `fmt` package functions for formatting:
 
 ```go
 // Printf-style formatting
-result := Fmt("Hello %s, you have %d messages", "John", 5)
+result := Sprintf("Hello %s, you have %d messages", "John", 5)
 // out: "Hello John, you have 5 messages"
 
 // Multiple format specifiers
-result := Fmt("Number: %d, Float: %.2f, Bool: %v", 42, 3.14159, true)
+result := Sprintf("Number: %d, Float: %.2f, Bool: %v", 42, 3.14159, true)
 // out: "Number: 42, Float: 3.14, Bool: true"
 
 // Advanced formatting (hex, binary, octal)
-result := Fmt("Hex: %x, Binary: %b, Octal: %o", 255, 10, 8)
+result := Sprintf("Hex: %x, Binary: %b, Octal: %o", 255, 10, 8)
 // out: "Hex: ff, Binary: 1010, Octal: 10"
 
 // Write formatted output to io.Writer
@@ -46,7 +46,7 @@ n, err := Sscanf("!3F U+003F question", "!%x U+%x %s", &code, &unicode, &word)
 
 // Localized string formatting
 // Uses the current global language or default (EN)
-Fmt("Error: %L", D.Invalid)
+Sprintf("Error: %L", D.Invalid)
 // out (EN): "Error: invalid"
 // out (ES): "Error: inválido"
 ```

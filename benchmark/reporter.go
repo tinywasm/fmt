@@ -82,7 +82,7 @@ func (r *ReportGenerator) generateBinarySizeSection(binaries []BinaryInfo) (stri
 			sizeDiff := standardNative.Size - tinystringNative.Size
 			performanceIndicator := getPerformanceIndicator(improvementPercent)
 
-			content.Write(Fmt("| %s **%s Native** | `%s` | %s | %s | **-%s** | %s **%.1f%%** |\n",
+			content.Write(Sprintf("| %s **%s Native** | `%s` | %s | %s | **-%s** | %s **%.1f%%** |\n",
 				buildIcon, capitalizeFirst(opt.Name), parameters,
 				standardNative.SizeStr, tinystringNative.SizeStr,
 				FormatSize(sizeDiff), performanceIndicator, improvementPercent))
@@ -99,7 +99,7 @@ func (r *ReportGenerator) generateBinarySizeSection(binaries []BinaryInfo) (stri
 			sizeDiff := standardWasm.Size - tinystringWasm.Size
 			performanceIndicator := getPerformanceIndicator(improvementPercent)
 
-			content.Write(Fmt("| 🌐 **%s WASM** | `%s` | %s | %s | **-%s** | %s **%.1f%%** |\n",
+			content.Write(Sprintf("| 🌐 **%s WASM** | `%s` | %s | %s | **-%s** | %s **%.1f%%** |\n",
 				capitalizeFirst(opt.Name), wasmParameters,
 				standardWasm.SizeStr, tinystringWasm.SizeStr,
 				FormatSize(sizeDiff), performanceIndicator, improvementPercent))
@@ -153,14 +153,14 @@ func (r *ReportGenerator) generateBinarySizeSection(binaries []BinaryInfo) (stri
 	}
 	// Performance summary
 	content.Write("\n### 🎯 Performance Summary\n\n")
-	content.Write(Fmt("- 🏆 **Peak Reduction: %.1f%%** (Best optimization)\n", maxImprovement))
+	content.Write(Sprintf("- 🏆 **Peak Reduction: %.1f%%** (Best optimization)\n", maxImprovement))
 	if wasmCount > 0 {
-		content.Write(Fmt("- ✅ **Average WebAssembly Reduction: %.1f%%**\n", avgWasmImprovement))
+		content.Write(Sprintf("- ✅ **Average WebAssembly Reduction: %.1f%%**\n", avgWasmImprovement))
 	}
 	if nativeCount > 0 {
-		content.Write(Fmt("- ✅ **Average Native Reduction: %.1f%%**\n", avgNativeImprovement))
+		content.Write(Sprintf("- ✅ **Average Native Reduction: %.1f%%**\n", avgNativeImprovement))
 	}
-	content.Write(Fmt("- 📦 **Total Size Savings: %s across all builds**\n\n", FormatSize(totalSavings)))
+	content.Write(Sprintf("- 📦 **Total Size Savings: %s across all builds**\n\n", FormatSize(totalSavings)))
 
 	content.Write("#### Performance Legend\n")
 	content.Write("- ❌ Poor (<5% reduction)\n")
@@ -218,10 +218,10 @@ func (r *ReportGenerator) generateMemorySection(comparisons []MemoryComparison) 
 			opCountTiny := Convert(comparison.fmt.Iterations).Thousands().String()
 
 			// Memory/op string with operation count
-			memStd := Fmt("%s / %s OP", FormatSize(comparison.Standard.BytesPerOp), opCountStd)
-			memTiny := Fmt("%s / %s OP", FormatSize(comparison.fmt.BytesPerOp), opCountTiny)
+			memStd := Sprintf("%s / %s OP", FormatSize(comparison.Standard.BytesPerOp), opCountStd)
+			memTiny := Sprintf("%s / %s OP", FormatSize(comparison.fmt.BytesPerOp), opCountTiny)
 
-			content.Write(Fmt("| %s **%s** | 📊 Standard | `%s` | `%d` | `%s` | - | - | - |\n",
+			content.Write(Sprintf("| %s **%s** | 📊 Standard | `%s` | `%d` | `%s` | - | - | - |\n",
 				categoryIcon,
 				comparison.Category,
 				memStd,
@@ -229,7 +229,7 @@ func (r *ReportGenerator) generateMemorySection(comparisons []MemoryComparison) 
 				formatNanoTime(comparison.Standard.NsPerOp)))
 
 			// fmt row with improvements and visual indicators
-			content.Write(Fmt("| | 🚀 fmt | `%s` | `%d` | `%s` | %s **%s** | %s **%s** | %s |\n",
+			content.Write(Sprintf("| | 🚀 fmt | `%s` | `%d` | `%s` | %s **%s** | %s **%s** | %s |\n",
 				memTiny,
 				comparison.fmt.AllocsPerOp,
 				formatNanoTime(comparison.fmt.NsPerOp),
@@ -252,9 +252,9 @@ func (r *ReportGenerator) generateMemorySection(comparisons []MemoryComparison) 
 	memoryClass := getMemoryEfficiencyClass(avgMemoryDiff)
 	allocClass := getAllocEfficiencyClass(avgAllocDiff)
 
-	content.Write(Fmt("- 💾 **Memory Efficiency**: %s (%.1f%% average change)\n", memoryClass, avgMemoryDiff))
-	content.Write(Fmt("- 🔢 **Allocation Efficiency**: %s (%.1f%% average change)\n", allocClass, avgAllocDiff))
-	content.Write(Fmt("- 📊 **Benchmarks Analyzed**: %d categories\n", benchmarkCount))
+	content.Write(Sprintf("- 💾 **Memory Efficiency**: %s (%.1f%% average change)\n", memoryClass, avgMemoryDiff))
+	content.Write(Sprintf("- 🔢 **Allocation Efficiency**: %s (%.1f%% average change)\n", allocClass, avgAllocDiff))
+	content.Write(Sprintf("- 📊 **Benchmarks Analyzed**: %d categories\n", benchmarkCount))
 	content.Write("- 🎯 **Optimization Focus**: Binary size reduction vs runtime efficiency\n\n")
 
 	// Enhanced trade-offs analysis with better formatting
@@ -295,7 +295,7 @@ func (r *ReportGenerator) updateREADMESection(sectionTitle, newContent string) e
 	// Read current README
 	existingContent, err := os.ReadFile(r.ReadmePath)
 	if err != nil {
-		LogError(Fmt("Failed to read README: %v", err))
+		LogError(Sprintf("Failed to read README: %v", err))
 		return err
 	}
 
@@ -326,18 +326,18 @@ func (r *ReportGenerator) updateREADMESection(sectionTitle, newContent string) e
 	// Write updated content
 	err = os.WriteFile(r.TempPath, []byte(content), 0644)
 	if err != nil {
-		LogError(Fmt("Failed to write temporary README: %v", err))
+		LogError(Sprintf("Failed to write temporary README: %v", err))
 		return err
 	}
 
 	// Replace original with temporary
 	err = os.Rename(r.TempPath, r.ReadmePath)
 	if err != nil {
-		LogError(Fmt("Failed to replace README: %v", err))
+		LogError(Sprintf("Failed to replace README: %v", err))
 		return err
 	}
 
-	LogSuccess(Fmt("Updated README section: %s", sectionTitle))
+	LogSuccess(Sprintf("Updated README section: %s", sectionTitle))
 	return nil
 }
 
@@ -537,9 +537,9 @@ func calculateMemoryImprovement(standardValue, tinystringValue int64) string {
 
 	percent := float64(standardValue-tinystringValue) / float64(standardValue) * 100
 	if percent > 0 {
-		return Fmt("%.1f%% less", percent)
+		return Sprintf("%.1f%% less", percent)
 	} else if percent < 0 {
-		return Fmt("%.1f%% more", -percent)
+		return Sprintf("%.1f%% more", -percent)
 	}
 	return "Same"
 }
@@ -547,10 +547,10 @@ func calculateMemoryImprovement(standardValue, tinystringValue int64) string {
 // formatNanoTime formats nanoseconds to readable time units
 func formatNanoTime(ns int64) string {
 	if ns < 1000 {
-		return Fmt("%dns", ns)
+		return Sprintf("%dns", ns)
 	} else if ns < 1000000 {
-		return Fmt("%.1fμs", float64(ns)/1000)
+		return Sprintf("%.1fμs", float64(ns)/1000)
 	} else {
-		return Fmt("%.1fms", float64(ns)/1000000)
+		return Sprintf("%.1fms", float64(ns)/1000000)
 	}
 }

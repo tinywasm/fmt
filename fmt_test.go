@@ -248,7 +248,7 @@ func TestFormat(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			out := Fmt(test.format, test.args...)
+			out := Sprintf(test.format, test.args...)
 			if out != test.expected {
 				t.Errorf("Expected %q, got %q", test.expected, out)
 			}
@@ -406,7 +406,7 @@ func TestReporterFormatting(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			out := Fmt(test.format, test.args...)
+			out := Sprintf(test.format, test.args...)
 			if out != test.expected {
 				t.Errorf("\nExpected:\n%q\ngot:\n%q", test.expected, out)
 			}
@@ -416,7 +416,7 @@ func TestReporterFormatting(t *testing.T) {
 	// Casos adicionales para formatos de logging y tamaño de bytes usados en common.go
 	t.Run("LogStep format", func(t *testing.T) {
 		msg := "Processing file"
-		out := Fmt("📋 %s\n", msg)
+		out := Sprintf("📋 %s\n", msg)
 		expected := "📋 Processing file\n"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
@@ -424,7 +424,7 @@ func TestReporterFormatting(t *testing.T) {
 	})
 	t.Run("LogSuccess format", func(t *testing.T) {
 		msg := "Completed successfully"
-		out := Fmt("✅ %s\n", msg)
+		out := Sprintf("✅ %s\n", msg)
 		expected := "✅ Completed successfully\n"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
@@ -432,7 +432,7 @@ func TestReporterFormatting(t *testing.T) {
 	})
 	t.Run("LogError format", func(t *testing.T) {
 		msg := "Something went wrong"
-		out := Fmt("❌ %s\n", msg)
+		out := Sprintf("❌ %s\n", msg)
 		expected := "❌ Something went wrong\n"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
@@ -440,21 +440,21 @@ func TestReporterFormatting(t *testing.T) {
 	})
 	t.Run("LogInfo format", func(t *testing.T) {
 		msg := "This is info"
-		out := Fmt("ℹ️  %s\n", msg)
+		out := Sprintf("ℹ️  %s\n", msg)
 		expected := "ℹ️  This is info\n"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
 		}
 	})
 	t.Run("FormatSize bytes", func(t *testing.T) {
-		out := Fmt("%d B", 512)
+		out := Sprintf("%d B", 512)
 		expected := "512 B"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
 		}
 	})
 	t.Run("FormatSize kilobytes", func(t *testing.T) {
-		out := Fmt("%.1f %cB", 1.5, 'K')
+		out := Sprintf("%.1f %cB", 1.5, 'K')
 		expected := "1.5 KB"
 		if out != expected {
 			t.Errorf("Expected %q, got %q", expected, out)
@@ -475,25 +475,25 @@ func TestFormatLocStr(t *testing.T) {
 
 	// Test default language (EN)
 	OutLang(EN)
-	if got := Fmt("%L", testLoc); got != "Hello" {
-		t.Errorf("Fmt(%%L) EN = %q, want %q", got, "Hello")
+	if got := Sprintf("%L", testLoc); got != "Hello" {
+		t.Errorf("Sprintf(%%L) EN = %q, want %q", got, "Hello")
 	}
 
 	// Test Spanish
 	OutLang(ES)
-	if got := Fmt("%L", testLoc); got != "Hola" {
-		t.Errorf("Fmt(%%L) ES = %q, want %q", got, "Hola")
+	if got := Sprintf("%L", testLoc); got != "Hola" {
+		t.Errorf("Sprintf(%%L) ES = %q, want %q", got, "Hola")
 	}
 
 	// Test pointer to LocStr
 	OutLang(EN)
-	if got := Fmt("%L", &testLoc); got != "Hello" {
-		t.Errorf("Fmt(%%L) *LocStr = %q, want %q", got, "Hello")
+	if got := Sprintf("%L", &testLoc); got != "Hello" {
+		t.Errorf("Sprintf(%%L) *LocStr = %q, want %q", got, "Hello")
 	}
 
 	// Test mixed
 	OutLang(EN)
-	if got := Fmt("Say %L world", testLoc); got != "Say Hello world" {
+	if got := Sprintf("Say %L world", testLoc); got != "Say Hello world" {
 		t.Errorf("Fmt mixed = %q, want %q", got, "Say Hello world")
 	}
 }
