@@ -161,7 +161,7 @@ func (c *Conv) AnyToBuff(dest BuffDest, value any) {
 
 	// Special cases
 	case error:
-		c.wrErr(v.Error())
+		c.WrString(dest, v.Error())
 
 	default:
 		// FIRST: Check if type implements String() method (fmt.Stringer interface)
