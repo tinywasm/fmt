@@ -1,7 +1,6 @@
 package fmt
 
 import (
-	"reflect"
 	"unsafe"
 )
 
@@ -164,38 +163,7 @@ func (c *Conv) AnyToBuff(dest BuffDest, value any) {
 		c.WrString(dest, v.Error())
 
 	default:
-		// FIRST: Check if type implements String() method (fmt.Stringer interface)
-		// This takes priority over reflection to honor custom formatting
-		if stringer, ok := value.(interface{ String() string }); ok {
-			c.kind = K.String
-			c.WrString(dest, stringer.String())
-			return
-		}
-
-		// SECOND: Try to extract underlying value for custom types (e.g., type customInt int)
-		// This allows %d to work with custom numeric types that don't have String()
-		rv := reflect.ValueOf(value)
-		switch rv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			// Custom type based on int - extract underlying value and recurse
-			c.AnyToBuff(dest, rv.Int())
-			return
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			// Custom type based on uint - extract underlying value and recurse
-			c.AnyToBuff(dest, rv.Uint())
-			return
-		case reflect.Float32, reflect.Float64:
-			// Custom type based on float - extract underlying value and recurse
-			c.AnyToBuff(dest, rv.Float())
-			return
-		case reflect.String:
-			// Custom type based on string - extract underlying value and recurse
-			c.AnyToBuff(dest, rv.String())
-			return
-		}
-
-		// Unknown/unsupported type - write error using DICTIONARY (REUSE existing wrErr)
-		c.wrErr(D.Type, D.Not, D.Supported)
+		c.anyToBuffFallback(dest, value)
 	}
 }
 

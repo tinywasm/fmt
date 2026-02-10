@@ -1,11 +1,8 @@
 package fmt
 
-import "sync"
-
 // Private global configuration with mutex protection
 var (
-	defLang   lang = EN
-	defLangMu sync.RWMutex
+	defLang lang = EN
 )
 
 // Language enumeration for supported languages
@@ -105,11 +102,8 @@ func OutLang(l ...any) string {
 	c := GetConv()
 	if len(l) == 0 {
 		systemLang := c.getSystemLang() // Get system lang without holding lock
-		defLangMu.Lock()
-		defLang = systemLang
-		result := defLang.String()
-		defLangMu.Unlock()
-		return result
+		setDefaultLang(systemLang)
+		return systemLang.String()
 	}
 
 	var newLang lang
@@ -120,24 +114,11 @@ func OutLang(l ...any) string {
 		newLang = c.langParser(v)
 	default:
 		// Return current language without changes
-		defLangMu.RLock()
-		result := defLang.String()
-		defLangMu.RUnlock()
-		return result
+		return getCurrentLang().String()
 	}
 
-	defLangMu.Lock()
-	defLang = newLang
-	result := defLang.String()
-	defLangMu.Unlock()
-	return result
-}
-
-// getCurrentLang returns the current default language safely
-func getCurrentLang() lang {
-	defLangMu.RLock()
-	defer defLangMu.RUnlock()
-	return defLang
+	setDefaultLang(newLang)
+	return newLang.String()
 }
 
 // langParser processes a list of language strings (e.g., from env vars or browser settings)

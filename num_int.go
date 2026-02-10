@@ -1,7 +1,5 @@
 package fmt
 
-import "reflect"
-
 func (c *Conv) parseIntString(s string, base int, signed bool) int64 {
 	// Handle decimal point for float-like input (e.g., "3.14")
 	for i := 0; i < len(s); i++ {
@@ -142,19 +140,6 @@ func (c *Conv) toInt64(arg any) (int64, bool) {
 	default:
 		// Try reflection for custom types (e.g., type customInt int)
 		return c.toInt64Reflect(arg)
-	}
-}
-
-// toInt64Reflect uses reflection to extract int64 from custom types
-func (c *Conv) toInt64Reflect(arg any) (int64, bool) {
-	rv := reflect.ValueOf(arg)
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return rv.Int(), true
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int64(rv.Uint()), true
-	default:
-		return 0, false
 	}
 }
 
