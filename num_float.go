@@ -1,7 +1,5 @@
 package fmt
 
-import "reflect"
-
 // =============================================================================
 // FLOAT OPERATIONS - All float parsing, conversion and formatting
 // =============================================================================
@@ -26,17 +24,6 @@ func (c *Conv) toFloat64(arg any) (float64, bool) {
 	default:
 		// Try reflection for custom types (e.g., type customFloat float64)
 		return c.toFloat64Reflect(arg)
-	}
-}
-
-// toFloat64Reflect uses reflection to extract float64 from custom types
-func (c *Conv) toFloat64Reflect(arg any) (float64, bool) {
-	rv := reflect.ValueOf(arg)
-	switch rv.Kind() {
-	case reflect.Float32, reflect.Float64:
-		return rv.Float(), true
-	default:
-		return 0, false
 	}
 }
 
