@@ -25,7 +25,7 @@
               text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">Go</text>
         <!-- Value text -->
         <text x="50" y="14" 
-              text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">1.24.3</text>
+              text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">1.25.2</text>
     </g>
     <!-- Badge: Tests -->
     <g transform="translate(175, 0)">
@@ -45,13 +45,13 @@
         <!-- Label background -->
         <rect x="0" y="0" width="64" height="20" fill="#6c757d"/>
         <!-- Value background -->
-        <rect x="64" y="0" width="31" height="20" fill="#4c1"/>
+        <rect x="64" y="0" width="31" height="20" fill="#dfb317"/>
         <!-- Label text -->
         <text x="32" y="14" 
               text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">Coverage</text>
         <!-- Value text -->
         <text x="79" y="14" 
-              text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">83%</text>
+              text-anchor="middle" font-family="sans-serif" font-size="11" fill="white">68%</text>
     </g>
     <!-- Badge: Race -->
     <g transform="translate(383, 0)">

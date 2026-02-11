@@ -9,7 +9,7 @@ Automated benchmark tools to measure and compare performance between standard Go
 [Standard Library Example](bench-binary-size/standard-lib/main.go) | [fmt Example](bench-binary-size/tinystring-lib/main.go)
 
 <!-- This table is automatically generated from build-and-measure.sh -->
-*Last updated: 2026-01-28 21:36:54*
+*Last updated: 2026-02-11 07:51:43*
 
 | Build Type | Parameters | Standard Library<br/>`go build` | fmt<br/>`tinygo build` | Size Reduction | Performance |
 |------------|------------|------------------|------------|----------------|-------------|
@@ -38,18 +38,18 @@ Automated benchmark tools to measure and compare performance between standard Go
 [Standard Library Example](bench-memory-alloc/standard) | [fmt Example](bench-memory-alloc/tinystring)
 
 <!-- This table is automatically generated from memory-benchmark.sh -->
-*Last updated: 2026-01-28 21:37:09*
+*Last updated: 2026-02-11 07:51:58*
 
 Performance benchmarks comparing memory allocation patterns between standard Go library and fmt:
 
 | 🧪 **Benchmark Category** | 📚 **Library** | 💾 **Memory/Op** | 🔢 **Allocs/Op** | ⏱️ **Time/Op** | 📈 **Memory Trend** | 🎯 **Alloc Trend** | 🏆 **Performance** |
 |----------------------------|----------------|-------------------|-------------------|-----------------|---------------------|---------------------|--------------------|
-| 📝 **String Processing** | 📊 Standard | `808 B / 610.429 OP` | `32` | `2.0μs` | - | - | - |
-| | 🚀 fmt | `464 B / 220.765 OP` | `17` | `5.1μs` | 🏆 **42.6% less** | 🏆 **46.9% less** | 🏆 **Excellent** |
-| 🔢 **Number Processing** | 📊 Standard | `720 B / 565.456 OP` | `34` | `2.2μs` | - | - | - |
-| | 🚀 fmt | `320 B / 586.887 OP` | `17` | `2.0μs` | 🏆 **55.6% less** | 🏆 **50.0% less** | 🏆 **Excellent** |
-| 🔄 **Mixed Operations** | 📊 Standard | `368 B / 841.970 OP` | `20` | `1.6μs` | - | - | - |
-| | 🚀 fmt | `192 B / 495.009 OP` | `12` | `2.4μs` | 🏆 **47.8% less** | 🏆 **40.0% less** | 🏆 **Excellent** |
+| 📝 **String Processing** | 📊 Standard | `808 B / 523.990 OP` | `32` | `2.1μs` | - | - | - |
+| | 🚀 fmt | `464 B / 227.250 OP` | `17` | `5.5μs` | 🏆 **42.6% less** | 🏆 **46.9% less** | 🏆 **Excellent** |
+| 🔢 **Number Processing** | 📊 Standard | `720 B / 527.766 OP` | `34` | `2.3μs` | - | - | - |
+| | 🚀 fmt | `320 B / 523.962 OP` | `17` | `2.2μs` | 🏆 **55.6% less** | 🏆 **50.0% less** | 🏆 **Excellent** |
+| 🔄 **Mixed Operations** | 📊 Standard | `368 B / 772.447 OP` | `20` | `1.5μs` | - | - | - |
+| | 🚀 fmt | `192 B / 469.515 OP` | `12` | `2.6μs` | 🏆 **47.8% less** | 🏆 **40.0% less** | 🏆 **Excellent** |
 
 ### 🎯 Performance Summary
 
