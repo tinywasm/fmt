@@ -145,13 +145,37 @@ func TestSSERelatedTypes(t *testing.T) {
 			}
 		}
 	})
+}
 
-	t.Run("IsDebug", func(t *testing.T) {
-		if !Msg.Debug.IsDebug() {
-			t.Error("Expected Msg.Debug.IsDebug() to be true")
-		}
-		if Msg.Info.IsDebug() {
-			t.Error("Expected Msg.Info.IsDebug() to be false")
-		}
-	})
+func TestPubSubTypes(t *testing.T) {
+	tests := []struct {
+		name     string
+		msgType  MessageType
+		check    func(MessageType) bool
+		expected string
+	}{
+		{"Event", Msg.Event, func(t MessageType) bool { return t.IsEvent() }, "Event"},
+		{"Request", Msg.Request, func(t MessageType) bool { return t.IsRequest() }, "Request"},
+		{"Response", Msg.Response, func(t MessageType) bool { return t.IsResponse() }, "Response"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.check(tt.msgType) {
+				t.Errorf("Expected check for %s to be true", tt.name)
+			}
+			if tt.msgType.String() != tt.expected {
+				t.Errorf("Expected String() for %s to be %q, got %q", tt.name, tt.expected, tt.msgType.String())
+			}
+		})
+	}
+}
+
+func TestIsDebug(t *testing.T) {
+	if !Msg.Debug.IsDebug() {
+		t.Error("Expected Msg.Debug.IsDebug() to be true")
+	}
+	if Msg.Info.IsDebug() {
+		t.Error("Expected Msg.Info.IsDebug() to be false")
+	}
 }

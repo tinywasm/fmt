@@ -19,15 +19,23 @@ var Msg = struct {
 	Timeout   MessageType // Timeout error
 	Broadcast MessageType // Broadcast/send error
 	Debug     MessageType // / Debug message
-}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+	// Pub/Sub & Request/Response (new)
+	Event    MessageType
+	Request  MessageType
+	Response MessageType
+}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
 // Helper methods for MessageType
-func (t MessageType) IsNormal() bool  { return t == Msg.Normal }
-func (t MessageType) IsInfo() bool    { return t == Msg.Info }
-func (t MessageType) IsError() bool   { return t == Msg.Error }
-func (t MessageType) IsWarning() bool { return t == Msg.Warning }
-func (t MessageType) IsSuccess() bool { return t == Msg.Success }
-func (t MessageType) IsDebug() bool   { return t == Msg.Debug }
+func (t MessageType) IsNormal() bool   { return t == Msg.Normal }
+func (t MessageType) IsInfo() bool     { return t == Msg.Info }
+func (t MessageType) IsError() bool    { return t == Msg.Error }
+func (t MessageType) IsWarning() bool  { return t == Msg.Warning }
+func (t MessageType) IsSuccess() bool  { return t == Msg.Success }
+func (t MessageType) IsDebug() bool    { return t == Msg.Debug }
+func (t MessageType) IsEvent() bool    { return t == Msg.Event }
+func (t MessageType) IsRequest() bool  { return t == Msg.Request }
+func (t MessageType) IsResponse() bool { return t == Msg.Response }
 
 // Network/SSE helper methods
 func (t MessageType) IsConnect() bool   { return t == Msg.Connect }
@@ -63,6 +71,12 @@ func (t MessageType) String() string {
 		return "Broadcast"
 	case Msg.Debug:
 		return "Debug"
+	case Msg.Event:
+		return "Event"
+	case Msg.Request:
+		return "Request"
+	case Msg.Response:
+		return "Response"
 	default:
 		return "Normal"
 	}

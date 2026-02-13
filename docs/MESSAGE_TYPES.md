@@ -33,6 +33,11 @@ if msgType.IsError() {
 // Msg.Success   - Success and completion messages
 // Msg.Debug     - Debugging messages
 //
+// Pub/Sub & Request/Response:
+// Msg.Event     - Asynchronous events
+// Msg.Request   - Synchronous requests
+// Msg.Response  - Request responses
+//
 // Network/SSE specific:
 // Msg.Connect   - Connection error
 // Msg.Auth      - Authentication error
