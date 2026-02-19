@@ -10,5 +10,5 @@ func (c *Conv) anyToBuffFallback(dest BuffDest, value any) {
 		c.WrString(dest, stringer.String())
 		return
 	}
-	c.wrErr(D.Type, D.Not, D.Supported)
+	c.wrErr("type", "not", "supported")
 }

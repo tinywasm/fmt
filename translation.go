@@ -93,11 +93,12 @@ func detectLanguage(c *Conv, args []any, allowStringCode bool) (lang, int) {
 		return langVal, 1 // Skip the language argument in processing
 	}
 
-	// If first argument is a string of length 2, treat as language code
+	// If first argument is a string of length 2, treat as language code only if recognized
 	if allowStringCode {
 		if strVal, ok := args[0].(string); ok && len(strVal) == 2 {
-
-			return c.mapLangCode(strVal), 1 // Skip the language argument in processing
+			if l, ok := c.mapLangCode(strVal); ok {
+				return l, 1
+			}
 		}
 	}
 
@@ -113,10 +114,12 @@ func (c *Conv) processTranslatedArgs(dest BuffDest, args []any, currentLang lang
 	for i := startIndex; i < len(args); i++ {
 		arg := args[i]
 		switch v := arg.(type) {
-		case LocStr:
-			c.wrTranslation(v, currentLang, dest)
 		case string:
-			c.WrString(dest, v)
+			if translated, ok := lookupWord(v, currentLang); ok {
+				c.WrString(dest, translated)
+			} else {
+				c.WrString(dest, v) // pass-through
+			}
 		default:
 			c.AnyToBuff(BuffWork, v)
 			if c.hasContent(BuffWork) {
@@ -164,21 +167,4 @@ func shouldAddSpace(args []any, currentIndex int) bool {
 
 	// Para otros tipos (LocStr, etc.) sí agregar espacio
 	return true
-}
-
-// wrTranslation extracts translation for specific language from LocStr and writes to destination buffer
-// REUSES: existing LocStr array indexing logic
-// METHOD: Now a Conv method that writes directly to buffer without returning anything
-func (c *Conv) wrTranslation(locStr LocStr, currentLang lang, dest BuffDest) {
-	// Get translation for current language with fallback
-	var translation string
-	if int(currentLang) < len(locStr) && locStr[currentLang] != "" {
-		translation = locStr[currentLang]
-	} else {
-		// Fallback to English if translation not available
-		translation = locStr[EN]
-	}
-
-	// Write directly to destination buffer
-	c.WrString(dest, translation)
 }

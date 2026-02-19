@@ -48,9 +48,10 @@ n, err := Sscanf("!3F U+003F question", "!%x U+%x %s", &code, &unicode, &word)
 
 // Localized string formatting
 // Uses the current global language or default (EN)
-Sprintf("Error: %L", D.Invalid)
+// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
+Sprintf("Error: %L", "invalid")
 // out (EN): "Error: invalid"
 // out (ES): "Error: inválido"
 ```
 
-For more details on translation and `LocStr` usage, see [TRANSLATE.md](TRANSLATE.md).
+For more details on translation see [TRANSLATE.md](TRANSLATE.md).

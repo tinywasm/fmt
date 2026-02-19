@@ -27,13 +27,13 @@ func Convert(v ...any) *Conv {
 	c.resetAllBuffers() // Asegurar que el objeto Conv esté completamente limpio
 	// Validation: Only accept 0 or 1 parameter
 	if len(v) > 1 {
-		return c.wrErr(D.Invalid, D.Number, D.Of, D.Argument)
+		return c.wrErr("invalid", "number", "of", "argument")
 	}
 	// Initialize with value if provided, empty otherwise
 	if len(v) == 1 {
 		val := v[0]
 		if val == nil {
-			return c.wrErr(D.String, D.Empty)
+			return c.wrErr("string", "empty")
 		}
 
 		// Special case: error type should return immediately with error state
@@ -115,7 +115,7 @@ func (c *Conv) AnyToBuff(dest BuffDest, value any) {
 	case *string:
 		// String pointer - verify not nil before dereferencing
 		if v == nil {
-			c.wrErr(D.String, D.Empty)
+			c.wrErr("string", "empty")
 			return
 		}
 		// Store content relationship

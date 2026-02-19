@@ -35,7 +35,7 @@ func (c *Conv) Float32() (float32, error) {
 		return 0, c
 	}
 	if val > 3.4028235e+38 {
-		return 0, c.wrErr(D.Number, D.Overflow)
+		return 0, c.wrErr("number", "overflow")
 	}
 	return float32(val), nil
 }
@@ -47,7 +47,7 @@ func (c *Conv) parseFloatBase() float64 {
 
 	s := c.GetString(BuffOut)
 	if len(s) == 0 {
-		c.wrErr(D.String, D.Empty)
+		c.wrErr("string", "empty")
 		return 0
 	}
 
@@ -63,13 +63,13 @@ func (c *Conv) parseFloatBase() float64 {
 		negative = true
 		i = 1
 		if len(s) == 1 {
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 	case '+':
 		i = 1
 		if len(s) == 1 {
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 	}
@@ -77,7 +77,7 @@ func (c *Conv) parseFloatBase() float64 {
 	// Parse integer part
 	for ; i < len(s) && s[i] != '.'; i++ {
 		if s[i] < '0' || s[i] > '9' {
-			c.wrErr(D.Character, D.Invalid)
+			c.wrErr("character", "invalid")
 			return 0
 		}
 		result = result*10 + float64(s[i]-'0')
@@ -89,7 +89,7 @@ func (c *Conv) parseFloatBase() float64 {
 		i++ // Skip decimal point
 		for ; i < len(s); i++ {
 			if s[i] < '0' || s[i] > '9' {
-				c.wrErr(D.Character, D.Invalid)
+				c.wrErr("character", "invalid")
 				return 0
 			}
 			decimalPlaces++

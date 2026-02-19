@@ -67,7 +67,7 @@ func (c *Conv) ExtractValue(delimiters ...string) (string, error) {
 	}
 	_, after, found := c.splitByDelimiterWithBuffer(src, d)
 	if !found {
-		return "", c.wrErr(D.Format, D.Invalid, D.Delimiter, D.Not, D.Found)
+		return "", c.wrErr("format", "invalid", "delimiter", "not", "found")
 	}
 	return after, nil
 }

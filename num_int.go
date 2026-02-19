@@ -27,26 +27,26 @@ func (c *Conv) parseIntString(s string, base int, signed bool) int64 {
 		}
 	}
 	if base < 2 || base > 36 {
-		c.wrErr("Base", D.Invalid)
+		c.wrErr("Base", "invalid")
 		return 0
 	}
 	var neg bool
 	i := 0
 	if len(s) > 0 && s[0] == '-' {
 		if !signed {
-			c.wrErr(D.Number, D.Negative, D.Not, D.Allowed)
+			c.wrErr("number", "negative", "not", "allowed")
 			return 0
 		}
 		neg = true
 		i = 1
 		if len(s) == 1 {
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 	} else if len(s) > 0 && s[0] == '+' {
 		i = 1
 		if len(s) == 1 {
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 	}
@@ -62,11 +62,11 @@ func (c *Conv) parseIntString(s string, base int, signed bool) int64 {
 		case 'A' <= ch && ch <= 'Z':
 			v = ch - 'A' + 10
 		default:
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 		if int(v) >= base {
-			c.wrErr(D.Format, D.Invalid)
+			c.wrErr("format", "invalid")
 			return 0
 		}
 		n = n*int64(base) + int64(v)
@@ -83,7 +83,7 @@ func (c *Conv) parseIntString(s string, base int, signed bool) int64 {
 func (c *Conv) Int(base ...int) (int, error) {
 	val := c.parseIntBase(base...)
 	if val < -2147483648 || val > 2147483647 {
-		return 0, c.wrErr(D.Number, D.Overflow)
+		return 0, c.wrErr("number", "overflow")
 	}
 	if c.hasContent(BuffErr) {
 		return 0, c
@@ -96,7 +96,7 @@ func (c *Conv) Int(base ...int) (int, error) {
 func (c *Conv) Int32(base ...int) (int32, error) {
 	val := c.parseIntBase(base...)
 	if val < -2147483648 || val > 2147483647 {
-		return 0, c.wrErr(D.Number, D.Overflow)
+		return 0, c.wrErr("number", "overflow")
 	}
 	if c.hasContent(BuffErr) {
 		return 0, c
@@ -146,7 +146,7 @@ func (c *Conv) toInt64(arg any) (int64, bool) {
 // wrIntBase writes an integer in the given base to the buffer, with optional uppercase digits
 func (c *Conv) wrIntBase(dest BuffDest, val int64, base int, signed bool, upper ...bool) {
 	if base < 2 || base > 36 {
-		c.wrErr("Base", D.Invalid)
+		c.wrErr("Base", "invalid")
 		return
 	}
 	if val == 0 {

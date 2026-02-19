@@ -49,7 +49,7 @@ func (c *Conv) Bool() (bool, error) {
 
 	// Keep inp for error reporting (this is the final usage)
 	inp = c.GetString(BuffOut) // Only allocation for error case
-	c.wrErr("Bool", D.Value, D.Invalid, inp)
+	c.wrErr("Bool", "value", "invalid", inp)
 	return false, c
 }
 

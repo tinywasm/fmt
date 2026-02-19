@@ -139,29 +139,29 @@ func TestBuilderPattern(t *testing.T) {
 
 // TestTFunction tests the Translate translation function
 func TestTFunction(t *testing.T) {
-	// Test basic translation
-	out := Translate(D.Invalid, D.Value).String()
+	RegisterWords([]DictEntry{
+		{EN: "Blorp", ES: "Blorpes"},
+		{EN: "Quux", ES: "Quuxes"},
+	})
+	out := Translate("blorp", "quux").String()
 	if out == "" {
 		t.Error("Translate function returned empty string")
 	}
 
-	// Test with language
-	result2 := Translate(ES, D.Invalid, D.Value).String()
+	result2 := Translate(ES, "blorp", "quux").String()
 	if result2 == "" {
 		t.Error("Translate function with language returned empty string")
 	}
 
-	// They should be different (English vs Spanish)
 	if out == result2 {
-		t.Error("Translate function should return different translations for different languages")
+		t.Errorf("Translate function should return different translations: %q vs %q", out, result2)
 	}
 }
 
 // TestErrFunction tests the refactored Err function
-func TestErrFunction(t *testing.T) { // Test basic error creation
-	err := Err(D.Format, D.Invalid)
+func TestErrFunction(t *testing.T) {
+	err := Err("rawfmt", "rawval")
 	if len(err.err) == 0 {
 		t.Error("Err function should create error message")
 	}
-
 }

@@ -25,10 +25,11 @@ For multilingual error messages using dictionary terms that can be translated in
 
 ```go
 // Using dictionary terms for translatable errors
-err := Err(D.Format, D.Invalid)
-// → "invalid format" (in English) or translated based on global language setting
+// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
+err := Err("format", "invalid")
+// → "format invalid" (in English) or translated based on global language setting
 
 // Force specific language
-err := Err(ES, D.Format, D.Invalid)
+err := Err(ES, "format", "invalid")
 // → "formato inválido"
 ```

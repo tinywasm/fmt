@@ -55,37 +55,6 @@ const (
 	// UR             // Urdu
 )
 
-// LocStr represents a string with translations for multiple languages.
-//
-// It is a fixed-size array where each index corresponds to a language constant
-// (EN, ES, PT, etc.). This design ensures type safety and efficiency, as the
-// compiler can verify that all translations are provided.
-//
-// The order of translations must match the order of the language constants.
-//
-// Example of creating a new translatable term for "File":
-//
-//	var MyDictionary = struct {
-//		File LocStr
-//	}{
-//		File: LocStr{
-//			EN: "file",
-//			ES: "archivo",
-//			ZH: "文件",
-//			HI: "फ़ाइल",
-//			AR: "ملف",
-//			PT: "arquivo",
-//			FR: "fichier",
-//			DE: "Datei",
-//			RU: "файл",
-//		},
-//	}
-//
-// Usage in code:
-//
-//	err := Err(MyDictionary.File, D.Not, D.Found) // -> "file not found", "archivo no encontrado", etc.
-type LocStr [9]string
-
 // OutLang sets and returns the current output language as a string.
 //
 // OutLang()                // Auto-detects system/browser language, returns code (e.g. "EN")
@@ -141,7 +110,8 @@ func (c *Conv) langParser(langStrings ...string) lang {
 		}
 
 		// Inline mapLangCode logic
-		return c.mapLangCode(code)
+		l, _ := c.mapLangCode(code)
+		return l
 	}
 
 	// c.putConv()
@@ -149,37 +119,29 @@ func (c *Conv) langParser(langStrings ...string) lang {
 	return EN // Default fallback if no valid language string is found.
 }
 
-func (c *Conv) mapLangCode(strVal string) lang {
-
-	// Convert to lowercase and map to internal lang typec
-	c.ResetBuffer(BuffWork) // Clear work buffer before use
+func (c *Conv) mapLangCode(strVal string) (lang, bool) {
+	c.ResetBuffer(BuffWork)
 	c.WrString(BuffWork, strVal)
-	// use changeCase
 	c.changeCase(true, BuffWork)
-
-	code := c.GetString(BuffWork) // Get lowercase string
-
-	switch code {
-	// Group 1
+	switch c.GetString(BuffWork) {
 	case "en":
-		return EN
+		return EN, true
 	case "es":
-		return ES
+		return ES, true
 	case "zh":
-		return ZH
+		return ZH, true
 	case "hi":
-		return HI
+		return HI, true
 	case "ar":
-		return AR
-	// Group 2
+		return AR, true
 	case "pt":
-		return PT
+		return PT, true
 	case "fr":
-		return FR
+		return FR, true
 	case "de":
-		return DE
+		return DE, true
 	case "ru":
-		return RU
+		return RU, true
 	}
-	return EN // Default fallback
+	return EN, false
 }

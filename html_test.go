@@ -3,6 +3,14 @@ package fmt
 import "testing"
 
 func TestHtml(t *testing.T) {
+	// Register custom words for testing
+	RegisterWords([]DictEntry{
+		{EN: "Hello", ES: "Hola"},
+		{EN: "User", ES: "Usuario"},
+		{EN: "Hello User", ES: "Hola Usuario"},
+		{EN: "Format", ES: "Formato"},
+	})
+
 	tests := []struct {
 		name     string
 		args     []any
@@ -24,8 +32,8 @@ func TestHtml(t *testing.T) {
 			expected: "hrbr",
 		},
 		{
-			name:     "Concatenation with LocStr",
-			args:     []any{"<div>", LocStr{EN: "Hello", ES: "Hola"}, "</div>"},
+			name:     "Concatenation with translated word",
+			args:     []any{"<div>", "hello", "</div>"},
 			expected: "<div>Hello</div>",
 		},
 		{
@@ -40,7 +48,7 @@ func TestHtml(t *testing.T) {
 		},
 		{
 			name:     "Format string with %L",
-			args:     []any{"<span>%L</span>", LocStr{EN: "User", ES: "Usuario"}},
+			args:     []any{"<span>%L</span>", "user"},
 			expected: "<span>User</span>",
 		},
 		{
@@ -65,17 +73,17 @@ func TestHtml(t *testing.T) {
 		},
 		{
 			name:     "Language ES explicit",
-			args:     []any{ES, "<div>", LocStr{EN: "Hello", ES: "Hola"}, "</div>"},
+			args:     []any{ES, "<div>", "hello", "</div>"},
 			expected: "<div>Hola</div>",
 		},
 		{
 			name:     "Language EN explicit",
-			args:     []any{EN, "<div>", LocStr{EN: "Hello", ES: "Hola"}, "</div>"},
+			args:     []any{EN, "<div>", "hello", "</div>"},
 			expected: "<div>Hello</div>",
 		},
 		{
 			name:     "Language ES with format",
-			args:     []any{ES, "<span>%L</span>", LocStr{EN: "User", ES: "Usuario"}},
+			args:     []any{ES, "<span>%L</span>", "user"},
 			expected: "<span>Usuario</span>",
 		},
 		{
@@ -85,7 +93,7 @@ func TestHtml(t *testing.T) {
 	<h1>%L</h1>
 	<p>%v</p>
 </div>`,
-				LocStr{EN: "Hello User", ES: "Hola Usuario"},
+				"hello user",
 				42,
 			},
 			expected: `<div class='container'>
@@ -101,7 +109,7 @@ func TestHtml(t *testing.T) {
 	<h1>%L</h1>
 	<p>%v</p>
 </div>`,
-				LocStr{EN: "Hello User", ES: "Hola Usuario"},
+				"hello user",
 				42,
 			},
 			expected: `<div class='container'>
@@ -124,11 +132,11 @@ func TestHtml(t *testing.T) {
 	}
 
 	// Test with Spanish
-	t.Run("Spanish LocStr", func(t *testing.T) {
+	t.Run("Spanish Translate", func(t *testing.T) {
 		OutLang(ES)
 		defer OutLang(EN) // Restore
 
-		got := Html("<div>", LocStr{EN: "Hello", ES: "Hola"}, "</div>").String()
+		got := Html("<div>", "hello", "</div>").String()
 		want := "<div>Hola</div>"
 		if got != want {
 			t.Errorf("Html() ES = %q, want %q", got, want)
@@ -148,14 +156,14 @@ func BenchmarkHtml(b *testing.B) {
 			_ = Html(ES, "<div>", "content", "</div>").String()
 		}
 	})
-	b.Run("WithLocStr", func(b *testing.B) {
+	b.Run("WithTranslation", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = Html("<span>", D.Format, "</span>").String()
+			_ = Html("<span>", "format", "</span>").String()
 		}
 	})
-	b.Run("WithLangAndLocStr", func(b *testing.B) {
+	b.Run("WithLangAndTranslation", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<span>", D.Format, "</span>").String()
+			_ = Html(ES, "<span>", "format", "</span>").String()
 		}
 	})
 	b.Run("WithFormat", func(b *testing.B) {
@@ -165,17 +173,7 @@ func BenchmarkHtml(b *testing.B) {
 	})
 	b.Run("WithFormatAndLang", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<span>%L</span>", D.Format).String()
-		}
-	})
-	b.Run("WithLocStrPtr", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html("<span>", &D.Format, "</span>").String()
-		}
-	})
-	b.Run("WithLangAndLocStrPtr", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<span>", &D.Format, "</span>").String()
+			_ = Html(ES, "<span>%L</span>", "format").String()
 		}
 	})
 }

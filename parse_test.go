@@ -26,7 +26,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "invalid-string",
 			delimiter:   "",
 			wantValue:   "",
-			wantErrText: Translate(D.Format, D.Invalid, D.Delimiter, D.Not, D.Found).String(),
+			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
 		},
 		{
 			name:        "Custom delimiter",
@@ -47,7 +47,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "",
 			delimiter:   "",
 			wantValue:   "",
-			wantErrText: Translate(D.Format, D.Invalid, D.Delimiter, D.Not, D.Found).String(),
+			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
 		},
 		{
 			name:        "Only delimiter",
@@ -68,7 +68,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "key:value",
 			delimiter:   "=",
 			wantValue:   "",
-			wantErrText: Translate(D.Format, D.Invalid, D.Delimiter, D.Not, D.Found).String(),
+			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
 		},
 		{
 			name:        "Empty delimiter uses default",

@@ -8,8 +8,8 @@ var TestPrintlnCases = []struct {
 	args     []any
 	expected string
 }{
-	{"single string", []any{"hello"}, "hello"},
-	{"multiple strings", []any{"hello", "world"}, "hello world"},
+	{"single string", []any{"rawstr"}, "rawstr"},
+	{"multiple strings", []any{"rawstr", "rawword"}, "rawstr rawword"},
 	{"mixed types", []any{"count:", 42}, "count: 42"},
 	{"boolean", []any{true, false}, "true false"},
 	{"float", []any{"pi:", 3.14}, "pi: 3.14"},

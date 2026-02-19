@@ -23,19 +23,19 @@ Html("<div>", "content", "</div>").String()
 Html("<div class='%s'>", "my-class").String()
 // -> "<div class='my-class'>"
 
-// 3. Localization (using LocStr)
-// Uses global default language if not specified
-Html("<span>", D.User, "</span>").String()
+// 3. Localization (using dictionary keys)
+// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
+Html("<span>", "user", "</span>").String()
 // -> "<span>User</span>" (EN)
 // -> "<span>Usuario</span>" (ES)
 
 // 4. Explicit Language Selection
 // Pass language as first argument (lang constant)
-Html(ES, "<div>", D.Hello, "</div>").String()
+Html(ES, "<div>", "hello", "</div>").String()
 // -> "<div>Hola</div>"
 
-// 5. Zero-allocation with pointers (like Translate)
-c := Html("<span>", &D.Format, "</span>")
+// 5. Zero-allocation (pooled Conv)
+c := Html("<span>", "format", "</span>")
 defer c.PutConv() // Manual cleanup if not calling .String()
 html := c.String() // Auto-releases to pool
 
@@ -43,7 +43,7 @@ html := c.String() // Auto-releases to pool
 Html(`<div class='container'>
 	<h1>%L</h1>
 	<p>%v</p>
-</div>`, D.Hello, 42).String()
+</div>`, "hello", 42).String()
 // -> "<div class='container'>
 //     	<h1>Hello</h1>
 //     	<p>42</p>
@@ -53,7 +53,7 @@ Html(`<div class='container'>
 Html(ES, `<div class='container'>
 	<h1>%L</h1>
 	<p>%v</p>
-</div>`, D.Hello, 42).String()
+</div>`, "hello", 42).String()
 // -> "<div class='container'>
 //     	<h1>Hola</h1>
 //     	<p>42</p>

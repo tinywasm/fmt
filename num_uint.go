@@ -59,7 +59,7 @@ func (c *Conv) toUint64(arg any) (uint64, bool) {
 func (c *Conv) Uint(base ...int) (uint, error) {
 	val := c.parseIntBase(base...)
 	if val < 0 || val > 4294967295 {
-		return 0, c.wrErr(D.Number, D.Overflow)
+		return 0, c.wrErr("number", "overflow")
 	}
 	if c.hasContent(BuffErr) {
 		return 0, c
@@ -71,7 +71,7 @@ func (c *Conv) Uint(base ...int) (uint, error) {
 func (c *Conv) Uint32(base ...int) (uint32, error) {
 	val := c.parseIntBase(base...)
 	if val < 0 || val > 4294967295 {
-		return 0, c.wrErr(D.Number, D.Overflow)
+		return 0, c.wrErr("number", "overflow")
 	}
 	if c.hasContent(BuffErr) {
 		return 0, c

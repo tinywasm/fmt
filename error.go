@@ -47,12 +47,12 @@ func (c *Conv) wrErr(msgs ...any) *Conv {
 		// fmt.Printf("wrErr: Processing message part: %v\n", msg) // Depuración
 
 		switch v := msg.(type) {
-		case LocStr:
-			// Translate LocStr using default language
-			c.wrTranslation(v, getCurrentLang(), BuffErr)
 		case string:
-			// Direct string write
-			c.WrString(BuffErr, v)
+			if translated, ok := lookupWord(v, getCurrentLang()); ok {
+				c.WrString(BuffErr, translated)
+			} else {
+				c.WrString(BuffErr, v)
+			}
 		case int:
 			// Convert int to string and write - simple conversion for errors
 			if v == 0 {

@@ -118,11 +118,11 @@ func (c *Conv) wrFormat(dest BuffDest, currentLang lang, format string, args ...
 
 			// Validate format specifier using shared validation
 			if !c.isValidWriteFormatChar(formatChar) {
-				c.wrErr(D.Format, D.Provided, D.Not, D.Supported, byte(formatChar))
+				c.wrErr("format", "provided", "not", "supported", byte(formatChar))
 				return c
 			}
 			if argIndex >= len(args) {
-				c.wrErr(D.Argument, D.Missing, formatSpec)
+				c.wrErr("argument", "missing", formatSpec)
 				return c
 			}
 
@@ -283,7 +283,7 @@ func padString(n int, ch byte) string {
 
 // wrInvalidTypeErr writes an invalid type error for the given format spec
 func (c *Conv) wrInvalidTypeErr(formatSpec string) {
-	c.wrErr(D.Invalid, D.Type, D.Of, D.Argument, formatSpec)
+	c.wrErr("invalid", "type", "of", "argument", formatSpec)
 }
 
 // formatValue formats a single value according to format character
@@ -456,25 +456,15 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 			return c.GetString(BuffWork)
 		}
 	case 'L':
-		// Localized string formatting
-		var loc LocStr
-		var ok bool
-		switch v := arg.(type) {
-		case LocStr:
-			loc = v
-			ok = true
-		case *LocStr:
-			loc = *v
-			ok = true
+		// Localized string formatting using lookup
+		if strVal, ok := arg.(string); ok {
+			if translated, ok := lookupWord(strVal, currentLang); ok {
+				return translated
+			}
+			return strVal
 		}
-		if ok {
-			c.ResetBuffer(BuffWork)
-			c.wrTranslation(loc, currentLang, BuffWork)
-			return c.GetString(BuffWork)
-		} else {
-			c.wrInvalidTypeErr(formatSpec)
-			return ""
-		}
+		c.wrInvalidTypeErr(formatSpec)
+		return ""
 	}
 	return ""
 }
@@ -500,7 +490,7 @@ func (c *Conv) scanWithFormat(src string, format string, args ...any) int {
 			if formatChar == '%' {
 				// This is a literal % character - match it in source
 				if srcPos >= len(src) || src[srcPos] != '%' {
-					c.wrErr(D.Format, D.Invalid, "literal mismatch")
+					c.wrErr("format", "invalid", "literal mismatch")
 					return parsed
 				}
 				srcPos++
@@ -510,12 +500,12 @@ func (c *Conv) scanWithFormat(src string, format string, args ...any) int {
 
 			// Validate format specifier (reuse wrFormat validation)
 			if !c.isValidFormatChar(formatChar) {
-				c.wrErr(D.Format, D.Not, D.Supported, format[fmtPos])
+				c.wrErr("format", "not", "supported", format[fmtPos])
 				return parsed
 			}
 
 			if parsed >= len(args) {
-				c.wrErr(D.Argument, D.Missing)
+				c.wrErr("argument", "missing")
 				return parsed
 			}
 
@@ -546,7 +536,7 @@ func (c *Conv) scanWithFormat(src string, format string, args ...any) int {
 		} else {
 			// Literal character - must match (reuse wrFormat literal logic)
 			if srcPos >= len(src) || src[srcPos] != format[fmtPos] {
-				c.wrErr(D.Format, D.Invalid, "literal mismatch")
+				c.wrErr("format", "invalid", "literal mismatch")
 				return parsed
 			}
 			srcPos++
@@ -618,7 +608,7 @@ func (c *Conv) extractValue(src string, pos int, formatChar rune) (string, int) 
 			pos++
 			return "%", pos
 		}
-		c.wrErr(D.Format, D.Invalid, "expected %")
+		c.wrErr("format", "invalid", "expected %")
 		return "", pos
 	}
 
@@ -737,7 +727,7 @@ func (c *Conv) assignParsedValue(valueStr string, formatChar rune, arg any) bool
 		}
 	}
 
-	c.wrErr(D.Invalid, D.Type, D.Of, D.Argument)
+	c.wrErr("invalid", "type", "of", "argument")
 	return false
 }
 
