@@ -74,3 +74,40 @@ func TestErrMixedArgs(t *testing.T) {
 		t.Errorf("want %q got %q", want, err)
 	}
 }
+
+func TestRegisterWordsMerge(t *testing.T) {
+	// Add an initial word
+	RegisterWords([]DictEntry{
+		{EN: "merge_test", ES: "prueba_merge"},
+	})
+
+	// Verify initial translation
+	got := Translate(ES, "merge_test").String()
+	if got != "prueba_merge" {
+		t.Errorf("Initial: want %q got %q", "prueba_merge", got)
+	}
+
+	// Extend the existing word with a new translation (FR) and a new word
+	RegisterWords([]DictEntry{
+		{EN: "merge_test", FR: "test_fusion"},
+		{EN: "new_word", ES: "nueva_palabra"},
+	})
+
+	// Verify original ES translation still exists
+	got = Translate(ES, "merge_test").String()
+	if got != "prueba_merge" {
+		t.Errorf("After merge (ES): want %q got %q", "prueba_merge", got)
+	}
+
+	// Verify new FR translation was added to the existing word
+	got = Translate(FR, "merge_test").String()
+	if got != "test_fusion" {
+		t.Errorf("After merge (FR): want %q got %q", "test_fusion", got)
+	}
+
+	// Verify new word was added
+	got = Translate(ES, "new_word").String()
+	if got != "nueva_palabra" {
+		t.Errorf("New word (ES): want %q got %q", "nueva_palabra", got)
+	}
+}

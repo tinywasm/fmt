@@ -40,22 +40,61 @@ func RegisterWords(entries []DictEntry) {
 				continue
 			}
 		}
-		var e entry
-		e.translations[EN] = de.EN
-		e.translations[ES] = de.ES
-		e.translations[ZH] = de.ZH
-		e.translations[HI] = de.HI
-		e.translations[AR] = de.AR
-		e.translations[PT] = de.PT
-		e.translations[FR] = de.FR
-		e.translations[DE] = de.DE
-		e.translations[RU] = de.RU
-		for i := 1; i < langCount; i++ {
-			if e.translations[i] == "" {
-				e.translations[i] = de.EN
+
+		// Check if the word already exists to merge translations
+		idx := -1
+		for j, exist := range dictEntries {
+			if compareCaseInsensitive(exist.translations[EN], de.EN) == 0 {
+				idx = j
+				break
 			}
 		}
-		dictEntries = append(dictEntries, e)
+
+		if idx >= 0 {
+			// Merge existing entry
+			if de.ES != "" {
+				dictEntries[idx].translations[ES] = de.ES
+			}
+			if de.ZH != "" {
+				dictEntries[idx].translations[ZH] = de.ZH
+			}
+			if de.HI != "" {
+				dictEntries[idx].translations[HI] = de.HI
+			}
+			if de.AR != "" {
+				dictEntries[idx].translations[AR] = de.AR
+			}
+			if de.PT != "" {
+				dictEntries[idx].translations[PT] = de.PT
+			}
+			if de.FR != "" {
+				dictEntries[idx].translations[FR] = de.FR
+			}
+			if de.DE != "" {
+				dictEntries[idx].translations[DE] = de.DE
+			}
+			if de.RU != "" {
+				dictEntries[idx].translations[RU] = de.RU
+			}
+		} else {
+			// Add new entry
+			var e entry
+			e.translations[EN] = de.EN
+			e.translations[ES] = de.ES
+			e.translations[ZH] = de.ZH
+			e.translations[HI] = de.HI
+			e.translations[AR] = de.AR
+			e.translations[PT] = de.PT
+			e.translations[FR] = de.FR
+			e.translations[DE] = de.DE
+			e.translations[RU] = de.RU
+			for i := 1; i < langCount; i++ {
+				if e.translations[i] == "" {
+					e.translations[i] = de.EN
+				}
+			}
+			dictEntries = append(dictEntries, e)
+		}
 	}
 	sortDict()
 }

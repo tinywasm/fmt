@@ -1,32 +1,16 @@
 package fmt
 
-// Translate creates a translated string with support for multilingual translations
-// Same functionality as Err but returns string directly instead of *Conv
-// This function is used internally by the builder API for efficient string construction
+// Translate creates a translated string with support for multilingual translations.
+// EN words are lookup keys (case-insensitive). Pass-through occurs if missing from dictionary.
 //
-// Usage examples:
-// Translate(D.Format, D.Invalid) returns "invalid format"
-// Translate(ES, D.Format, D.Invalid) returns "formato inválido"
-// Translate creates a translated string with support for multilingual translations
-// Same functionality as Err but returns *Conv for further formatting
-// This function is used internally by the builder API for efficient string construction
-//
-// Usage examples:
-// Translate(D.Format, D.Invalid) returns *Conv with "invalid format"
-// Translate(ES, D.Format, D.Invalid) returns *Conv with "formato inválido"
+// Usage examples (prefer Noun + Adjective order for better Spanish grammar):
+// Translate("format", "invalid")    // English: "Format Invalid", Spanish: "Formato Inválido"
+// Translate(ES, "format", "invalid") // Spanish force: "Formato Inválido"
 //
 // MEMORY MANAGEMENT:
 // The returned *Conv object is pooled.
 // - Calling .String() or .Apply() automatically returns it to the pool.
 // - If you use .Bytes() or other methods, you MUST call .PutConv() manually to avoid memory leaks.
-//
-// PERFORMANCE OPTIMIZATION:
-// For zero-allocation performance, pass pointers to LocStr instead of values:
-//
-//	Translate(D.Format)     // 1 alloc/op  (LocStr boxing)
-//	Translate(&D.Format)    // 0 allocs/op (pointer fits in interface)
-//
-// This is useful in hot paths where allocation-free operation is critical.
 func Translate(values ...any) *Conv {
 	// UNIFIED PROCESSING: Use shared intermediate function
 	return GetConv().SmartArgs(BuffOut, " ", true, false, values...)
