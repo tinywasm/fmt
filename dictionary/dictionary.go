@@ -31,6 +31,8 @@ func init() {
 		{EN: "Cannot", ES: "No puede"},
 		{EN: "Cancel", ES: "Cancelar"},
 		{EN: "Changed", ES: "Cambiado"},
+		{EN: "Confirm", ES: "Confirmar"},
+		{EN: "Current", ES: "Actual"},
 		{EN: "Character", ES: "Caracter"},
 		{EN: "Chars", ES: "Caracteres"},
 		{EN: "Checker", ES: "Verificador"},
@@ -108,7 +110,9 @@ func init() {
 		{EN: "Must", ES: "Debe"},
 
 		// N
+		{EN: "Name", ES: "Nombre"},
 		{EN: "Negative", ES: "Negativo"},
+		{EN: "New", ES: "Nuevo"},
 		{EN: "Nil", ES: "Nulo"},
 		{EN: "Non-numeric", ES: "No numérico"},
 		{EN: "Not", ES: "No"},
@@ -124,6 +128,8 @@ func init() {
 
 		// P
 		{EN: "Page", ES: "Página"},
+		{EN: "Password", ES: "Contraseña"},
+		{EN: "Phone", ES: "Teléfono"},
 		{EN: "Point", ES: "Punto"},
 		{EN: "Pointer", ES: "Puntero"},
 		{EN: "Preparing", ES: "Preparando"},
