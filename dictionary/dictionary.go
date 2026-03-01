@@ -12,6 +12,8 @@ import fmt "github.com/tinywasm/fmt"
 func init() {
 	fmt.RegisterWords([]fmt.DictEntry{
 		// A
+		{EN: "Access", ES: "Acceso"},
+		{EN: "Account", ES: "Cuenta"},
 		{EN: "All", ES: "Todo"},
 		{EN: "Allowed", ES: "Permitido"},
 		{EN: "Arrow", ES: "Flecha"},
@@ -32,6 +34,7 @@ func init() {
 		{EN: "Cancel", ES: "Cancelar"},
 		{EN: "Changed", ES: "Cambiado"},
 		{EN: "Confirm", ES: "Confirmar"},
+		{EN: "Credentials", ES: "Credenciales"},
 		{EN: "Current", ES: "Actual"},
 		{EN: "Character", ES: "Caracter"},
 		{EN: "Chars", ES: "Caracteres"},
@@ -48,6 +51,7 @@ func init() {
 		{EN: "Debugging", ES: "Depuración"},
 		{EN: "Decimal", ES: "Decimal"},
 		{EN: "Delimiter", ES: "Delimitador"},
+		{EN: "Denied", ES: "Denegado"},
 		{EN: "Dictionary", ES: "Diccionario"},
 		{EN: "Digit", ES: "Dígito"},
 		{EN: "Down", ES: "Abajo"},
@@ -57,6 +61,7 @@ func init() {
 		{EN: "Element", ES: "Elemento"},
 		{EN: "Email", ES: "Correo electrónico"},
 		{EN: "Empty", ES: "Vacío"},
+		{EN: "Expired", ES: "Expirado"},
 		{EN: "End", ES: "Fin"},
 		{EN: "Example", ES: "Ejemplo"},
 		{EN: "Exceeds", ES: "Excede"},
@@ -78,6 +83,7 @@ func init() {
 
 		// I
 		{EN: "Icons", ES: "Iconos"},
+		{EN: "Identity", ES: "Identidad"},
 		{EN: "Implemented", ES: "Implementado"},
 		{EN: "in", ES: "en"},
 		{EN: "Index", ES: "Índice"},
@@ -129,6 +135,7 @@ func init() {
 		// P
 		{EN: "Page", ES: "Página"},
 		{EN: "Password", ES: "Contraseña"},
+		{EN: "Provider", ES: "Proveedor"},
 		{EN: "Phone", ES: "Teléfono"},
 		{EN: "Point", ES: "Punto"},
 		{EN: "Pointer", ES: "Puntero"},
@@ -142,6 +149,7 @@ func init() {
 		// R
 		{EN: "Range", ES: "Rango"},
 		{EN: "Read", ES: "Leer"},
+		{EN: "Registered", ES: "Registrado"},
 		{EN: "Required", ES: "Requerido"},
 		{EN: "Right", ES: "Derecha"},
 		{EN: "Round", ES: "Redondear"},
@@ -149,6 +157,8 @@ func init() {
 		// S
 		{EN: "Seconds", ES: "Segundos"},
 		{EN: "Session", ES: "Sesión"},
+		{EN: "State", ES: "Estado"},
+		{EN: "Suspended", ES: "Suspendido"},
 		{EN: "Shortcuts", ES: "Atajos"},
 		{EN: "Slice", ES: "Segmento"},
 		{EN: "Space", ES: "Espacio"},
@@ -162,6 +172,7 @@ func init() {
 
 		// T
 		{EN: "Tab", ES: "Pestaña"},
+		{EN: "Taken", ES: "Ocupado"},
 		{EN: "Test", ES: "Prueba"},
 		{EN: "Testing", ES: "Probando"},
 		{EN: "Text", ES: "Texto"},
@@ -171,7 +182,9 @@ func init() {
 
 		// U
 		{EN: "Unexported", ES: "No Exportado"},
+		{EN: "Unlink", ES: "Desvincular"},
 		{EN: "Unknown", ES: "Desconocido"},
+		{EN: "User", ES: "Usuario"},
 		{EN: "Unsigned", ES: "Sin Signo"},
 		{EN: "Up", ES: "Arriba"},
 		{EN: "Use", ES: "Usar"},
