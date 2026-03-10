@@ -4,11 +4,12 @@ package fmt
 type FieldType int
 
 const (
-	FieldText FieldType = iota
-	FieldInt
-	FieldFloat
-	FieldBool
-	FieldBlob
+	FieldText   FieldType = iota // Any string
+	FieldInt                     // Any integer
+	FieldFloat                   // Any float
+	FieldBool                    // Boolean
+	FieldBlob                    // Binary data ([]byte)
+	FieldStruct                  // Nested struct (implements Fielder)
 )
 
 // Field describes a single field in a struct's schema.
@@ -17,14 +18,15 @@ const (
 type Field struct {
 	Name    string
 	Type    FieldType
-	PK      bool   // Primary Key
+	PK      bool
 	Unique  bool
 	NotNull bool
-	AutoInc bool   // Auto-increment (numeric fields only)
-	Input   string // UI hint: input type override ("email", "password", "-", etc.). Empty = auto.
+	AutoInc bool
+	Input   string // UI hint for form layer
+	JSON    string // JSON key + modifiers ("email,omitempty"). Empty = use Field.Name as key.
 }
 
-var fieldTypeNames = []string{"text", "int", "float", "bool", "blob"}
+var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct"}
 
 func (ft FieldType) String() string {
 	if int(ft) >= 0 && int(ft) < len(fieldTypeNames) {

@@ -13,6 +13,7 @@ The `field` API provides a standard way to describe struct schemas and access th
 | `FieldFloat` | `"float"` | Floating point numbers |
 | `FieldBool` | `"bool"` | Boolean values |
 | `FieldBlob` | `"blob"` | Binary data |
+| `FieldStruct` | `"struct"` | Nested struct |
 
 ### String()
 
@@ -30,11 +31,12 @@ fmt.FieldInt.String() // returns "int"
 type Field struct {
     Name    string
     Type    FieldType
-    PK      bool   // Primary Key
+    PK      bool
     Unique  bool
     NotNull bool
-    AutoInc bool   // Auto-increment (numeric fields only)
-    Input   string // UI hint: input type override ("email", "password", "-", etc.). Empty = auto.
+    AutoInc bool
+    Input   string // UI hint for form layer
+    JSON    string // JSON key + modifiers ("email,omitempty"). Empty = use Field.Name as key.
 }
 ```
 
@@ -45,6 +47,22 @@ type Field struct {
 - `"-"` → form excludes this field entirely (not rendered in the form).
 
 The `Input` hint is typically populated by `ormc` from the struct's `form:"..."` tag.
+
+### JSON Field Semantics
+
+- `""` (empty) → json codec uses `Field.Name` as JSON key (default).
+- `"email"` → json codec uses `"email"` as key.
+- `"email,omitempty"` → json codec uses `"email"` as key and omits zero values.
+- `"-"` → json codec skips this field entirely.
+
+Format is identical to Go's `json:"..."` tag. `ormc` copies the tag value verbatim. Consumed by `tinywasm/json`.
+
+### FieldStruct Semantics
+
+- `Values()[i]` for a `FieldStruct` field returns a value that implements `fmt.Fielder`.
+- `Pointers()[i]` returns a pointer to a value that implements `fmt.Fielder`.
+- The json codec recurses into the nested `Fielder` for encoding/decoding.
+- The form layer ignores `FieldStruct` fields (forms are flat).
 
 ## Fielder Interface
 
