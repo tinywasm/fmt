@@ -1,5 +1,28 @@
 package fmt
 
+// Builder is an alias for Conv to provide a familiar string building API
+type Builder = Conv
+
+// WriteString appends a string to the primary output buffer.
+// Part of the Builder API.
+func (c *Conv) WriteString(s string) *Conv {
+	if c.hasContent(BuffErr) {
+		return c
+	}
+	c.WrString(BuffOut, s)
+	return c
+}
+
+// WriteByte appends a byte to the primary output buffer.
+// Part of the Builder API.
+func (c *Conv) WriteByte(b byte) error {
+	if c.hasContent(BuffErr) {
+		return nil
+	}
+	c.wrByte(BuffOut, b)
+	return nil
+}
+
 // Write appends any value to the buffer using unified type handling
 // This is the core builder method that enables fluent chaining
 //
