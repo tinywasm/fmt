@@ -30,12 +30,21 @@ fmt.FieldInt.String() // returns "int"
 type Field struct {
     Name    string
     Type    FieldType
-    PK      bool // Primary Key
+    PK      bool   // Primary Key
     Unique  bool
     NotNull bool
-    AutoInc bool // Auto-increment (numeric fields only)
+    AutoInc bool   // Auto-increment (numeric fields only)
+    Input   string // UI hint: input type override ("email", "password", "-", etc.). Empty = auto.
 }
 ```
+
+### Input Hint Semantics
+
+- `""` (empty) → form uses its name-based heuristic to pick input type (default behavior).
+- `"email"`, `"password"`, `"textarea"`, `"date"`, etc. → form uses this as explicit input type override.
+- `"-"` → form excludes this field entirely (not rendered in the form).
+
+The `Input` hint is typically populated by `ormc` from the struct's `form:"..."` tag.
 
 ## Fielder Interface
 

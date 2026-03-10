@@ -35,6 +35,28 @@ func TestFieldZeroValue(t *testing.T) {
 	if f.PK || f.Unique || f.NotNull || f.AutoInc {
 		t.Errorf("expected all bools false, got PK=%v, Unique=%v, NotNull=%v, AutoInc=%v", f.PK, f.Unique, f.NotNull, f.AutoInc)
 	}
+	if f.Input != "" {
+		t.Errorf("expected empty Input, got %v", f.Input)
+	}
+}
+
+func TestFieldInputHint(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{"empty", ""},
+		{"email", "email"},
+		{"exclude", "-"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := Field{Input: tt.input}
+			if f.Input != tt.input {
+				t.Errorf("expected Input %q, got %q", tt.input, f.Input)
+			}
+		})
+	}
 }
 
 func TestFieldConstraints(t *testing.T) {

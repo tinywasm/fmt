@@ -17,10 +17,11 @@ const (
 type Field struct {
 	Name    string
 	Type    FieldType
-	PK      bool // Primary Key
+	PK      bool   // Primary Key
 	Unique  bool
 	NotNull bool
-	AutoInc bool // Auto-increment (numeric fields only)
+	AutoInc bool   // Auto-increment (numeric fields only)
+	Input   string // UI hint: input type override ("email", "password", "-", etc.). Empty = auto.
 }
 
 var fieldTypeNames = []string{"text", "int", "float", "bool", "blob"}
