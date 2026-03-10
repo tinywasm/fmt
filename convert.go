@@ -206,3 +206,45 @@ func (c *Conv) String() string {
 func (c *Conv) Bytes() []byte {
 	return c.getBytes(BuffOut)
 }
+
+// IsZero reports whether v is the zero value for its type.
+// Supports: string, bool, int (all sizes), uint (all sizes),
+// float32, float64, []byte, nil.
+// Returns false for unrecognized types.
+func IsZero(v any) bool {
+	switch val := v.(type) {
+	case nil:
+		return true
+	case string:
+		return val == ""
+	case bool:
+		return !val
+	case int:
+		return val == 0
+	case int8:
+		return val == 0
+	case int16:
+		return val == 0
+	case int32:
+		return val == 0
+	case int64:
+		return val == 0
+	case uint:
+		return val == 0
+	case uint8:
+		return val == 0
+	case uint16:
+		return val == 0
+	case uint32:
+		return val == 0
+	case uint64:
+		return val == 0
+	case float32:
+		return val == 0
+	case float64:
+		return val == 0
+	case []byte:
+		return len(val) == 0
+	}
+	return false
+}

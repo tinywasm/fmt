@@ -75,6 +75,7 @@ isUpper := HasUpperPrefix("Ápple") // out: true
 - [Fmt Package Equivalents](docs/API_FMT.md) - Replace fmt package functions
 - [HTML Generation & Escaping](docs/API_HTML.md) - HTML generation and escaping utilities
 - [ID and Primary Key Detection](docs/ID_PRIMARY_KEY.md) - Field naming conventions
+- [JSON Utilities](docs/API_JSON_ESCAPE.md) - JSON escaping and zero-value detection
 - [Key-Value Parsing](docs/API_PARSING.md) - Parse key-value strings
 - [Message Types](docs/MESSAGE_TYPES.md) - Message classification system
 - [Smart Truncation](docs/TRUNCATION.md) - Text truncation utilities
