@@ -14,8 +14,9 @@ func TestFieldTypeString(t *testing.T) {
 		{FieldFloat, "float"},
 		{FieldBool, "bool"},
 		{FieldBlob, "blob"},
+		{FieldStruct, "struct"},
 		{FieldType(-1), "unknown"},
-		{FieldType(5), "unknown"},
+		{FieldType(6), "unknown"},
 	}
 	for _, tt := range tests {
 		if got := tt.ft.String(); got != tt.want {
@@ -38,6 +39,9 @@ func TestFieldZeroValue(t *testing.T) {
 	if f.Input != "" {
 		t.Errorf("expected empty Input, got %v", f.Input)
 	}
+	if f.JSON != "" {
+		t.Errorf("expected empty JSON, got %v", f.JSON)
+	}
 }
 
 func TestFieldInputHint(t *testing.T) {
@@ -54,6 +58,26 @@ func TestFieldInputHint(t *testing.T) {
 			f := Field{Input: tt.input}
 			if f.Input != tt.input {
 				t.Errorf("expected Input %q, got %q", tt.input, f.Input)
+			}
+		})
+	}
+}
+
+func TestFieldJSON(t *testing.T) {
+	tests := []struct {
+		name string
+		json string
+	}{
+		{"empty", ""},
+		{"key", "email"},
+		{"omitempty", "email,omitempty"},
+		{"exclude", "-"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := Field{JSON: tt.json}
+			if f.JSON != tt.json {
+				t.Errorf("expected JSON %q, got %q", tt.json, f.JSON)
 			}
 		})
 	}
@@ -85,6 +109,19 @@ func TestFieldConstraints(t *testing.T) {
 	}
 	if !f.AutoInc {
 		t.Error("expected AutoInc true")
+	}
+}
+
+func TestFieldStructType(t *testing.T) {
+	f := Field{
+		Name: "profile",
+		Type: FieldStruct,
+	}
+	if f.Type != FieldStruct {
+		t.Errorf("expected FieldStruct type, got %v", f.Type)
+	}
+	if f.Type.String() != "struct" {
+		t.Errorf("expected 'struct' string, got %v", f.Type.String())
 	}
 }
 
