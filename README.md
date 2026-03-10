@@ -70,6 +70,7 @@ isUpper := HasUpperPrefix("Ápple") // out: true
 ## Documentation
 
 - [Errors Package Equivalents](docs/API_ERRORS.md) - Replace errors package functions
+- [Field and Fielder](docs/API_FIELD.md) - Schema metadata and reflection-less access
 - [Filepath Package Equivalents](docs/API_FILEPATH.md) - Replace filepath package functions
 - [Fmt Package Equivalents](docs/API_FMT.md) - Replace fmt package functions
 - [HTML Generation & Escaping](docs/API_HTML.md) - HTML generation and escaping utilities
