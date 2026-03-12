@@ -54,6 +54,7 @@ func (c *Conv) parseFloatBase() float64 {
 	var result float64
 	var negative bool
 	var hasDecimal bool
+	var hasDigits bool
 	var decimalPlaces int
 	i := 0
 
@@ -75,11 +76,12 @@ func (c *Conv) parseFloatBase() float64 {
 	}
 
 	// Parse integer part
-	for ; i < len(s) && s[i] != '.'; i++ {
+	for ; i < len(s) && s[i] != '.' && s[i] != 'e' && s[i] != 'E'; i++ {
 		if s[i] < '0' || s[i] > '9' {
 			c.wrErr("character", "invalid")
 			return 0
 		}
+		hasDigits = true
 		result = result*10 + float64(s[i]-'0')
 	}
 
@@ -87,11 +89,12 @@ func (c *Conv) parseFloatBase() float64 {
 	if i < len(s) && s[i] == '.' {
 		hasDecimal = true
 		i++ // Skip decimal point
-		for ; i < len(s); i++ {
+		for ; i < len(s) && s[i] != 'e' && s[i] != 'E'; i++ {
 			if s[i] < '0' || s[i] > '9' {
 				c.wrErr("character", "invalid")
 				return 0
 			}
+			hasDigits = true
 			decimalPlaces++
 			result = result*10 + float64(s[i]-'0')
 		}
@@ -101,6 +104,61 @@ func (c *Conv) parseFloatBase() float64 {
 	if hasDecimal {
 		for j := 0; j < decimalPlaces; j++ {
 			result /= 10
+		}
+	}
+
+	if !hasDigits {
+		c.wrErr("format", "invalid")
+		return 0
+	}
+
+	// Parse scientific notation exponent if present
+	if i < len(s) && (s[i] == 'e' || s[i] == 'E') {
+		i++ // skip 'e'/'E'
+		if i >= len(s) {
+			c.wrErr("format", "invalid")
+			return 0
+		}
+		expNeg := false
+		if s[i] == '+' {
+			i++
+		} else if s[i] == '-' {
+			expNeg = true
+			i++
+		}
+		if i >= len(s) {
+			c.wrErr("format", "invalid")
+			return 0
+		}
+		var exp int
+		for ; i < len(s); i++ {
+			if s[i] < '0' || s[i] > '9' {
+				c.wrErr("character", "invalid")
+				return 0
+			}
+			// Cap exponent and prevent overflow during parsing
+			if exp < 1000 { // Still allow parsing but cap later
+				exp = exp*10 + int(s[i]-'0')
+			}
+		}
+
+		// Cap exponent to prevent DOS and handle infinity correctly
+		// float64 max is ~1.8e308, min positive is ~5e-324
+		if exp > 400 {
+			exp = 400
+		}
+
+		// Apply exponent
+		if result != 0 {
+			mult := 1.0
+			for j := 0; j < exp; j++ {
+				mult *= 10
+			}
+			if expNeg {
+				result /= mult
+			} else {
+				result *= mult
+			}
 		}
 	}
 

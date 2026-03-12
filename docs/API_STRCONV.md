@@ -18,6 +18,7 @@ Replace `strconv` package functions for type conversions:
 result, err := Convert("123").Int()        // out: 123, nil
 result, err := Convert("456").Uint()       // out: 456, nil
 result, err := Convert("3.14").Float64()     // out: 3.14, nil
+result, err := Convert("1.5e3").Float64()    // out: 1500, nil (scientific notation)
 
 // Numbers to string
 Convert(42).String()      // out: "42"
