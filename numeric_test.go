@@ -93,6 +93,54 @@ func TestToFloat(t *testing.T) {
 			hasContent: false,
 		},
 		{
+			name:       "String scientific notation",
+			input:      "1e2",
+			expected:   100.0,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation upper",
+			input:      "1E2",
+			expected:   100.0,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation with decimal",
+			input:      "1.5e2",
+			expected:   150.0,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation with plus sign",
+			input:      "1.5E+2",
+			expected:   150.0,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation with negative exponent",
+			input:      "1e-2",
+			expected:   0.01,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation with negative decimal",
+			input:      "2.5e-3",
+			expected:   0.0025,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation negative number",
+			input:      "-1e2",
+			expected:   -100.0,
+			hasContent: false,
+		},
+		{
+			name:       "String scientific notation zero exponent",
+			input:      "1e0",
+			expected:   1.0,
+			hasContent: false,
+		},
+		{
 			name:       "Integer",
 			input:      123,
 			expected:   123.0,
@@ -144,6 +192,51 @@ func TestToFloat(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFloat64ScientificNotationErrors(t *testing.T) {
+	cases := []string{"1e", "1e+", "1e-", "1eX", "e2", ".e2", "+e2", "-e2"}
+	for _, input := range cases {
+		t.Run(input, func(t *testing.T) {
+			_, err := Convert(input).Float64()
+			if err == nil {
+				t.Fatalf("expected error for input %q", input)
+			}
+		})
+	}
+}
+
+func TestFloat64ScientificNotationEdgeCases(t *testing.T) {
+	t.Run("Large positive exponent", func(t *testing.T) {
+		got, err := Convert("1e1000").Float64()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		// Expect +Inf or very large number (capped at 400 results in +Inf after mult)
+		if got < 1e308 {
+			t.Errorf("expected a very large number, got %f", got)
+		}
+	})
+	t.Run("Large negative exponent", func(t *testing.T) {
+		got, err := Convert("1e-1000").Float64()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		// Expect 0.0 or very small number
+		if got != 0.0 {
+			t.Errorf("expected 0.0, got %f", got)
+		}
+	})
+	t.Run("Zero with large exponent", func(t *testing.T) {
+		got, err := Convert("0e1000").Float64()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		// Should be 0.0, not NaN
+		if got != 0.0 {
+			t.Errorf("expected 0.0, got %f", got)
+		}
+	})
 }
 
 func TestToIntConversion(t *testing.T) {
