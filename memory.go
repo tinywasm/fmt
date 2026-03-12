@@ -67,6 +67,18 @@ func (c *Conv) wrBytes(dest BuffDest, data []byte) {
 	}
 }
 
+// LoadBytes loads raw bytes into the output buffer for subsequent parsing.
+// Reuses existing buffer capacity — 0 allocations for data within capacity.
+// Use with GetConv() + LoadBytes + Int64()/Float64() + PutConv() to parse
+// numbers from byte slices without string creation or variadic boxing.
+func (c *Conv) LoadBytes(b []byte) {
+	c.ResetBuffer(BuffOut)
+	c.ResetBuffer(BuffErr)
+	c.out = append(c.out[:0], b...)
+	c.outLen = len(b)
+	c.kind = K.String
+}
+
 // wrByte writes single byte to specified buffer destination
 func (c *Conv) wrByte(dest BuffDest, b byte) {
 	switch dest {
