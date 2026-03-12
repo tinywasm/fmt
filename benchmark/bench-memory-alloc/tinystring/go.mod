@@ -4,7 +4,7 @@ go 1.25.2
 
 require (
 	benchmark/shared v0.0.0
-	github.com/tinywasm/fmt v0.18.9
+	github.com/tinywasm/fmt v0.18.17
 )
 
 // Use local fmt module
