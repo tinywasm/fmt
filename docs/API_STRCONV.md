@@ -50,3 +50,14 @@ Convert(2189009.00).Thousands().String()        // out: "2.189.009"
 // Anglo/US style (comma, dot)
 Convert(2189009.00).Thousands(true).String()    // out: "2,189,009"
 ```
+
+## Low-level Writing (Performance)
+
+High-performance codecs can write numbers directly to the output buffer without creating high-level `any` boxes:
+
+```go
+c := fmt.Convert()
+c.WriteInt(123)
+c.WriteFloat(3.14)
+result := c.String() // "1233.14"
+```

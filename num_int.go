@@ -203,3 +203,27 @@ func (c *Conv) parseIntBase(base ...int) int64 {
 	}
 	return c.parseIntString(s, baseVal, isSigned)
 }
+
+// WriteInt writes an int64 as decimal text to the output buffer.
+func (c *Conv) WriteInt(v int64) {
+	if v == 0 {
+		c.WriteByte('0')
+		return
+	}
+	u := uint64(v)
+	if v < 0 {
+		c.WriteByte('-')
+		u = uint64(-v)
+	}
+	// Write digits in reverse, then reverse
+	start := c.outLen
+	for u > 0 {
+		c.wrByte(BuffOut, byte('0'+u%10))
+		u /= 10
+	}
+	// Reverse the digits
+	digits := c.out[start:c.outLen]
+	for i, j := 0, len(digits)-1; i < j; i, j = i+1, j-1 {
+		digits[i], digits[j] = digits[j], digits[i]
+	}
+}

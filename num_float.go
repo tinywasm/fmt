@@ -251,3 +251,8 @@ func (c *Conv) wrFloatBase(dest BuffDest, val float64, maxInf float64) {
 		}
 	}
 }
+
+// WriteFloat writes a float64 as decimal text to the output buffer.
+func (c *Conv) WriteFloat(v float64) {
+	c.wrFloat64(BuffOut, v)
+}

@@ -136,7 +136,6 @@ func (m *mockUser) Schema() []Field {
 		{Name: "name", Type: FieldText, NotNull: true},
 	}
 }
-func (m *mockUser) Values() []any  { return []any{m.id, m.name} }
 func (m *mockUser) Pointers() []any { return []any{&m.id, &m.name} }
 
 func TestFielderInterface(t *testing.T) {
@@ -148,8 +147,8 @@ func TestFielderInterface(t *testing.T) {
 	}
 
 	schema := f.Schema()
-	values := f.Values()
 	pointers := f.Pointers()
+	values := ReadValues(schema, pointers)
 
 	if len(schema) != 2 || len(values) != 2 || len(pointers) != 2 {
 		t.Errorf("length mismatch: schema=%d, values=%d, pointers=%d", len(schema), len(values), len(pointers))
@@ -171,8 +170,27 @@ func TestFielderInterface(t *testing.T) {
 		t.Errorf("pointer update failed: id=%s, name=%s", m.id, m.name)
 	}
 
-	newValues := f.Values()
+	newValues := ReadValues(schema, pointers)
 	if newValues[0] != "u2" || newValues[1] != "Bob" {
 		t.Errorf("values after update mismatch: %v, %v", newValues[0], newValues[1])
+	}
+}
+
+func TestReadStringPtr(t *testing.T) {
+	s := "hello"
+	val, ok := ReadStringPtr(&s)
+	if !ok || val != "hello" {
+		t.Errorf("ReadStringPtr failed: got (%q, %v), want (\"hello\", true)", val, ok)
+	}
+
+	val, ok = ReadStringPtr("not a pointer")
+	if ok {
+		t.Error("ReadStringPtr should have failed for non-pointer")
+	}
+
+	var ns *string
+	val, ok = ReadStringPtr(ns)
+	if ok {
+		t.Error("ReadStringPtr should have failed for nil pointer")
 	}
 }
