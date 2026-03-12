@@ -45,7 +45,7 @@ func (c *Conv) Float32() (float32, error) {
 func (c *Conv) parseFloatBase() float64 {
 	c.ResetBuffer(BuffErr)
 
-	s := c.GetString(BuffOut)
+	s := c.GetStringZeroCopy(BuffOut)
 	if len(s) == 0 {
 		c.wrErr("string", "empty")
 		return 0
