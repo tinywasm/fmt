@@ -15,3 +15,4 @@ example/*.log
 .vscode
 *.code-workspace
 server
+coverage*

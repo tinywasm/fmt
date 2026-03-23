@@ -19,9 +19,11 @@ func TestFieldTypeString(t *testing.T) {
 		{FieldType(6), "unknown"},
 	}
 	for _, tt := range tests {
-		if got := tt.ft.String(); got != tt.want {
-			t.Errorf("FieldType(%d).String() = %v, want %v", tt.ft, got, tt.want)
-		}
+		t.Run(tt.want, func(t *testing.T) {
+			if got := tt.ft.String(); got != tt.want {
+				t.Errorf("FieldType(%d).String() = %v, want %v", tt.ft, got, tt.want)
+			}
+		})
 	}
 }
 
@@ -36,50 +38,12 @@ func TestFieldZeroValue(t *testing.T) {
 	if f.PK || f.Unique || f.NotNull || f.AutoInc {
 		t.Errorf("expected all bools false, got PK=%v, Unique=%v, NotNull=%v, AutoInc=%v", f.PK, f.Unique, f.NotNull, f.AutoInc)
 	}
-	if f.Input != "" {
-		t.Errorf("expected empty Input, got %v", f.Input)
-	}
-	if f.JSON != "" {
-		t.Errorf("expected empty JSON, got %v", f.JSON)
-	}
 }
 
-func TestFieldInputHint(t *testing.T) {
-	tests := []struct {
-		name  string
-		input string
-	}{
-		{"empty", ""},
-		{"email", "email"},
-		{"exclude", "-"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			f := Field{Input: tt.input}
-			if f.Input != tt.input {
-				t.Errorf("expected Input %q, got %q", tt.input, f.Input)
-			}
-		})
-	}
-}
-
-func TestFieldJSON(t *testing.T) {
-	tests := []struct {
-		name string
-		json string
-	}{
-		{"empty", ""},
-		{"key", "email"},
-		{"omitempty", "email,omitempty"},
-		{"exclude", "-"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			f := Field{JSON: tt.json}
-			if f.JSON != tt.json {
-				t.Errorf("expected JSON %q, got %q", tt.json, f.JSON)
-			}
-		})
+func TestFieldOmitEmpty(t *testing.T) {
+	f := Field{OmitEmpty: true}
+	if !f.OmitEmpty {
+		t.Error("expected OmitEmpty true")
 	}
 }
 
@@ -112,17 +76,63 @@ func TestFieldConstraints(t *testing.T) {
 	}
 }
 
-func TestFieldStructType(t *testing.T) {
-	f := Field{
-		Name: "profile",
-		Type: FieldStruct,
+func TestFieldValidate(t *testing.T) {
+	tests := []struct {
+		name    string
+		field   Field
+		value   string
+		wantErr bool
+	}{
+		{"NotNull empty", Field{NotNull: true}, "", true},
+		{"NotNull not empty", Field{NotNull: true}, "foo", false},
+		{"Nullable empty", Field{NotNull: false}, "", false},
+		{"With rules pass", Field{Permitted: Permitted{Numbers: true}}, "123", false},
+		{"With rules fail", Field{Permitted: Permitted{Numbers: true}}, "abc", true},
+		{"No rules pass", Field{Name: "any"}, "any value", false},
 	}
-	if f.Type != FieldStruct {
-		t.Errorf("expected FieldStruct type, got %v", f.Type)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.field.Validate(tt.value); (err != nil) != tt.wantErr {
+				t.Errorf("Field.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
-	if f.Type.String() != "struct" {
-		t.Errorf("expected 'struct' string, got %v", f.Type.String())
+}
+
+type fullMock struct {
+	Text   string
+	Int    int
+	Int32  int32
+	Int64  int64
+	Uint   uint
+	Uint32 uint32
+	Uint64 uint64
+	Float  float64
+	Float32 float32
+	Bool   bool
+	Blob   []byte
+	Nested *mockUser
+}
+
+func (m *fullMock) Schema() []Field {
+	return []Field{
+		{Name: "text", Type: FieldText, NotNull: true},
+		{Name: "int", Type: FieldInt, NotNull: true},
+		{Name: "int32", Type: FieldInt},
+		{Name: "int64", Type: FieldInt},
+		{Name: "uint", Type: FieldInt},
+		{Name: "uint32", Type: FieldInt},
+		{Name: "uint64", Type: FieldInt},
+		{Name: "float", Type: FieldFloat, NotNull: true},
+		{Name: "float32", Type: FieldFloat},
+		{Name: "bool", Type: FieldBool, NotNull: true},
+		{Name: "blob", Type: FieldBlob, NotNull: true},
+		{Name: "nested", Type: FieldStruct, NotNull: true},
 	}
+}
+
+func (m *fullMock) Pointers() []any {
+	return []any{&m.Text, &m.Int, &m.Int32, &m.Int64, &m.Uint, &m.Uint32, &m.Uint64, &m.Float, &m.Float32, &m.Bool, &m.Blob, m.Nested}
 }
 
 type mockUser struct {
@@ -137,43 +147,115 @@ func (m *mockUser) Schema() []Field {
 	}
 }
 func (m *mockUser) Pointers() []any { return []any{&m.id, &m.name} }
+func (m *mockUser) Validate() error { return ValidateFielder(m) }
 
-func TestFielderInterface(t *testing.T) {
-	m := &mockUser{id: "u1", name: "Alice"}
-	var i any = m
-	f, ok := i.(Fielder)
-	if !ok {
-		t.Fatal("mockUser does not implement Fielder")
+func TestValidateFielderRecursive(t *testing.T) {
+	m := &fullMock{
+		Text: "hello",
+		Int: 1,
+		Float: 1.1,
+		Bool: true,
+		Blob: []byte{1},
+		Nested: &mockUser{id: "u1", name: "Alice"},
 	}
 
-	schema := f.Schema()
-	pointers := f.Pointers()
-	values := ReadValues(schema, pointers)
-
-	if len(schema) != 2 || len(values) != 2 || len(pointers) != 2 {
-		t.Errorf("length mismatch: schema=%d, values=%d, pointers=%d", len(schema), len(values), len(pointers))
+	if err := ValidateFielder(m); err != nil {
+		t.Errorf("expected success, got %v", err)
 	}
 
-	if schema[0].Name != "id" || schema[1].Name != "name" {
-		t.Errorf("schema name mismatch: %v, %v", schema[0].Name, schema[1].Name)
+	// Fail nested
+	m.Nested.name = ""
+	if err := ValidateFielder(m); err == nil {
+		t.Error("expected failure in nested struct")
 	}
 
-	if values[0] != "u1" || values[1] != "Alice" {
-		t.Errorf("value mismatch: %v, %v", values[0], values[1])
+	// Fail other types
+	m.Nested.name = "Alice"
+	m.Int = 0 // NotNull
+	if err := ValidateFielder(m); err == nil {
+		t.Error("expected failure for int zero")
+	}
+}
+
+func TestReadValuesAllTypes(t *testing.T) {
+	m := &fullMock{
+		Text: "text",
+		Int: 10,
+		Int32: 32,
+		Int64: 64,
+		Uint: 100,
+		Uint32: 320,
+		Uint64: 640,
+		Float: 1.1,
+		Float32: 2.2,
+		Bool: true,
+		Blob: []byte{0x01},
+		Nested: &mockUser{id: "u1", name: "Alice"},
+	}
+	schema := m.Schema()
+	ptrs := m.Pointers()
+	vals := ReadValues(schema, ptrs)
+
+	expected := []any{"text", 10, int32(32), int64(64), uint(100), uint32(320), uint64(640), 1.1, float32(2.2), true, []byte{0x01}, m.Nested}
+	for i, v := range expected {
+		if i == 10 { // Blob check
+			b1 := v.([]byte)
+			b2 := vals[i].([]byte)
+			if len(b1) != len(b2) || b1[0] != b2[0] {
+				t.Errorf("mismatch at index %d: got %v, want %v", i, vals[i], v)
+			}
+			continue
+		}
+		if vals[i] != v {
+			t.Errorf("mismatch at index %d: got %v, want %v", i, vals[i], v)
+		}
 	}
 
-	// Test writing through pointers
-	*(pointers[0].(*string)) = "u2"
-	*(pointers[1].(*string)) = "Bob"
-
-	if m.id != "u2" || m.name != "Bob" {
-		t.Errorf("pointer update failed: id=%s, name=%s", m.id, m.name)
+	// Test nil pointers
+	ptrsCopy := make([]any, len(ptrs))
+	copy(ptrsCopy, ptrs)
+	ptrsCopy[0] = nil
+	valsNil := ReadValues(schema, ptrsCopy)
+	if valsNil[0] != nil {
+		t.Error("expected nil for nil pointer")
 	}
+}
 
-	newValues := ReadValues(schema, pointers)
-	if newValues[0] != "u2" || newValues[1] != "Bob" {
-		t.Errorf("values after update mismatch: %v, %v", newValues[0], newValues[1])
-	}
+func TestIsZeroPtrAllTypes(t *testing.T) {
+	var i int = 0
+	if !isZeroPtr(&i, FieldInt) { t.Error("int 0 should be zero") }
+	i = 1
+	if isZeroPtr(&i, FieldInt) { t.Error("int 1 should not be zero") }
+
+	var i32 int32 = 0
+	if !isZeroPtr(&i32, FieldInt) { t.Error("int32 0 should be zero") }
+	var i64 int64 = 0
+	if !isZeroPtr(&i64, FieldInt) { t.Error("int64 0 should be zero") }
+	var u uint = 0
+	if !isZeroPtr(&u, FieldInt) { t.Error("uint 0 should be zero") }
+	var u32 uint32 = 0
+	if !isZeroPtr(&u32, FieldInt) { t.Error("uint32 0 should be zero") }
+	var u64 uint64 = 0
+	if !isZeroPtr(&u64, FieldInt) { t.Error("uint64 0 should be zero") }
+
+	var f64 float64 = 0
+	if !isZeroPtr(&f64, FieldFloat) { t.Error("float64 0 should be zero") }
+	f64 = 0.1
+	if isZeroPtr(&f64, FieldFloat) { t.Error("float64 0.1 should not be zero") }
+	var f32 float32 = 0
+	if !isZeroPtr(&f32, FieldFloat) { t.Error("float32 0 should be zero") }
+
+	var b bool = false
+	if !isZeroPtr(&b, FieldBool) { t.Error("bool false should be zero") }
+	b = true
+	if isZeroPtr(&b, FieldBool) { t.Error("bool true should not be zero") }
+
+	var bl []byte
+	if !isZeroPtr(&bl, FieldBlob) { t.Error("nil blob should be zero") }
+	bl = []byte{}
+	if !isZeroPtr(&bl, FieldBlob) { t.Error("empty blob should be zero") }
+	bl = []byte{1}
+	if isZeroPtr(&bl, FieldBlob) { t.Error("non-empty blob should not be zero") }
 }
 
 func TestReadStringPtr(t *testing.T) {
@@ -194,3 +276,28 @@ func TestReadStringPtr(t *testing.T) {
 		t.Error("ReadStringPtr should have failed for nil pointer")
 	}
 }
+
+type fielderOnlyMock struct {
+	id string
+}
+func (m *fielderOnlyMock) Schema() []Field { return []Field{{Name: "id", Type: FieldText}} }
+func (m *fielderOnlyMock) Pointers() []any { return []any{&m.id} }
+
+func TestValidateFielderWithOnlyFielder(t *testing.T) {
+	// Nested struct that only implements Fielder, not Validator.
+	sub := &fielderOnlyMock{id: "ok"}
+	schema := []Field{{Name: "sub", Type: FieldStruct}}
+	ptrs := []any{sub}
+
+	// Validate it through the manualFielder helper
+	if err := ValidateFielder(&manualFielder{schema, ptrs}); err != nil {
+		t.Errorf("expected success, got %v", err)
+	}
+}
+
+type manualFielder struct {
+	schema []Field
+	ptrs   []any
+}
+func (f *manualFielder) Schema() []Field { return f.schema }
+func (f *manualFielder) Pointers() []any { return f.ptrs }

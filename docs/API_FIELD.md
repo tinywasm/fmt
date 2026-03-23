@@ -1,6 +1,6 @@
 # Field and Fielder API
 
-The `field` API provides a standard way to describe struct schemas and access their values without using runtime reflection. This is essential for maintaining a small binary size in WebAssembly environments.
+The `field` API provides a standard way to describe struct schemas, access their values, and perform validation without using runtime reflection. This is essential for maintaining a small binary size in WebAssembly environments.
 
 ## FieldType
 
@@ -25,43 +25,46 @@ fmt.FieldInt.String() // returns "int"
 
 ## Field
 
-`Field` describes a single field in a struct's schema with its metadata and constraints.
+`Field` describes a single field in a struct's schema with its metadata, constraints, and validation rules.
 
 ```go
 type Field struct {
-    Name    string
-    Type    FieldType
-    PK      bool
-    Unique  bool
-    NotNull bool
-    AutoInc bool
-    Input   string // UI hint for form layer
-    JSON    string // JSON key + modifiers ("email,omitempty"). Empty = use Field.Name as key.
+    Name      string
+    Type      FieldType
+    PK        bool
+    Unique    bool
+    NotNull   bool
+    AutoInc   bool
+    OmitEmpty bool      // omit from JSON when zero value
+    Permitted           // embedded: validation rules (characters, min/max)
 }
 ```
 
-### Input Hint Semantics
+### Validation (Permitted)
 
-- `""` (empty) → form uses its name-based heuristic to pick input type (default behavior).
-- `"email"`, `"password"`, `"textarea"`, `"date"`, etc. → form uses this as explicit input type override.
-- `"-"` → form excludes this field entirely (not rendered in the form).
+Validation rules are embedded in the `Field` via the `Permitted` struct. This includes character-level whitelisting, length constraints, and structural format checks.
 
-The `Input` hint is typically populated by `ormc` from the struct's `form:"..."` tag.
+| Field | Type | Description |
+|-------|------|-------------|
+| `Letters` | `bool` | Allows `a-z`, `A-Z`, `ñ`, `Ñ` |
+| `Tilde` | `bool` | Allows accented characters (`á`, `é`, etc.) |
+| `Numbers` | `bool` | Allows `0-9` |
+| `Spaces` | `bool` | Allows `' '` |
+| `BreakLine` | `bool` | Allows `\n` |
+| `Tab` | `bool` | Allows `\t` |
+| `Extra` | `[]rune` | Additional allowed characters |
+| `NotAllowed` | `[]string`| Forbidden substrings |
+| `Minimum` | `int` | Minimum length (runes) |
+| `Maximum` | `int` | Maximum length (runes) |
+| `StartWith` | `*Permitted`| Rules for the first character |
 
-### JSON Field Semantics
+### Field.Validate()
 
-- `""` (empty) → json codec uses `Field.Name` as JSON key (default).
-- `"email"` → json codec uses `"email"` as key.
-- `"email,omitempty"` → json codec uses `"email"` as key and omits zero values.
-- `"-"` → json codec skips this field entirely.
+Checks a string value against the field's constraints (`NotNull` and `Permitted`).
 
-Format is identical to Go's `json:"..."` tag. `ormc` copies the tag value verbatim. Consumed by `tinywasm/json`.
-
-### FieldStruct Semantics
-
-- `Pointers()[i]` returns a pointer to a value that implements `fmt.Fielder`.
-- The json codec recurses into the nested `Fielder` for encoding/decoding.
-- The form layer ignores `FieldStruct` fields (forms are flat).
+```go
+err := field.Validate("some value")
+```
 
 ## Fielder Interface
 
@@ -78,20 +81,44 @@ type Fielder interface {
 
 - `Schema()` and `Pointers()` MUST return slices of the same length.
 - The i-th element in each slice corresponds to the same struct field.
-- `Pointers()` returns pointers to fields for reading (dereference) and writing (scanning from database or syncing from forms).
+- `Pointers()` returns pointers to fields for reading (dereference) and writing.
 
-### ReadValues Helper
-
-For consumers that still need a `[]any` of values (like ORM for SQL arguments), use `fmt.ReadValues`:
+## Validator and SafeFielder
 
 ```go
-// vals is []any
+// Validator can self-validate
+type Validator interface {
+    Validate() error
+}
+
+// SafeFielder combines Fielder and Validator
+type SafeFielder interface {
+    Fielder
+    Validator
+}
+```
+
+### ValidateFielder() Helper
+
+Generic function that iterates through a `Fielder`'s schema and pointers to perform full validation. It handles `FieldText` (calling `Field.Validate`) and `FieldStruct` (recursive validation).
+
+```go
+err := fmt.ValidateFielder(myFielder)
+```
+
+## Conversion and Reading Helpers
+
+### ReadValues()
+
+For consumers that need a `[]any` of values (like ORM for SQL arguments):
+
+```go
 vals := fmt.ReadValues(myFielder.Schema(), myFielder.Pointers())
 ```
 
-### ReadStringPtr Helper
+### ReadStringPtr()
 
-High-performance codecs (like `tinywasm/json`) can read string values without boxing to `any`:
+High-performance codecs can read string values without boxing to `any`:
 
 ```go
 if val, ok := fmt.ReadStringPtr(ptrs[i]); ok {
@@ -99,9 +126,17 @@ if val, ok := fmt.ReadStringPtr(ptrs[i]); ok {
 }
 ```
 
-### Example Implementation
+### isZeroPtr()
 
-Usually, these implementations are generated by code generators.
+Checks if a pointer points to its type's zero value.
+
+```go
+if fmt.isZeroPtr(ptr, fieldType) {
+    // value is zero
+}
+```
+
+## Example Implementation
 
 ```go
 type User struct {
@@ -112,11 +147,15 @@ type User struct {
 func (u *User) Schema() []fmt.Field {
     return []fmt.Field{
         {Name: "id", Type: fmt.FieldText, PK: true},
-        {Name: "name", Type: fmt.FieldText, NotNull: true},
+        {Name: "name", Type: fmt.FieldText, NotNull: true, Permitted: fmt.Permitted{Letters: true}},
     }
 }
 
 func (u *User) Pointers() []any {
     return []any{&u.ID, &u.Name}
+}
+
+func (u *User) Validate() error {
+    return fmt.ValidateFielder(u)
 }
 ```
