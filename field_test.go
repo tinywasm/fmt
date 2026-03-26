@@ -147,9 +147,9 @@ func (m *mockUser) Schema() []Field {
 	}
 }
 func (m *mockUser) Pointers() []any { return []any{&m.id, &m.name} }
-func (m *mockUser) Validate() error { return ValidateFielder(m) }
+func (m *mockUser) Validate(action byte) error { return ValidateFields(action, m) }
 
-func TestValidateFielderRecursive(t *testing.T) {
+func TestValidateFieldsRecursive(t *testing.T) {
 	m := &fullMock{
 		Text: "hello",
 		Int: 1,
@@ -159,20 +159,20 @@ func TestValidateFielderRecursive(t *testing.T) {
 		Nested: &mockUser{id: "u1", name: "Alice"},
 	}
 
-	if err := ValidateFielder(m); err != nil {
+	if err := ValidateFields('u', m); err != nil {
 		t.Errorf("expected success, got %v", err)
 	}
 
 	// Fail nested
 	m.Nested.name = ""
-	if err := ValidateFielder(m); err == nil {
+	if err := ValidateFields('u', m); err == nil {
 		t.Error("expected failure in nested struct")
 	}
 
 	// Fail other types
 	m.Nested.name = "Alice"
 	m.Int = 0 // NotNull
-	if err := ValidateFielder(m); err == nil {
+	if err := ValidateFields('u', m); err == nil {
 		t.Error("expected failure for int zero")
 	}
 }
@@ -283,16 +283,102 @@ type fielderOnlyMock struct {
 func (m *fielderOnlyMock) Schema() []Field { return []Field{{Name: "id", Type: FieldText}} }
 func (m *fielderOnlyMock) Pointers() []any { return []any{&m.id} }
 
-func TestValidateFielderWithOnlyFielder(t *testing.T) {
+func TestValidateFieldsWithOnlyFielder(t *testing.T) {
 	// Nested struct that only implements Fielder, not Validator.
 	sub := &fielderOnlyMock{id: "ok"}
 	schema := []Field{{Name: "sub", Type: FieldStruct}}
 	ptrs := []any{sub}
 
 	// Validate it through the manualFielder helper
-	if err := ValidateFielder(&manualFielder{schema, ptrs}); err != nil {
+	if err := ValidateFields('u', &manualFielder{schema, ptrs}); err != nil {
 		t.Errorf("expected success, got %v", err)
 	}
+}
+
+func TestValidateFieldsActions(t *testing.T) {
+	type userActionMock struct {
+		ID      int
+		Name    string
+		Email   string
+		Version int
+	}
+
+	schema := []Field{
+		{Name: "id", Type: FieldInt, PK: true, AutoInc: true},
+		{Name: "name", Type: FieldText, NotNull: true},
+		{Name: "email", Type: FieldText, Permitted: Permitted{Letters: true, Extra: []rune{'@', '.'}}},
+		{Name: "version", Type: FieldInt, NotNull: true},
+	}
+
+	// Helper to create manual Fielder
+	getFielder := func(m *userActionMock) Fielder {
+		return &manualFielder{
+			schema: schema,
+			ptrs:   []any{&m.ID, &m.Name, &m.Email, &m.Version},
+		}
+	}
+
+	t.Run("Create 'c'", func(t *testing.T) {
+		m := &userActionMock{Name: "Alice", Email: "a@b.com", Version: 1}
+		f := getFielder(m)
+
+		// PK+AutoInc should be skipped in 'c'
+		if err := ValidateFields('c', f); err != nil {
+			t.Errorf("expected success in 'c' with zero ID, got %v", err)
+		}
+
+		// NotNull still applies
+		m.Name = ""
+		if err := ValidateFields('c', f); err == nil {
+			t.Error("expected failure in 'c' with empty Name")
+		}
+	})
+
+	t.Run("Update 'u'", func(t *testing.T) {
+		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Version: 1}
+		f := getFielder(m)
+
+		if err := ValidateFields('u', f); err != nil {
+			t.Errorf("expected success in 'u', got %v", err)
+		}
+
+		// PK is required in 'u'
+		m.ID = 0
+		if err := ValidateFields('u', f); err == nil {
+			t.Error("expected failure in 'u' with zero ID")
+		}
+	})
+
+	t.Run("Delete 'd'", func(t *testing.T) {
+		m := &userActionMock{ID: 1, Name: "", Email: "invalid!!", Version: 0}
+		f := getFielder(m)
+
+		// Only PK matters in 'd'
+		if err := ValidateFields('d', f); err != nil {
+			t.Errorf("expected success in 'd' with only PK, got %v", err)
+		}
+
+		// PK missing
+		m.ID = 0
+		if err := ValidateFields('d', f); err == nil {
+			t.Error("expected failure in 'd' with missing PK")
+		}
+	})
+
+	t.Run("Unknown 'x'", func(t *testing.T) {
+		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Version: 1}
+		f := getFielder(m)
+
+		// Should behave like 'u'
+		if err := ValidateFields('x', f); err != nil {
+			t.Errorf("expected success in 'x', got %v", err)
+		}
+
+		m.ID = 0
+		if err := ValidateFields('x', f); err == nil {
+			t.Error("expected failure in 'x' with missing PK")
+		}
+	})
 }
 
 type manualFielder struct {

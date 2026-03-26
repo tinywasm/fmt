@@ -88,7 +88,13 @@ type Fielder interface {
 ```go
 // Validator can self-validate
 type Validator interface {
-    Validate() error
+    Validate(action byte) error
+}
+
+// Model describes a resource with a schema and a name.
+type Model interface {
+    Fielder
+    ModelName() string
 }
 
 // SafeFielder combines Fielder and Validator
@@ -98,12 +104,19 @@ type SafeFielder interface {
 }
 ```
 
-### ValidateFielder() Helper
+### ValidateFields() Helper
 
-Generic function that iterates through a `Fielder`'s schema and pointers to perform full validation. It handles `FieldText` (calling `Field.Validate`) and `FieldStruct` (recursive validation).
+Generic function that iterates through a `Fielder`'s schema and pointers to perform full validation based on the action. It handles `FieldText` (calling `Field.Validate`) and `FieldStruct` (recursive validation).
+
+| Action | PK + AutoInc | PK without AutoInc | NotNull | Permitted |
+|--------|--------------|--------------------|---------|-----------|
+| `'c'` create | skip (DB assigns) | required | required | applies |
+| `'u'` update | required | required | required | applies |
+| `'d'` delete | required | required | skip | skip |
+| other/unknown | required | required | required | applies |
 
 ```go
-err := fmt.ValidateFielder(myFielder)
+err := fmt.ValidateFields('u', myFielder)
 ```
 
 ## Conversion and Reading Helpers
@@ -155,7 +168,7 @@ func (u *User) Pointers() []any {
     return []any{&u.ID, &u.Name}
 }
 
-func (u *User) Validate() error {
-    return fmt.ValidateFielder(u)
+func (u *User) Validate(action byte) error {
+    return fmt.ValidateFields(action, u)
 }
 ```
