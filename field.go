@@ -92,10 +92,10 @@ type Model interface {
 	ModelName() string
 }
 
-// SafeFielder combines schema access with validation.
-// Handlers that receive user input should accept SafeFielder
+// SafeFields combines schema access with validation.
+// Handlers that receive user input should accept SafeFields
 // to enforce compile-time validation guarantees.
-type SafeFielder interface {
+type SafeFields interface {
 	Fielder
 	Validator
 }

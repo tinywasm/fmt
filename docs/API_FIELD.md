@@ -83,7 +83,7 @@ type Fielder interface {
 - The i-th element in each slice corresponds to the same struct field.
 - `Pointers()` returns pointers to fields for reading (dereference) and writing.
 
-## Validator and SafeFielder
+## Validator and SafeFields
 
 ```go
 // Validator can self-validate
@@ -97,8 +97,8 @@ type Model interface {
     ModelName() string
 }
 
-// SafeFielder combines Fielder and Validator
-type SafeFielder interface {
+// SafeFields combines Fielder and Validator
+type SafeFields interface {
     Fielder
     Validator
 }
