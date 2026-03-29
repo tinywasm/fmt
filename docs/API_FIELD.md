@@ -36,9 +36,35 @@ type Field struct {
     NotNull   bool
     AutoInc   bool
     OmitEmpty bool      // omit from JSON when zero value
+    Widget    Widget    // semantic input type; nil = no UI binding (set by ormc from `input:` tag)
     Permitted           // embedded: validation rules (characters, min/max)
 }
 ```
+
+## Widget Interface
+
+`Widget` is the contract for a semantic input type. It is implemented by `tinywasm/form/input` types and by custom project inputs defined in `web/inputs/`. Set by `ormc` code generation from the `input:` struct tag.
+
+```go
+type Widget interface {
+    Type() string                // Semantic type name (e.g., "email", "textarea")
+    Validate(value string) error // Semantic validation for this input type
+    Clone() Widget               // Returns a fresh template instance (thread-safe)
+}
+```
+
+`Field.Validate()` calls `Widget.Validate()` before `Permitted.Validate()`. If the widget fails, `Permitted` is not evaluated. If `Widget` is `nil`, only `Permitted` rules apply.
+
+```go
+// Example: field with Widget + additive Permitted rules
+Field{
+    Name:      "email",
+    Widget:    input.NewEmail(),            // validates email format
+    Permitted: fmt.Permitted{Minimum: 10}, // additionally enforces min length
+}
+```
+
+**Why not include `RenderHTML()`:** Interface Segregation — ORM and validation consumers need only `Type()` and `Validate()`. Rendering is handled by `tinywasm/form`, which type-asserts `field.Widget.(dom.Component)` for HTML output.
 
 ### Validation (Permitted)
 
@@ -60,7 +86,7 @@ Validation rules are embedded in the `Field` via the `Permitted` struct. This in
 
 ### Field.Validate()
 
-Checks a string value against the field's constraints (`NotNull` and `Permitted`).
+Checks a string value against the field's constraints in order: `NotNull` → `Widget.Validate()` → `Permitted`.
 
 ```go
 err := field.Validate("some value")

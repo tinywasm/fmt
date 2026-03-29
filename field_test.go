@@ -27,6 +27,153 @@ func TestFieldTypeString(t *testing.T) {
 	}
 }
 
+type stubInput struct{ kind string }
+
+func (s stubInput) Type() string      { return s.kind }
+func (s stubInput) Clone() Widget     { return s }
+func (s stubInput) Validate(v string) error {
+	if v == "invalid" {
+		return Err(s.kind, "invalid value")
+	}
+	return nil
+}
+
+func TestFieldValidate_WithWidget_Valid(t *testing.T) {
+	f := Field{
+		Name:   "email",
+		Widget: stubInput{kind: "email"},
+	}
+	if err := f.Validate("valid@email.com"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestFieldValidate_WithWidget_Invalid(t *testing.T) {
+	f := Field{
+		Name:   "email",
+		Widget: stubInput{kind: "email"},
+	}
+	if err := f.Validate("invalid"); err == nil {
+		t.Error("expected error from widget, got nil")
+	}
+}
+
+func TestFieldValidate_WithWidgetAndPermitted(t *testing.T) {
+	f := Field{
+		Name:      "email",
+		Widget:    stubInput{kind: "email"},
+		Permitted: Permitted{Minimum: 10, Letters: true, Extra: []rune{'@', '.'}},
+	}
+	// Widget passes, but Permitted fails (length)
+	if err := f.Validate("abc"); err == nil {
+		t.Error("expected error from Permitted.Minimum, got nil")
+	}
+	// Both pass
+	if err := f.Validate("valid@email.com"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestFieldValidate_NilWidget(t *testing.T) {
+	f := Field{
+		Name:      "name",
+		Widget:    nil,
+		Permitted: Permitted{Numbers: true},
+	}
+	if err := f.Validate("123"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if err := f.Validate("abc"); err == nil {
+		t.Error("expected error from Permitted.Numbers, got nil")
+	}
+}
+
+func TestFieldValidate_NotNull_EmptyValue(t *testing.T) {
+	var called bool
+	stub := &stubInputWithCallback{
+		stubInput: stubInput{kind: "text"},
+		callback:  func() { called = true },
+	}
+	f := Field{
+		Name:    "name",
+		NotNull: true,
+		Widget:  stub,
+	}
+
+	if err := f.Validate(""); err == nil {
+		t.Error("expected error for NotNull, got nil")
+	}
+
+	if called {
+		t.Error("Widget.Validate should NOT have been called for empty value when NotNull fails")
+	}
+}
+
+type stubInputWithCallback struct {
+	stubInput
+	callback func()
+}
+
+func (s *stubInputWithCallback) Validate(v string) error {
+	s.callback()
+	return s.stubInput.Validate(v)
+}
+
+func TestWidgetType(t *testing.T) {
+	s := stubInput{kind: "email"}
+	if s.Type() != "email" {
+		t.Errorf("expected Type() = \"email\", got %q", s.Type())
+	}
+}
+
+func TestWidgetClone(t *testing.T) {
+	s := stubInput{kind: "textarea"}
+	c := s.Clone()
+	if c == nil {
+		t.Fatal("Clone() returned nil")
+	}
+	if c.Type() != "textarea" {
+		t.Errorf("Clone().Type() = %q, want \"textarea\"", c.Type())
+	}
+	// Clone must be independent — mutating original should not affect clone
+	// (value receiver, so already independent by definition)
+}
+
+func TestFieldValidate_WidgetRunsBeforePermitted(t *testing.T) {
+	// Widget fails → Permitted must NOT be evaluated (order: Widget first)
+	permittedCalled := false
+	// Use a Permitted that would succeed — if it's called, we detect it via a custom Permitted
+	// Instead: use Widget that fails + Permitted that would also fail, then check error source
+	f := Field{
+		Name:      "field",
+		Widget:    stubInput{kind: "text"}, // fails on "invalid"
+		Permitted: Permitted{Minimum: 100}, // would also fail (too short)
+	}
+	err := f.Validate("invalid")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	// Error must come from Widget (contains "text"), not from Permitted (contains "minimum")
+	msg := err.Error()
+	if !containsAny(msg, "invalid value") {
+		t.Errorf("expected Widget error, got: %q", msg)
+	}
+	_ = permittedCalled
+}
+
+func containsAny(s string, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStr(s, substr))
+}
+
+func containsStr(s, sub string) bool {
+	for i := 0; i <= len(s)-len(sub); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
+}
+
 func TestFieldZeroValue(t *testing.T) {
 	var f Field
 	if f.Name != "" {
