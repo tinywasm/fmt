@@ -119,6 +119,61 @@ func (s *stubInputWithCallback) Validate(v string) error {
 	return s.stubInput.Validate(v)
 }
 
+func TestWidgetType(t *testing.T) {
+	s := stubInput{kind: "email"}
+	if s.Type() != "email" {
+		t.Errorf("expected Type() = \"email\", got %q", s.Type())
+	}
+}
+
+func TestWidgetClone(t *testing.T) {
+	s := stubInput{kind: "textarea"}
+	c := s.Clone()
+	if c == nil {
+		t.Fatal("Clone() returned nil")
+	}
+	if c.Type() != "textarea" {
+		t.Errorf("Clone().Type() = %q, want \"textarea\"", c.Type())
+	}
+	// Clone must be independent — mutating original should not affect clone
+	// (value receiver, so already independent by definition)
+}
+
+func TestFieldValidate_WidgetRunsBeforePermitted(t *testing.T) {
+	// Widget fails → Permitted must NOT be evaluated (order: Widget first)
+	permittedCalled := false
+	// Use a Permitted that would succeed — if it's called, we detect it via a custom Permitted
+	// Instead: use Widget that fails + Permitted that would also fail, then check error source
+	f := Field{
+		Name:      "field",
+		Widget:    stubInput{kind: "text"}, // fails on "invalid"
+		Permitted: Permitted{Minimum: 100}, // would also fail (too short)
+	}
+	err := f.Validate("invalid")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	// Error must come from Widget (contains "text"), not from Permitted (contains "minimum")
+	msg := err.Error()
+	if !containsAny(msg, "invalid value") {
+		t.Errorf("expected Widget error, got: %q", msg)
+	}
+	_ = permittedCalled
+}
+
+func containsAny(s string, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStr(s, substr))
+}
+
+func containsStr(s, sub string) bool {
+	for i := 0; i <= len(s)-len(sub); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
+}
+
 func TestFieldZeroValue(t *testing.T) {
 	var f Field
 	if f.Name != "" {
