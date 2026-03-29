@@ -27,6 +27,98 @@ func TestFieldTypeString(t *testing.T) {
 	}
 }
 
+type stubInput struct{ kind string }
+
+func (s stubInput) Type() string      { return s.kind }
+func (s stubInput) Clone() Widget     { return s }
+func (s stubInput) Validate(v string) error {
+	if v == "invalid" {
+		return Err(s.kind, "invalid value")
+	}
+	return nil
+}
+
+func TestFieldValidate_WithWidget_Valid(t *testing.T) {
+	f := Field{
+		Name:   "email",
+		Widget: stubInput{kind: "email"},
+	}
+	if err := f.Validate("valid@email.com"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestFieldValidate_WithWidget_Invalid(t *testing.T) {
+	f := Field{
+		Name:   "email",
+		Widget: stubInput{kind: "email"},
+	}
+	if err := f.Validate("invalid"); err == nil {
+		t.Error("expected error from widget, got nil")
+	}
+}
+
+func TestFieldValidate_WithWidgetAndPermitted(t *testing.T) {
+	f := Field{
+		Name:      "email",
+		Widget:    stubInput{kind: "email"},
+		Permitted: Permitted{Minimum: 10, Letters: true, Extra: []rune{'@', '.'}},
+	}
+	// Widget passes, but Permitted fails (length)
+	if err := f.Validate("abc"); err == nil {
+		t.Error("expected error from Permitted.Minimum, got nil")
+	}
+	// Both pass
+	if err := f.Validate("valid@email.com"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestFieldValidate_NilWidget(t *testing.T) {
+	f := Field{
+		Name:      "name",
+		Widget:    nil,
+		Permitted: Permitted{Numbers: true},
+	}
+	if err := f.Validate("123"); err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if err := f.Validate("abc"); err == nil {
+		t.Error("expected error from Permitted.Numbers, got nil")
+	}
+}
+
+func TestFieldValidate_NotNull_EmptyValue(t *testing.T) {
+	var called bool
+	stub := &stubInputWithCallback{
+		stubInput: stubInput{kind: "text"},
+		callback:  func() { called = true },
+	}
+	f := Field{
+		Name:    "name",
+		NotNull: true,
+		Widget:  stub,
+	}
+
+	if err := f.Validate(""); err == nil {
+		t.Error("expected error for NotNull, got nil")
+	}
+
+	if called {
+		t.Error("Widget.Validate should NOT have been called for empty value when NotNull fails")
+	}
+}
+
+type stubInputWithCallback struct {
+	stubInput
+	callback func()
+}
+
+func (s *stubInputWithCallback) Validate(v string) error {
+	s.callback()
+	return s.stubInput.Validate(v)
+}
+
 func TestFieldZeroValue(t *testing.T) {
 	var f Field
 	if f.Name != "" {
