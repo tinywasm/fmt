@@ -3,7 +3,7 @@ package dictionary_test
 import (
 	"testing"
 
-	fmt "github.com/tinywasm/fmt"
+	"github.com/tinywasm/fmt"
 	_ "github.com/tinywasm/fmt/dictionary"
 )
 

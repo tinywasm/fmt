@@ -1,6 +1,6 @@
 package dictionary
 
-import fmt "github.com/tinywasm/fmt"
+import "github.com/tinywasm/fmt"
 
 // Built-in dictionary with EN (English) and ES (Spanish) translations.
 // EN is the lookup key — used case-insensitively (e.g. Translate("empty") or Translate("Empty")).
