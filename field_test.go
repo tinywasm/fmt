@@ -29,8 +29,8 @@ func TestFieldTypeString(t *testing.T) {
 
 type stubInput struct{ kind string }
 
-func (s stubInput) Type() string      { return s.kind }
-func (s stubInput) Clone() Widget     { return s }
+func (s stubInput) Type() string                          { return s.kind }
+func (s stubInput) Clone(parentID, name string) Widget     { return s }
 func (s stubInput) Validate(v string) error {
 	if v == "invalid" {
 		return Err(s.kind, "invalid value")
@@ -128,7 +128,7 @@ func TestWidgetType(t *testing.T) {
 
 func TestWidgetClone(t *testing.T) {
 	s := stubInput{kind: "textarea"}
-	c := s.Clone()
+	c := s.Clone("parent", "field")
 	if c == nil {
 		t.Fatal("Clone() returned nil")
 	}

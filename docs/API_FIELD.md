@@ -47,9 +47,9 @@ type Field struct {
 
 ```go
 type Widget interface {
-    Type() string                // Semantic type name (e.g., "email", "textarea")
-    Validate(value string) error // Semantic validation for this input type
-    Clone() Widget               // Returns a fresh template instance (thread-safe)
+    Type() string                              // Semantic type name (e.g., "email", "textarea")
+    Validate(value string) error               // Semantic validation for this input type
+    Clone(parentID, name string) Widget        // Returns a positioned instance; pass ("","") for a bare template
 }
 ```
 
@@ -64,7 +64,9 @@ Field{
 }
 ```
 
-**Why not include `RenderHTML()`:** Interface Segregation — ORM and validation consumers need only `Type()` and `Validate()`. Rendering is handled by `tinywasm/form`, which type-asserts `field.Widget.(dom.Component)` for HTML output.
+**Why `Clone(parentID, name)` instead of `Clone()`:** The form layer always needs positioned instances for rendering. A parameterless `Clone()` would force a separate `Build()` method — two constructors for the same concern. With `Clone(parentID, name)`, consumers that only need a bare template pass `("", "")`, and form consumers get a positioned instance directly.
+
+**Why not include `RenderHTML()`:** Interface Segregation — ORM and validation consumers need only `Type()` and `Validate()`. Rendering is handled by `tinywasm/form`, which type-asserts `field.Widget.Clone(parentID, name).(input.Input)` for HTML output.
 
 ### Validation (Permitted)
 

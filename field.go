@@ -24,9 +24,9 @@ var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct"}
 // RenderHTML is intentionally excluded: rendering is a concern of tinywasm/form,
 // not of the base schema package.
 type Widget interface {
-	Type() string                // Semantic input type (e.g., "email", "textarea"). Industry standard: HTML `type` attribute, JSON Schema `type` field.
-	Validate(value string) error // Semantic validation for this input type
-	Clone() Widget               // Returns a fresh template instance (no parentID/name)
+	Type() string                              // Semantic input type (e.g., "email", "textarea")
+	Validate(value string) error               // Semantic validation for this input type
+	Clone(parentID, name string) Widget        // Returns a positioned instance; pass ("","") for a bare template
 }
 
 func (ft FieldType) String() string {
