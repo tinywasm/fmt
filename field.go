@@ -36,6 +36,14 @@ func (ft FieldType) String() string {
 	return "unknown"
 }
 
+// FieldDB contains database-specific metadata.
+// Extracted from Field to keep transport/UI structs lean.
+type FieldDB struct {
+	PK      bool
+	Unique  bool
+	AutoInc bool
+}
+
 // Field describes a single field in a struct's schema.
 // It provides type metadata, constraint flags, and validation rules
 // used by database (orm), transport (json), UI (form), and validation layers.
@@ -46,14 +54,21 @@ func (ft FieldType) String() string {
 type Field struct {
 	Name      string
 	Type      FieldType
-	PK        bool
-	Unique    bool
 	NotNull   bool
-	AutoInc   bool
-	OmitEmpty bool   // omit from JSON when zero value
-	Widget    Widget // ← NEW: set by ormc from `input:` tag. nil = no UI binding.
-	Permitted        // embedded: validation rules (characters, min/max)
+	OmitEmpty bool     // omit from JSON when zero value
+	Widget    Widget   // ← NEW: set by ormc from `input:` tag. nil = no UI binding.
+	DB        *FieldDB // nil for formonly/transport structs
+	Permitted          // embedded: validation rules (characters, min/max)
 }
+
+// IsPK returns true if the field is a Primary Key.
+func (f Field) IsPK() bool { return f.DB != nil && f.DB.PK }
+
+// IsUnique returns true if the field has a Unique constraint.
+func (f Field) IsUnique() bool { return f.DB != nil && f.DB.Unique }
+
+// IsAutoInc returns true if the field is Auto-Increment.
+func (f Field) IsAutoInc() bool { return f.DB != nil && f.DB.AutoInc }
 
 // Validate checks a string value against this field's constraints.
 // Checks NotNull first, then delegates to embedded Permitted.
@@ -133,7 +148,7 @@ func ValidateFields(action byte, f Fielder) error {
 	for i, field := range schema {
 		// 'd' delete: only PK required, skip everything else
 		if action == 'd' {
-			if field.PK {
+			if field.IsPK() {
 				switch field.Type {
 				case FieldText:
 					val, _ := ReadStringPtr(ptrs[i])
@@ -150,7 +165,7 @@ func ValidateFields(action byte, f Fielder) error {
 		}
 
 		// 'c' create: skip PK+AutoInc (DB assigns it)
-		if action == 'c' && field.PK && field.AutoInc {
+		if action == 'c' && field.IsPK() && field.IsAutoInc() {
 			continue
 		}
 
@@ -159,7 +174,7 @@ func ValidateFields(action byte, f Fielder) error {
 			val, _ := ReadStringPtr(ptrs[i])
 
 			// PK always required (in 'c' without AutoInc, in 'u', and any other)
-			if field.PK && val == "" {
+			if field.IsPK() && val == "" {
 				return Err(field.Name, "required")
 			}
 
@@ -181,7 +196,7 @@ func ValidateFields(action byte, f Fielder) error {
 
 		default:
 			// PK always required
-			if field.PK && isZeroPtr(ptrs[i], field.Type) {
+			if field.IsPK() && isZeroPtr(ptrs[i], field.Type) {
 				return Err(field.Name, "required")
 			}
 			// Non-text fields: only check NotNull (zero value check)
