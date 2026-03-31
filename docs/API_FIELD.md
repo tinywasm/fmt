@@ -31,14 +31,34 @@ fmt.FieldInt.String() // returns "int"
 type Field struct {
     Name      string
     Type      FieldType
-    PK        bool
-    Unique    bool
     NotNull   bool
-    AutoInc   bool
     OmitEmpty bool      // omit from JSON when zero value
     Widget    Widget    // semantic input type; nil = no UI binding (set by ormc from `input:` tag)
+    DB        *FieldDB  // nil for formonly/transport structs
     Permitted           // embedded: validation rules (characters, min/max)
 }
+```
+
+## FieldDB
+
+`FieldDB` contains database-specific metadata, extracted from `Field` to keep transport/UI structs lean. When `DB` is `nil`, the field has no database concerns (e.g., `formonly` structs).
+
+```go
+type FieldDB struct {
+    PK      bool
+    Unique  bool
+    AutoInc bool
+}
+```
+
+### Helper methods on Field
+
+Convenience methods to avoid nil-check boilerplate:
+
+```go
+func (f Field) IsPK() bool      { return f.DB != nil && f.DB.PK }
+func (f Field) IsUnique() bool   { return f.DB != nil && f.DB.Unique }
+func (f Field) IsAutoInc() bool  { return f.DB != nil && f.DB.AutoInc }
 ```
 
 ## Widget Interface
@@ -187,7 +207,7 @@ type User struct {
 
 func (u *User) Schema() []fmt.Field {
     return []fmt.Field{
-        {Name: "id", Type: fmt.FieldText, PK: true},
+        {Name: "id", Type: fmt.FieldText, DB: &fmt.FieldDB{PK: true}},
         {Name: "name", Type: fmt.FieldText, NotNull: true, Permitted: fmt.Permitted{Letters: true}},
     }
 }
