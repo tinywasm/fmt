@@ -182,8 +182,8 @@ func TestFieldZeroValue(t *testing.T) {
 	if f.Type != FieldText {
 		t.Errorf("expected FieldText type, got %v", f.Type)
 	}
-	if f.PK || f.Unique || f.NotNull || f.AutoInc {
-		t.Errorf("expected all bools false, got PK=%v, Unique=%v, NotNull=%v, AutoInc=%v", f.PK, f.Unique, f.NotNull, f.AutoInc)
+	if f.IsPK() || f.IsUnique() || f.NotNull || f.IsAutoInc() {
+		t.Errorf("expected all bools false, got PK=%v, Unique=%v, NotNull=%v, AutoInc=%v", f.IsPK(), f.IsUnique(), f.NotNull, f.IsAutoInc())
 	}
 }
 
@@ -198,10 +198,12 @@ func TestFieldConstraints(t *testing.T) {
 	f := Field{
 		Name:    "id",
 		Type:    FieldInt,
-		PK:      true,
-		Unique:  true,
 		NotNull: true,
-		AutoInc: true,
+		DB: &FieldDB{
+			PK:      true,
+			Unique:  true,
+			AutoInc: true,
+		},
 	}
 	if f.Name != "id" {
 		t.Errorf("expected Name 'id', got %v", f.Name)
@@ -209,16 +211,16 @@ func TestFieldConstraints(t *testing.T) {
 	if f.Type != FieldInt {
 		t.Errorf("expected FieldInt type, got %v", f.Type)
 	}
-	if !f.PK {
+	if !f.IsPK() {
 		t.Error("expected PK true")
 	}
-	if !f.Unique {
+	if !f.IsUnique() {
 		t.Error("expected Unique true")
 	}
 	if !f.NotNull {
 		t.Error("expected NotNull true")
 	}
-	if !f.AutoInc {
+	if !f.IsAutoInc() {
 		t.Error("expected AutoInc true")
 	}
 }
@@ -289,7 +291,7 @@ type mockUser struct {
 
 func (m *mockUser) Schema() []Field {
 	return []Field{
-		{Name: "id", Type: FieldText, PK: true},
+		{Name: "id", Type: FieldText, DB: &FieldDB{PK: true}},
 		{Name: "name", Type: FieldText, NotNull: true},
 	}
 }
@@ -451,7 +453,7 @@ func TestValidateFieldsActions(t *testing.T) {
 	}
 
 	schema := []Field{
-		{Name: "id", Type: FieldInt, PK: true, AutoInc: true},
+		{Name: "id", Type: FieldInt, DB: &FieldDB{PK: true, AutoInc: true}},
 		{Name: "name", Type: FieldText, NotNull: true},
 		{Name: "email", Type: FieldText, Permitted: Permitted{Letters: true, Extra: []rune{'@', '.'}}},
 		{Name: "version", Type: FieldInt, NotNull: true},
