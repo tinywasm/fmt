@@ -53,32 +53,47 @@ func (c *Conv) wrErr(msgs ...any) *Conv {
 			} else {
 				c.WrString(BuffErr, v)
 			}
-		case int:
-			// Convert int to string and write - simple conversion for errors
-			if v == 0 {
-				c.WrString(BuffErr, "0")
-			} else {
-				// Simple int to string conversion for error messages
-				var buf [20]byte // Enough for 64-bit int
-				n := len(buf)
-				negative := v < 0
-				if negative {
-					v = -v
-				}
-				for v > 0 {
-					n--
-					buf[n] = byte(v%10) + '0'
-					v /= 10
-				}
-				if negative {
-					n--
-					buf[n] = '-'
-				}
-				c.WrString(BuffErr, string(buf[n:]))
+		case int, int8, int16, int32, int64:
+			c.ResetBuffer(BuffWork)
+			var val int64
+			switch i := v.(type) {
+			case int: val = int64(i)
+			case int8: val = int64(i)
+			case int16: val = int64(i)
+			case int32: val = int64(i)
+			case int64: val = i
 			}
+			c.wrIntBase(BuffWork, val, 10, true, false)
+			c.WrString(BuffErr, c.GetString(BuffWork))
+		case uint, uint8, uint16, uint32, uint64:
+			c.ResetBuffer(BuffWork)
+			var val uint64
+			switch i := v.(type) {
+			case uint: val = uint64(i)
+			case uint8: val = uint64(i)
+			case uint16: val = uint64(i)
+			case uint32: val = uint64(i)
+			case uint64: val = i
+			}
+			c.wrUintBase(BuffWork, val, 10)
+			c.WrString(BuffErr, c.GetString(BuffWork))
+		case bool:
+			if v {
+				c.WrString(BuffErr, "true")
+			} else {
+				c.WrString(BuffErr, "false")
+			}
+		case error:
+			c.WrString(BuffErr, v.Error())
 		default:
-			// For other types, convert to string representation
-			c.WrString(BuffErr, "<unsupported>")
+			// For other types, try AnyToBuff with BuffWork to avoid recursion or side effects
+			c.ResetBuffer(BuffWork)
+			c.AnyToBuff(BuffWork, v)
+			if c.hasContent(BuffWork) {
+				c.WrString(BuffErr, c.GetString(BuffWork))
+			} else {
+				c.WrString(BuffErr, "<unsupported>")
+			}
 		}
 	}
 	// fmt.Printf("wrErr: Final error buffer content: %q, errLen: %d\n", c.GetString(BuffErr), c.errLen) // Depuración

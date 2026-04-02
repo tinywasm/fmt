@@ -235,6 +235,8 @@ func (c *Conv) parseFormatSpecifier(format string, i int) (formatChar rune, para
 		formatChar, param, formatSpec = '%', 0, "%%"
 	case 'L':
 		formatChar, param, formatSpec = 'L', 0, "%L"
+	case 'w':
+		formatChar, param, formatSpec = 'w', 0, "%w"
 	default:
 		formatChar, param, formatSpec = rune(format[i]), 0, ""
 	}
@@ -245,7 +247,7 @@ func (c *Conv) parseFormatSpecifier(format string, i int) (formatChar rune, para
 // isValidFormatChar validates format characters for both read and write operations
 func (c *Conv) isValidFormatChar(ch rune) bool {
 	switch ch {
-	case 'c', 'U', 'd', 'u', 'f', 'e', 'E', 'g', 'G', 'o', 'O', 'b', 'B', 'x', 'X', 'p', 't', 'v', 'q', 's', '%', 'L':
+	case 'c', 'U', 'd', 'u', 'f', 'e', 'E', 'g', 'G', 'o', 'O', 'b', 'B', 'x', 'X', 'p', 't', 'v', 'q', 's', '%', 'L', 'w':
 		return true
 	default:
 		return false
@@ -465,6 +467,19 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 		}
 		c.wrInvalidTypeErr(formatSpec)
 		return ""
+	case 'w':
+		// Error wrapping - treat as %v (error or custom String())
+		c.ResetBuffer(BuffWork)
+		if errVal, ok := arg.(error); ok {
+			c.WrString(BuffWork, errVal.Error())
+			return c.GetString(BuffWork)
+		} else {
+			c.AnyToBuff(BuffWork, arg)
+			if c.hasContent(BuffErr) {
+				return ""
+			}
+			return c.GetString(BuffWork)
+		}
 	}
 	return ""
 }

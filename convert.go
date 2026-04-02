@@ -61,13 +61,7 @@ func Convert(v ...any) *Conv {
 
 // =============================================================================
 
-// AnyToBuff converts any supported type to buffer using existing conversion logic
-// REUSES: floatToOut, wrStringToOut, wrStringToErr
-// Supports: string, int variants, uint variants, float variants, bool, []byte, LocStr
 func (c *Conv) AnyToBuff(dest BuffDest, value any) {
-	// Limpiar buffer de error antes de cualquier conversión inmediata
-	c.ResetBuffer(BuffErr)
-
 	switch v := value.(type) {
 	// IMMEDIATE CONVERSION - Simple Types (ordered as in Kind.go)
 
