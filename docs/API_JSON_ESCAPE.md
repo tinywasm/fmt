@@ -51,5 +51,6 @@ func IsZero(v any) bool
 | `uint` (all sizes) | `0` |
 | `float32`, `float64` | `0` |
 | `[]byte` | `len(val) == 0` |
+| `[]int` | `len(val) == 0` |
 
 Returns `false` for unrecognized types.

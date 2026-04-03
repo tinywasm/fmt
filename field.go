@@ -4,15 +4,16 @@ package fmt
 type FieldType int
 
 const (
-	FieldText   FieldType = iota // Any string
-	FieldInt                     // Any integer
-	FieldFloat                   // Any float
-	FieldBool                    // Boolean
-	FieldBlob                    // Binary data ([]byte)
-	FieldStruct                  // Nested struct (implements Fielder)
+	FieldText     FieldType = iota // Any string
+	FieldInt                       // Any integer
+	FieldFloat                     // Any float
+	FieldBool                      // Boolean
+	FieldBlob                      // Binary data ([]byte)
+	FieldStruct                    // Nested struct (implements Fielder)
+	FieldIntSlice                  // []int
 )
 
-var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct"}
+var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice"}
 
 // Widget is the contract for a semantic input type.
 // It is implemented by tinywasm/form/input types and custom project inputs.
@@ -241,6 +242,10 @@ func isZeroPtr(ptr any, ft FieldType) bool {
 		if p, ok := ptr.(*[]byte); ok {
 			return len(*p) == 0
 		}
+	case FieldIntSlice:
+		if p, ok := ptr.(*[]int); ok {
+			return len(*p) == 0
+		}
 	}
 	return false
 }
@@ -307,6 +312,10 @@ func ReadValues(schema []Field, ptrs []any) []any {
 			}
 		case FieldStruct:
 			vals[i] = ptrs[i] // pointer to nested struct IS the Fielder
+		case FieldIntSlice:
+			if p, ok := ptrs[i].(*[]int); ok && p != nil {
+				vals[i] = *p
+			}
 		}
 	}
 	return vals

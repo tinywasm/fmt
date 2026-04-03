@@ -14,6 +14,7 @@ The `field` API provides a standard way to describe struct schemas, access their
 | `FieldBool` | `"bool"` | Boolean values |
 | `FieldBlob` | `"blob"` | Binary data |
 | `FieldStruct` | `"struct"` | Nested struct |
+| `FieldIntSlice` | `"intslice"` | Slice of integers (`[]int`) |
 
 ### String()
 

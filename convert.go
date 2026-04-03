@@ -239,6 +239,8 @@ func IsZero(v any) bool {
 		return val == 0
 	case []byte:
 		return len(val) == 0
+	case []int:
+		return len(val) == 0
 	}
 	return false
 }

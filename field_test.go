@@ -15,8 +15,9 @@ func TestFieldTypeString(t *testing.T) {
 		{FieldBool, "bool"},
 		{FieldBlob, "blob"},
 		{FieldStruct, "struct"},
+		{FieldIntSlice, "intslice"},
 		{FieldType(-1), "unknown"},
-		{FieldType(6), "unknown"},
+		{FieldType(7), "unknown"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -405,6 +406,13 @@ func TestIsZeroPtrAllTypes(t *testing.T) {
 	if !isZeroPtr(&bl, FieldBlob) { t.Error("empty blob should be zero") }
 	bl = []byte{1}
 	if isZeroPtr(&bl, FieldBlob) { t.Error("non-empty blob should not be zero") }
+
+	var sl []int
+	if !isZeroPtr(&sl, FieldIntSlice) { t.Error("nil slice should be zero") }
+	sl = []int{}
+	if !isZeroPtr(&sl, FieldIntSlice) { t.Error("empty slice should be zero") }
+	sl = []int{1}
+	if isZeroPtr(&sl, FieldIntSlice) { t.Error("non-empty slice should not be zero") }
 }
 
 func TestReadStringPtr(t *testing.T) {
