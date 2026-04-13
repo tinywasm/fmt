@@ -11,9 +11,10 @@ const (
 	FieldBlob                      // Binary data ([]byte)
 	FieldStruct                    // Nested struct (implements Fielder)
 	FieldIntSlice                  // []int
+	FieldStructSlice               // []Fielder
 )
 
-var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice"}
+var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice", "structslice"}
 
 // Widget is the contract for a semantic input type.
 // It is implemented by tinywasm/form/input types and custom project inputs.
@@ -25,9 +26,9 @@ var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", 
 // RenderHTML is intentionally excluded: rendering is a concern of tinywasm/form,
 // not of the base schema package.
 type Widget interface {
-	Type() string                              // Semantic input type (e.g., "email", "textarea")
-	Validate(value string) error               // Semantic validation for this input type
-	Clone(parentID, name string) Widget        // Returns a positioned instance; pass ("","") for a bare template
+	Type() string                       // Semantic input type (e.g., "email", "textarea")
+	Validate(value string) error        // Semantic validation for this input type
+	Clone(parentID, name string) Widget // Returns a positioned instance; pass ("","") for a bare template
 }
 
 func (ft FieldType) String() string {
@@ -246,6 +247,11 @@ func isZeroPtr(ptr any, ft FieldType) bool {
 		if p, ok := ptr.(*[]int); ok {
 			return len(*p) == 0
 		}
+	case FieldStructSlice:
+		// Since we handle various slice types and tinywasm avoids reflection,
+		// we check for nil pointer or rely on the specific implementation to provide length.
+		// For zero-check purposes, if it's a pointer to a slice, we check if it's nil.
+		return ptr == nil
 	}
 	return false
 }
@@ -316,6 +322,8 @@ func ReadValues(schema []Field, ptrs []any) []any {
 			if p, ok := ptrs[i].(*[]int); ok && p != nil {
 				vals[i] = *p
 			}
+		case FieldStructSlice:
+			vals[i] = ptrs[i] // Pass the slice pointer as is
 		}
 	}
 	return vals

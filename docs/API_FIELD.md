@@ -15,6 +15,7 @@ The `field` API provides a standard way to describe struct schemas, access their
 | `FieldBlob` | `"blob"` | Binary data |
 | `FieldStruct` | `"struct"` | Nested struct |
 | `FieldIntSlice` | `"intslice"` | Slice of integers (`[]int`) |
+| `FieldStructSlice` | `"structslice"` | Slice of nested structs (`[]Fielder`) |
 
 ### String()
 
