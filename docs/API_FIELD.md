@@ -133,6 +133,20 @@ type Fielder interface {
 - The i-th element in each slice corresponds to the same struct field.
 - `Pointers()` returns pointers to fields for reading (dereference) and writing.
 
+## FielderSlice Interface
+
+`FielderSlice` is the interface used to read and append elements to a typed slice of structs without depending on runtime reflection.
+
+```go
+type FielderSlice interface {
+    Len() int
+    At(i int) Fielder
+    Append() Fielder
+}
+```
+
+This interface is implemented by generated code to allow iterators (like JSON encoding) to pull out nested structures reliably and with zero allocation footprint.
+
 ## Validator and SafeFields
 
 ```go
