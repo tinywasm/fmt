@@ -135,10 +135,11 @@ type Fielder interface {
 
 ## FielderSlice Interface
 
-`FielderSlice` is the interface used to read and append elements to a typed slice of structs without depending on runtime reflection.
+`FielderSlice` is the interface used to read and append elements to a typed slice of structs without depending on runtime reflection. It embeds `Fielder`, allowing slice types to be passed to functions accepting `Fielder`.
 
 ```go
 type FielderSlice interface {
+    Fielder
     Len() int
     At(i int) Fielder
     Append() Fielder

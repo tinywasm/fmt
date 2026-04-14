@@ -119,6 +119,7 @@ type Fielder interface {
 // FielderSlice is implemented by generated code to allow
 // iteration over a slice of structs without reflection.
 type FielderSlice interface {
+	Fielder
 	Len() int
 	At(i int) Fielder
 	Append() Fielder

@@ -548,5 +548,21 @@ type manualFielder struct {
 	schema []Field
 	ptrs   []any
 }
+
 func (f *manualFielder) Schema() []Field { return f.schema }
 func (f *manualFielder) Pointers() []any { return f.ptrs }
+
+type mockFielderSlice struct {
+	items []Fielder
+}
+
+func (m *mockFielderSlice) Schema() []Field   { return nil }
+func (m *mockFielderSlice) Pointers() []any   { return nil }
+func (m *mockFielderSlice) Len() int           { return len(m.items) }
+func (m *mockFielderSlice) At(i int) Fielder { return m.items[i] }
+func (m *mockFielderSlice) Append() Fielder   { return nil }
+
+func TestFielderSliceEmbedsFielder(t *testing.T) {
+	var _ Fielder = (FielderSlice)(nil)
+	var _ Fielder = (*mockFielderSlice)(nil)
+}
