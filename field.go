@@ -12,9 +12,10 @@ const (
 	FieldStruct                    // Nested struct (implements Fielder)
 	FieldIntSlice                  // []int
 	FieldStructSlice               // []Fielder
+	FieldRaw                       // Pre-serialized JSON — emitted inline, no quoting
 )
 
-var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice", "structslice"}
+var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice", "structslice", "raw"}
 
 // Widget is the contract for a semantic input type.
 // It is implemented by tinywasm/form/input types and custom project inputs.
@@ -161,7 +162,7 @@ func ValidateFields(action byte, f Fielder) error {
 		if action == 'd' {
 			if field.IsPK() {
 				switch field.Type {
-				case FieldText:
+				case FieldText, FieldRaw:
 					val, _ := ReadStringPtr(ptrs[i])
 					if val == "" {
 						return Err(field.Name, "required")
@@ -181,7 +182,7 @@ func ValidateFields(action byte, f Fielder) error {
 		}
 
 		switch field.Type {
-		case FieldText:
+		case FieldText, FieldRaw:
 			val, _ := ReadStringPtr(ptrs[i])
 
 			// PK always required (in 'c' without AutoInc, in 'u', and any other)
@@ -222,6 +223,10 @@ func ValidateFields(action byte, f Fielder) error {
 // isZeroPtr checks if a pointer points to a zero value.
 func isZeroPtr(ptr any, ft FieldType) bool {
 	switch ft {
+	case FieldText, FieldRaw:
+		if p, ok := ptr.(*string); ok && p != nil {
+			return *p == ""
+		}
 	case FieldInt:
 		switch p := ptr.(type) {
 		case *int64:
@@ -275,7 +280,7 @@ func ReadValues(schema []Field, ptrs []any) []any {
 			continue
 		}
 		switch f.Type {
-		case FieldText:
+		case FieldText, FieldRaw:
 			if p, ok := ptrs[i].(*string); ok && p != nil {
 				vals[i] = *p
 			}

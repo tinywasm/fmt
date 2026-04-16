@@ -17,8 +17,9 @@ func TestFieldTypeString(t *testing.T) {
 		{FieldStruct, "struct"},
 		{FieldIntSlice, "intslice"},
 		{FieldStructSlice, "structslice"},
+		{FieldRaw, "raw"},
 		{FieldType(-1), "unknown"},
-		{FieldType(8), "unknown"},
+		{FieldType(9), "unknown"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -262,6 +263,7 @@ type fullMock struct {
 	Float32 float32
 	Bool   bool
 	Blob   []byte
+	Raw    string
 	Nested *mockUser
 }
 
@@ -278,12 +280,13 @@ func (m *fullMock) Schema() []Field {
 		{Name: "float32", Type: FieldFloat},
 		{Name: "bool", Type: FieldBool, NotNull: true},
 		{Name: "blob", Type: FieldBlob, NotNull: true},
+		{Name: "raw", Type: FieldRaw, NotNull: true},
 		{Name: "nested", Type: FieldStruct, NotNull: true},
 	}
 }
 
 func (m *fullMock) Pointers() []any {
-	return []any{&m.Text, &m.Int, &m.Int32, &m.Int64, &m.Uint, &m.Uint32, &m.Uint64, &m.Float, &m.Float32, &m.Bool, &m.Blob, m.Nested}
+	return []any{&m.Text, &m.Int, &m.Int32, &m.Int64, &m.Uint, &m.Uint32, &m.Uint64, &m.Float, &m.Float32, &m.Bool, &m.Blob, &m.Raw, m.Nested}
 }
 
 type mockUser struct {
@@ -307,6 +310,7 @@ func TestValidateFieldsRecursive(t *testing.T) {
 		Float: 1.1,
 		Bool: true,
 		Blob: []byte{1},
+		Raw: "{}",
 		Nested: &mockUser{id: "u1", name: "Alice"},
 	}
 
@@ -341,13 +345,14 @@ func TestReadValuesAllTypes(t *testing.T) {
 		Float32: 2.2,
 		Bool: true,
 		Blob: []byte{0x01},
+		Raw: "{\"a\":1}",
 		Nested: &mockUser{id: "u1", name: "Alice"},
 	}
 	schema := m.Schema()
 	ptrs := m.Pointers()
 	vals := ReadValues(schema, ptrs)
 
-	expected := []any{"text", 10, int32(32), int64(64), uint(100), uint32(320), uint64(640), 1.1, float32(2.2), true, []byte{0x01}, m.Nested}
+	expected := []any{"text", 10, int32(32), int64(64), uint(100), uint32(320), uint64(640), 1.1, float32(2.2), true, []byte{0x01}, "{\"a\":1}", m.Nested}
 	for i, v := range expected {
 		if i == 10 { // Blob check
 			b1 := v.([]byte)
@@ -373,6 +378,13 @@ func TestReadValuesAllTypes(t *testing.T) {
 }
 
 func TestIsZeroPtrAllTypes(t *testing.T) {
+	var s string = ""
+	if !isZeroPtr(&s, FieldText) { t.Error("empty string should be zero") }
+	if !isZeroPtr(&s, FieldRaw) { t.Error("empty raw string should be zero") }
+	s = "v"
+	if isZeroPtr(&s, FieldText) { t.Error("non-empty string should not be zero") }
+	if isZeroPtr(&s, FieldRaw) { t.Error("non-empty raw string should not be zero") }
+
 	var i int = 0
 	if !isZeroPtr(&i, FieldInt) { t.Error("int 0 should be zero") }
 	i = 1
@@ -463,6 +475,7 @@ func TestValidateFieldsActions(t *testing.T) {
 		ID      int
 		Name    string
 		Email   string
+		Raw     string
 		Version int
 	}
 
@@ -470,6 +483,7 @@ func TestValidateFieldsActions(t *testing.T) {
 		{Name: "id", Type: FieldInt, DB: &FieldDB{PK: true, AutoInc: true}},
 		{Name: "name", Type: FieldText, NotNull: true},
 		{Name: "email", Type: FieldText, Permitted: Permitted{Letters: true, Extra: []rune{'@', '.'}}},
+		{Name: "raw", Type: FieldRaw, NotNull: true},
 		{Name: "version", Type: FieldInt, NotNull: true},
 	}
 
@@ -477,12 +491,12 @@ func TestValidateFieldsActions(t *testing.T) {
 	getFielder := func(m *userActionMock) Fielder {
 		return &manualFielder{
 			schema: schema,
-			ptrs:   []any{&m.ID, &m.Name, &m.Email, &m.Version},
+			ptrs:   []any{&m.ID, &m.Name, &m.Email, &m.Raw, &m.Version},
 		}
 	}
 
 	t.Run("Create 'c'", func(t *testing.T) {
-		m := &userActionMock{Name: "Alice", Email: "a@b.com", Version: 1}
+		m := &userActionMock{Name: "Alice", Email: "a@b.com", Raw: "{}", Version: 1}
 		f := getFielder(m)
 
 		// PK+AutoInc should be skipped in 'c'
@@ -495,10 +509,15 @@ func TestValidateFieldsActions(t *testing.T) {
 		if err := ValidateFields('c', f); err == nil {
 			t.Error("expected failure in 'c' with empty Name")
 		}
+		m.Name = "Alice"
+		m.Raw = ""
+		if err := ValidateFields('c', f); err == nil {
+			t.Error("expected failure in 'c' with empty Raw")
+		}
 	})
 
 	t.Run("Update 'u'", func(t *testing.T) {
-		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Version: 1}
+		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Raw: "{}", Version: 1}
 		f := getFielder(m)
 
 		if err := ValidateFields('u', f); err != nil {
@@ -529,7 +548,7 @@ func TestValidateFieldsActions(t *testing.T) {
 	})
 
 	t.Run("Unknown 'x'", func(t *testing.T) {
-		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Version: 1}
+		m := &userActionMock{ID: 1, Name: "Alice", Email: "a@b.com", Raw: "{}", Version: 1}
 		f := getFielder(m)
 
 		// Should behave like 'u'

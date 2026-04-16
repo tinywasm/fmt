@@ -16,6 +16,7 @@ The `field` API provides a standard way to describe struct schemas, access their
 | `FieldStruct` | `"struct"` | Nested struct |
 | `FieldIntSlice` | `"intslice"` | Slice of integers (`[]int`) |
 | `FieldStructSlice` | `"structslice"` | Slice of nested structs (`[]Fielder`) |
+| `FieldRaw` | `"raw"` | Pre-serialized JSON — emitted inline, no quoting |
 
 ### String()
 
