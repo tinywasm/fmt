@@ -64,6 +64,29 @@ func (f Field) IsUnique() bool   { return f.DB != nil && f.DB.Unique }
 func (f Field) IsAutoInc() bool  { return f.DB != nil && f.DB.AutoInc }
 ```
 
+## RawJSON Type
+
+`RawJSON` is a type alias for `string` that signals pre-serialized JSON content. It tells the encoder to emit the field inline without quoting or re-serializing, following the pattern of `encoding/json.RawMessage` in the standard library.
+
+```go
+type Result struct {
+    Content RawJSON            // no tag needed; type itself conveys intent
+    Error   RawJSON `json:",omitempty"`
+}
+```
+
+**Benefits:**
+
+- **No linter warnings:** Using the type alias avoids the `unknown JSON option "raw"` error from placing `raw` in the standard `json:` tag.
+- **Self-documenting:** The type clearly signals that the field contains pre-serialized JSON.
+- **Zero overhead in WASM:** Type alias with `=` creates no runtime boxing — at compile time it's indistinguishable from `string`.
+
+**How it works:**
+
+1. The developer declares a field with type `RawJSON`
+2. `ormc` code generation detects the type name and marks the field as `FieldRaw` in the Schema()
+3. `tinywasm/json` encoder checks `Type == FieldRaw` and emits the value inline (no quoting or re-serializing)
+
 ## Widget Interface
 
 `Widget` is the contract for a semantic input type. It is implemented by `tinywasm/form/input` types and by custom project inputs defined in `web/inputs/`. Set by `ormc` code generation from the `input:` struct tag.

@@ -4,18 +4,33 @@ package fmt
 type FieldType int
 
 const (
-	FieldText     FieldType = iota // Any string
-	FieldInt                       // Any integer
-	FieldFloat                     // Any float
-	FieldBool                      // Boolean
-	FieldBlob                      // Binary data ([]byte)
-	FieldStruct                    // Nested struct (implements Fielder)
-	FieldIntSlice                  // []int
-	FieldStructSlice               // []Fielder
-	FieldRaw                       // Pre-serialized JSON — emitted inline, no quoting
+	FieldText        FieldType = iota // Any string
+	FieldInt                          // Any integer
+	FieldFloat                        // Any float
+	FieldBool                         // Boolean
+	FieldBlob                         // Binary data ([]byte)
+	FieldStruct                       // Nested struct (implements Fielder)
+	FieldIntSlice                     // []int
+	FieldStructSlice                  // []Fielder
+	FieldRaw                          // Pre-serialized JSON — emitted inline, no quoting
 )
 
 var fieldTypeNames = []string{"text", "int", "float", "bool", "blob", "struct", "intslice", "structslice", "raw"}
+
+// RawJSON is a type alias for string that signals pre-serialized JSON content.
+// Like encoding/json.RawMessage, it tells the encoder to emit the value inline
+// without quoting or re-serializing, avoiding linter warnings about the `json:",raw"` tag.
+//
+// Usage:
+//
+//	type Result struct {
+//	    Content RawJSON            // no tag needed; type itself conveys intent
+//	    Error   RawJSON `json:",omitempty"`
+//	}
+//
+// The encoder detects RawJSON at code-generation time (ormc), marking the field
+// as FieldRaw in the Schema(), and tinywasm/json handles it without re-serializing.
+type RawJSON = string
 
 // Widget is the contract for a semantic input type.
 // It is implemented by tinywasm/form/input types and custom project inputs.
