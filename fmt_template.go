@@ -374,7 +374,7 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 		// Quoted string or rune
 		switch v := arg.(type) {
 		case string:
-			return "\"" + v + "\""
+			return Convert(v).Quote().String()
 		case rune:
 			return "'" + string(v) + "'"
 		case byte:
