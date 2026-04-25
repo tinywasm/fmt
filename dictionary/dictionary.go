@@ -54,6 +54,7 @@ func init() {
 		{EN: "Denied", ES: "Denegado"},
 		{EN: "Dictionary", ES: "Diccionario"},
 		{EN: "Digit", ES: "Dígito"},
+		{EN: "Directory", ES: "Directorio"},
 		{EN: "Down", ES: "Abajo"},
 
 		// E
@@ -88,6 +89,7 @@ func init() {
 		{EN: "in", ES: "en"},
 		{EN: "Index", ES: "Índice"},
 		{EN: "Information", ES: "Información"},
+		{EN: "Initialized", ES: "Inicializado"},
 		{EN: "Input", ES: "Entrada"},
 		{EN: "Insert", ES: "Insertar"},
 		{EN: "Install", ES: "Instalar"},
@@ -141,6 +143,7 @@ func init() {
 		{EN: "Pointer", ES: "Puntero"},
 		{EN: "Preparing", ES: "Preparando"},
 		{EN: "Production", ES: "Producción"},
+		{EN: "Project", ES: "Proyecto"},
 		{EN: "Provided", ES: "Proporcionado"},
 
 		// Q
@@ -152,7 +155,9 @@ func init() {
 		{EN: "Registered", ES: "Registrado"},
 		{EN: "Required", ES: "Requerido"},
 		{EN: "Right", ES: "Derecha"},
+		{EN: "Root", ES: "Raíz"},
 		{EN: "Round", ES: "Redondear"},
+		{EN: "Run", ES: "Ejecutar"},
 
 		// S
 		{EN: "Seconds", ES: "Segundos"},
