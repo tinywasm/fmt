@@ -7,6 +7,27 @@ Dependency-free translation engine for composable i18n messages (EN/ES built-in,
 2. **Language**: `fmt.OutLang(fmt.ES)` sets global lang. `fmt.OutLang()` auto-detects system language.
 3. **Word Order**: ALWAYS use **Noun + Adjective** (e.g., `"format", "invalid"` -> ES: *"Formato Inválido"*, EN: *"Format Invalid"*).
 
+## Writing messages: think in Spanish first
+
+English word order is flexible — it tolerates both "Invalid Format" and "Format Invalid".
+Spanish is not: adjectives follow the noun, and natural phrasing matters more.
+
+**Rule**: before choosing your EN word sequence, verify it produces natural ES output.
+Write the words in the order that makes sense in Spanish; English will still be readable.
+
+| Goal | Wrong EN order | Why it breaks in ES | Correct order |
+|------|---------------|---------------------|---------------|
+| Format error | `"invalid", "format"` | "Inválido Formato" ❌ | `"format", "invalid"` → "Formato Inválido" ✓ |
+| Directory not initialized | `"not", "initialized", "directory"` | "No Inicializado Directorio" ❌ | `"directory", "not", "initialized"` → "Directorio No Inicializado" ✓ |
+| Project root missing | `"missing", "project", "root"` | "Falta Proyecto Raíz" ❌ | `"project", "root", "missing"` → "Proyecto Raíz Falta" ✓ |
+
+**Quick checklist before writing a `Translate(...)` call:**
+1. Write the sentence in Spanish first.
+2. Extract the nouns, then adjectives/state words — that is your word order.
+3. Use that same order for the EN keys passed to `Translate()`.
+
+Unknown words (e.g. `"Go"`, version numbers, paths) pass through unchanged in both languages.
+
 ## API Usage
 `Translate()` & `Err()` accept strings (case-insensitive keys), language constants, and other types. Unknown strings pass through.
 
