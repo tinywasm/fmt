@@ -120,3 +120,41 @@ func HasSuffix(conv, suffix string) bool {
 	// The suffix should be at the start of the tail slice
 	return Index(conv[len(conv)-len(suffix):], suffix) == 0
 }
+
+// Matches reports whether content contains ALL given terms (AND semantics).
+// content and each term are lowercased before comparison.
+// Returns false if no terms are given or any term is empty.
+func Matches(content string, terms ...string) bool {
+	return matches(false, content, terms...)
+}
+
+// MatchesAny reports whether content contains AT LEAST ONE of the given terms (OR semantics).
+// content and each term are lowercased before comparison.
+// Returns false if no terms are given or any term is empty.
+func MatchesAny(content string, terms ...string) bool {
+	return matches(true, content, terms...)
+}
+
+func matches(or bool, content string, terms ...string) bool {
+	if len(terms) == 0 {
+		return false
+	}
+	conv := GetConv()
+	defer conv.PutConv()
+
+	lower := conv.Reset().Write(content).ToLower().GetString(BuffOut)
+	for _, term := range terms {
+		if term == "" {
+			return false
+		}
+		termLower := conv.Reset().Write(term).ToLower().GetString(BuffOut)
+		found := Contains(lower, termLower)
+		if or && found {
+			return true // OR: basta con uno
+		}
+		if !or && !found {
+			return false // AND: falla en el primero ausente
+		}
+	}
+	return !or // AND sin fallos → true; OR sin éxito → false
+}

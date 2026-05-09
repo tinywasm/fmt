@@ -20,6 +20,8 @@ Replace common `strings` package functions with fmt equivalents:
 | `strings.HasPrefix()` | `HasPrefix(s, prefix)` |
 | (Utility) | `HasUpperPrefix(s)` |
 | `strings.HasSuffix()` | `HasSuffix(s, suffix)` |
+| (Utility) | `Matches(s, terms...)` |
+| (Utility) | `MatchesAny(s, terms...)` |
 
 ## Other String Transformations
 
@@ -53,12 +55,20 @@ if pos >= 0 {
     extension := "image.backup.jpg"[pos+1:]           // out: "jpg"
 }
 
-// ⚠️ Note: Index, Contains, LastIndex and HasUpperPrefix are global functions, not methods.
+// Multi-term searching (AND/OR semantics)
+// Both perform internal ToLower() normalization on content and terms.
+foundAll := Matches("Hello World", "hello", "world")   // out: true (AND)
+foundOne := MatchesAny("Hello World", "hello", "xyz")  // out: true (OR)
+noMatch  := Matches("Hello World", "hello", "xyz")     // out: false (AND)
+
+// ⚠️ Note: Index, Contains, LastIndex, HasUpperPrefix, Matches and MatchesAny are global functions, not methods.
 // Do NOT use: Convert(s).Contains(substr) // ❌ Incorrect, will not compile
 // Use:        Index(s, substr)            // ✅ Correct
 //             Contains(s, substr)         // ✅ Correct
 //             LastIndex(s, substr)        // ✅ Correct
 //             HasUpperPrefix(s)           // ✅ Correct
+//             Matches(s, terms...)        // ✅ Correct
+//             MatchesAny(s, terms...)     // ✅ Correct
 
 // Replace operations
 Convert("hello world").Replace("world", "Go").String() // out: "hello Go"

@@ -63,6 +63,10 @@ out, err := builder.StringErr() // OR finalize with error handling
 
 // Check for uppercase prefix (supports Unicode)
 isUpper := HasUpperPrefix("Ápple") // out: true
+
+// Multi-term searching (AND/OR) with internal normalization
+found := Matches("Hello World", "hello", "world") // out: true
+foundAny := MatchesAny("Hello World", "hello", "xyz") // out: true
 ```
 
 ## Documentation
