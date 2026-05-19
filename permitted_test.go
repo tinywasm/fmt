@@ -45,6 +45,13 @@ func TestPermittedValidate(t *testing.T) {
 		{"StartWith pass", Permitted{Letters: true, StartWith: &Permitted{Letters: true}}, "Alice", false},
 		{"StartWith fail", Permitted{Letters: true, StartWith: &Permitted{Numbers: true}}, "Alice", true},
 		{"StartWith empty string", Permitted{Letters: true, StartWith: &Permitted{Letters: true}}, "", false},
+
+		// New: only length (without character flags) should NOT reject characters
+		{"Only Minimum pass", Permitted{Minimum: 2}, "ab", false},
+		{"Only Minimum pass with tilde", Permitted{Minimum: 2}, "María", false},
+		{"Only Minimum fail", Permitted{Minimum: 5}, "abc", true},
+		{"Only Maximum pass", Permitted{Maximum: 3}, "abc", false},
+		{"Only Maximum fail", Permitted{Maximum: 2}, "abc", true},
 	}
 
 	for _, tt := range tests {

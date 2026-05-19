@@ -241,6 +241,16 @@ func TestFieldValidate(t *testing.T) {
 		{"With rules pass", Field{Permitted: Permitted{Numbers: true}}, "123", false},
 		{"With rules fail", Field{Permitted: Permitted{Numbers: true}}, "abc", true},
 		{"No rules pass", Field{Name: "any"}, "any value", false},
+		{"Only Minimum with Widget ok", Field{
+			Name:      "name",
+			Widget:    stubInput{kind: "text"},
+			Permitted: Permitted{Minimum: 2},
+		}, "María", false},
+		{"Only Minimum with Widget fail length", Field{
+			Name:      "name",
+			Widget:    stubInput{kind: "text"},
+			Permitted: Permitted{Minimum: 10},
+		}, "abc", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
