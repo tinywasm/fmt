@@ -90,6 +90,11 @@ func (f Field) IsAutoInc() bool { return f.DB != nil && f.DB.AutoInc }
 
 // Validate checks a string value against this field's constraints.
 // Checks NotNull first, then length, then delegates to Widget and Permitted.
+//
+// Security note: fields using standard widgets (Text, Textarea, Email) have whitelists
+// that exclude HTML-dangerous characters. ValidateFields provides implicit XSS protection
+// for form-submitted data. Data from external sources (DB reads, API responses) bypasses
+// this check and must be encoded at the output layer.
 func (f Field) Validate(value string) error {
 	if f.NotNull && value == "" {
 		return Err(f.Name, "required")
