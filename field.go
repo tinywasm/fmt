@@ -89,7 +89,7 @@ func (f Field) IsUnique() bool { return f.DB != nil && f.DB.Unique }
 func (f Field) IsAutoInc() bool { return f.DB != nil && f.DB.AutoInc }
 
 // Validate checks a string value against this field's constraints.
-// Checks NotNull first, then delegates to embedded Permitted.
+// Checks NotNull first, then length, then delegates to Widget and Permitted.
 func (f Field) Validate(value string) error {
 	if f.NotNull && value == "" {
 		return Err(f.Name, "required")
@@ -97,24 +97,32 @@ func (f Field) Validate(value string) error {
 	if value == "" {
 		return nil // empty + not required = ok
 	}
+
 	if f.Widget != nil {
 		if err := f.Widget.Validate(value); err != nil {
 			return err
 		}
 	}
-	// Only run Permitted validation if any rule is configured
+
+	// Always check length if configured, regardless of character rules
+	if f.Minimum > 0 || f.Maximum > 0 {
+		if err := f.Permitted.validateLength(f.Name, value); err != nil {
+			return err
+		}
+	}
+
+	// Only run character/substring validation if any char-rule is configured
 	if f.hasPermittedRules() {
-		return f.Permitted.Validate(f.Name, value)
+		return f.Permitted.validateChars(f.Name, value)
 	}
 	return nil
 }
 
-// hasPermittedRules returns true if any Permitted field is non-zero.
+// hasPermittedRules returns true if any character-based Permitted field is non-zero.
 func (f Field) hasPermittedRules() bool {
 	return f.Letters || f.Tilde || f.Numbers || f.Spaces ||
 		f.BreakLine || f.Tab || len(f.Extra) > 0 ||
-		len(f.NotAllowed) > 0 || f.Minimum > 0 || f.Maximum > 0 ||
-		f.StartWith != nil
+		len(f.NotAllowed) > 0 || f.StartWith != nil
 }
 
 // Fielder describes any type that can expose its schema and

@@ -4,6 +4,11 @@ package fmt
 //
 // Zero value = nothing permitted (strictest). Enable flags to allow character classes.
 // Moved from form/input to fmt for cross-layer reuse.
+//
+// Rule: if only Minimum/Maximum are configured (no character flags),
+// Validate only checks length — it never rejects characters.
+// To restrict characters, enable at least one flag (Letters, Numbers, etc.)
+// or add entries to Extra/NotAllowed.
 type Permitted struct {
 	Letters    bool       // a-z, A-Z, ñ, Ñ
 	Tilde      bool       // á, é, í, ó, ú (and uppercase) — uses aL/aU from mapping.go
@@ -21,6 +26,13 @@ type Permitted struct {
 // Validate checks that text conforms to the permitted rules.
 // Order: length → forbidden substrings → start-with → characters.
 func (p Permitted) Validate(field, text string) error {
+	if err := p.validateLength(field, text); err != nil {
+		return err
+	}
+	return p.validateChars(field, text)
+}
+
+func (p Permitted) validateLength(field, text string) error {
 	// Length checks (using range to count runes without importing unicode/utf8)
 	var count int
 	if p.Minimum != 0 || p.Maximum != 0 {
@@ -33,6 +45,13 @@ func (p Permitted) Validate(field, text string) error {
 	}
 	if p.Maximum != 0 && count > p.Maximum {
 		return Err(field, "maximum", p.Maximum, "chars")
+	}
+	return nil
+}
+
+func (p Permitted) validateChars(field, text string) error {
+	if !p.hasCharRules() {
+		return nil
 	}
 
 	// Forbidden substrings
@@ -63,6 +82,13 @@ func (p Permitted) Validate(field, text string) error {
 	}
 
 	return nil
+}
+
+// hasCharRules returns true if any character-based rule is configured.
+func (p Permitted) hasCharRules() bool {
+	return p.Letters || p.Tilde || p.Numbers || p.Spaces ||
+		p.BreakLine || p.Tab || len(p.Extra) > 0 ||
+		len(p.NotAllowed) > 0 || p.StartWith != nil
 }
 
 // isAllowed checks if a rune is permitted using ASCII ranges and slice lookups.
