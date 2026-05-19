@@ -9,6 +9,14 @@ package fmt
 // Validate only checks length — it never rejects characters.
 // To restrict characters, enable at least one flag (Letters, Numbers, etc.)
 // or add entries to Extra/NotAllowed.
+//
+// Security contract: the whitelist is positive — only explicitly enabled characters pass.
+// HTML-dangerous characters (<, >, &, ", ') are not included in any standard widget's
+// whitelist. Data validated through standard widgets is therefore safe for HTML output
+// without additional escaping.
+//
+// If a custom widget adds dangerous chars to Extra, it must document the XSS risk
+// and the caller is responsible for output encoding (e.g., fmt.Convert(v).EscapeHTML()).
 type Permitted struct {
 	Letters    bool       // a-z, A-Z, ñ, Ñ
 	Tilde      bool       // á, é, í, ó, ú (and uppercase) — uses aL/aU from mapping.go
@@ -142,6 +150,18 @@ func (p Permitted) isAllowed(r rune) bool {
 	}
 
 	return false
+}
+
+// NoHTML adds HTML-dangerous characters to NotAllowed as an explicit safety layer.
+// Returns a modified copy. Use when Extra contains characters that could appear in
+// HTML injection attempts and the widget cannot be restricted further.
+//
+// Example:
+//
+//   t.Permitted = t.Permitted.NoHTML()
+func (p Permitted) NoHTML() Permitted {
+	p.NotAllowed = append(append([]string{}, p.NotAllowed...), "<", ">", "&", "\"", "'")
+	return p
 }
 
 func errCharNotAllowed(field string, r rune) error {
