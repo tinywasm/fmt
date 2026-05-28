@@ -10,7 +10,18 @@ func (c *Conv) Split(separator ...string) []string {
 	src := c.GetString(BuffOut)
 	return c.splitStr(src, separator...)
 }
-
+// Split is a convenience wrapper around Conv.Split.
+// It creates a Conv from the given string and forwards the call to the existing method.
+// This keeps the binary size small by reusing existing logic.
+//
+// Example:
+//   parts := fmt.Split("a,b,c", ",") // []string{"a", "b", "c"}
+func Split(s string, separator ...string) []string {
+    // Reuse the Convert function to obtain a Conv instance with the string.
+    c := Convert(s)
+    // Delegate to the existing Conv.Split implementation.
+    return c.Split(separator...)
+}
 // splitStr is a reusable internal method for splitting a string by a separator (empty = by character, default whitespace).
 func (c *Conv) splitStr(src string, separator ...string) []string {
 	var sep string

@@ -11,7 +11,7 @@ Replace common `strings` package functions with fmt equivalents:
 | `strings.Join()` | `Convert(slice).Join(sep).String()` |
 | `strings.Repeat()` | `Convert(s).Repeat(n).String()` |
 | `strings.Replace()` | `Convert(s).Replace(old, new).String()` |
-| `strings.Split()` | `Convert(s).Split(sep).String()` |
+| `strings.Split()` | `Split(s, separator...)` |
 | `strings.ToLower()` | `Convert(s).ToLower().String()` |
 | `strings.ToUpper()` | `Convert(s).ToUpper().String()` |
 | `strings.TrimSpace()` | `Convert(s).TrimSpace().String()` |
