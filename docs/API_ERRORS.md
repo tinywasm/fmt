@@ -6,6 +6,7 @@ Replace `errors` package functions for error handling with multilingual support:
 |-------------|----------------------|
 | `errors.New()` | `Err(message)` |
 | `fmt.Errorf()` | `Errf(format, args...)` |
+| `fmt.Errorf("%w: %w", cause, sentinel)` | `ErrType(cause, sentinel)` |
 
 ## Error Creation
 
@@ -32,4 +33,24 @@ err := Err("format", "invalid")
 // Force specific language
 err := Err(ES, "format", "invalid")
 // → "formato inválido"
+```
+
+## Error Wrapping
+
+`ErrType` allows wrapping an error with a sentinel for identification while preserving the original error's message and identity.
+
+```go
+var ErrNotFound = fmt.Err("not found")
+
+func FindUser(id string) error {
+    err := db.Query(...) // returns database error
+    return fmt.ErrType(err, ErrNotFound)
+}
+
+// Consuming the error
+err := FindUser("123")
+if errors.Is(err, ErrNotFound) {
+    // Identity preserved
+}
+fmt.Print(err) // "db connection timeout: not found"
 ```
