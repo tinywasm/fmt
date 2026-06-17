@@ -4,21 +4,18 @@ package fmt
 // This keeps the binary size minimal for embedded systems and WebAssembly
 
 // Err creates a new error message with support for multilingual translations
-// Supports LocStr types for translations and lang types for language specification
+// Supports LocStr types for translations (if fmt/lang is imported)
 // eg:
 // fmt.Err("invalid format") returns "invalid format"
 // fmt.Err(D.Format, D.Invalid) returns "invalid format"
-// fmt.Err(ES,D.Format, D.Invalid) returns "formato inválido"
-
 func Err(msgs ...any) *Conv {
-	// UNIFIED PROCESSING: Use same intermediate function as Translate() but write to BuffErr
-	return GetConv().SmartArgs(BuffErr, " ", true, false, msgs...)
+	return GetConv().wrErr(msgs...)
 }
 
 // Errf creates a new Conv instance with error formatting similar to fmt.Errf
 // Example: fmt.Errf("invalid value: %s", value).Error()
 func Errf(format string, args ...any) *Conv {
-	return GetConv().wrFormat(BuffErr, getCurrentLang(), format, args...)
+	return GetConv().wrFormat(BuffErr, format, args...)
 }
 
 // StringErr returns the content of the Conv along with any error and auto-releases to pool
@@ -34,25 +31,20 @@ func (c *Conv) StringErr() (out string, err error) {
 	return out, nil
 }
 
-// wrErr writes error messages with support for int, string and LocStr
-// ENHANCED: Now supports int, string and LocStr parameters
-// Used internally by AnyToBuff for type error messages
+// wrErr writes error messages with support for int, string and other types.
+// It uses the global translator hook (tr) for strings.
 func (c *Conv) wrErr(msgs ...any) *Conv {
-	// Write messages using default language (no detection needed)
 	for i, msg := range msgs {
 		if i > 0 {
-			// Add space between words
-			c.WrString(BuffErr, " ")
+			// Add space between words if needed
+			if c.shouldAddSpaceInErr(msgs, i) {
+				c.WrString(BuffErr, " ")
+			}
 		}
-		// fmt.Printf("wrErr: Processing message part: %v\n", msg) // Depuración
 
 		switch v := msg.(type) {
 		case string:
-			if translated, ok := lookupWord(v, getCurrentLang()); ok {
-				c.WrString(BuffErr, translated)
-			} else {
-				c.WrString(BuffErr, v)
-			}
+			c.WrString(BuffErr, tr(v))
 		case int, int8, int16, int32, int64:
 			c.ResetBuffer(BuffWork)
 			var val int64
@@ -86,7 +78,7 @@ func (c *Conv) wrErr(msgs ...any) *Conv {
 		case error:
 			c.WrString(BuffErr, v.Error())
 		default:
-			// For other types, try AnyToBuff with BuffWork to avoid recursion or side effects
+			// For other types, try AnyToBuff with BuffWork
 			c.ResetBuffer(BuffWork)
 			c.AnyToBuff(BuffWork, v)
 			if c.hasContent(BuffWork) {
@@ -96,15 +88,41 @@ func (c *Conv) wrErr(msgs ...any) *Conv {
 			}
 		}
 	}
-	// fmt.Printf("wrErr: Final error buffer content: %q, errLen: %d\n", c.GetString(BuffErr), c.errLen) // Depuración
 	return c
 }
 
+// shouldAddSpaceInErr determines if a space should be added before the current argument.
+func (c *Conv) shouldAddSpaceInErr(args []any, currentIndex int) bool {
+	if currentIndex <= 0 {
+		return false
+	}
+
+	// Check previous argument
+	prev := args[currentIndex-1]
+	if prevStr, ok := prev.(string); ok {
+		if len(prevStr) > 0 {
+			lastChar := prevStr[len(prevStr)-1]
+			// Only certain separators do NOT need space after (like '/')
+			if lastChar == '\n' || lastChar == ' ' || lastChar == '/' {
+				return false
+			}
+		}
+	}
+
+	// Check current argument
+	curr := args[currentIndex]
+	if currStr, ok := curr.(string); ok {
+		return !IsWordSeparator(currStr)
+	}
+
+	return true
+}
+
 func (c *Conv) getError() string {
-	if !c.hasContent(BuffErr) { // ✅ Use API method instead of len(c.err)
+	if !c.hasContent(BuffErr) {
 		return ""
 	}
-	return c.GetString(BuffErr) // ✅ Use API method instead of direct string(c.err)
+	return c.GetString(BuffErr)
 }
 
 func (c *Conv) Error() string {

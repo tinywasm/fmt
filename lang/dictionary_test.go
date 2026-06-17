@@ -1,7 +1,8 @@
-package fmt
+package lang
 
 import (
 	"testing"
+	"github.com/tinywasm/fmt"
 )
 
 func TestRegisterWords(t *testing.T) {
@@ -68,7 +69,7 @@ func TestTranslateMixedArgs(t *testing.T) {
 
 func TestErrMixedArgs(t *testing.T) {
 	OutLang(EN)
-	err := Err("xyz_test", "xyz_err").Error()
+	err := fmt.Err("xyz_test", "xyz_err").Error()
 	want := "xyz_test xyz_err"
 	if err != want {
 		t.Errorf("want %q got %q", want, err)

@@ -171,37 +171,7 @@ func TestFormat(t *testing.T) {
 	}
 }
 
-func TestFormatLocalized(t *testing.T) {
-	// Register custom word for testing
-	RegisterWords([]DictEntry{
-		{EN: "Hello", ES: "Hola"},
-	})
-
-	// Save original language to restore later
-	origLang := OutLang()
-	defer OutLang(origLang)
-
-	// Test default language (EN)
-	OutLang(EN)
-	if got := Sprintf("%L", "hello"); got != "Hello" {
-		t.Errorf("Sprintf(%%L) EN = %q, want %q", got, "Hello")
-	}
-
-	// Test Spanish
-	OutLang(ES)
-	if got := Sprintf("%L", "hello"); got != "Hola" {
-		t.Errorf("Sprintf(%%L) ES = %q, want %q", got, "Hola")
-	}
-
-	// Test mixed
-	OutLang(EN)
-	if got := Sprintf("Say %L world", "hello"); got != "Say Hello world" {
-		t.Errorf("Sprintf mixed = %q, want %q", got, "Say Hello world")
-	}
-}
-
 func TestErrorFormatting(t *testing.T) {
-	OutLang(EN)
 	err := Err("file not found").Error()
 	want := "file not found"
 	if err != want {

@@ -8,9 +8,9 @@ The `Html` function creates HTML strings with support for concatenation, formatt
 
 ### Features
 
-- **Concatenation**: Joins arguments without spaces (unlike `Translate` or `Err`).
+- **Concatenation**: Joins arguments without spaces (unlike `Println` or `Err`).
 - **Formatting**: Supports `printf`-style formatting if the first argument is a format string.
-- **Localization**: Supports `LocStr` translation and explicit language selection.
+- **Localization**: Supports translation via the optional `fmt/lang` package.
 
 ### Usage
 
@@ -24,38 +24,24 @@ Html("<div class='%s'>", "my-class").String()
 // -> "<div class='my-class'>"
 
 // 3. Localization (using dictionary keys)
-// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
+// Note: requires import "github.com/tinywasm/fmt/lang"
 Html("<span>", "user", "</span>").String()
 // -> "<span>User</span>" (EN)
 // -> "<span>Usuario</span>" (ES)
 
-// 4. Explicit Language Selection
-// Pass language as first argument (lang constant)
-Html(ES, "<div>", "hello", "</div>").String()
-// -> "<div>Hola</div>"
-
-// 5. Zero-allocation (pooled Conv)
+// 4. Zero-allocation (pooled Conv)
 c := Html("<span>", "format", "</span>")
 defer c.PutConv() // Manual cleanup if not calling .String()
 html := c.String() // Auto-releases to pool
 
-// 6. Multiline Component (using format specifiers)
+// 5. Multiline Component (using format specifiers)
+// %L specifier triggers translation if fmt/lang is imported
 Html(`<div class='container'>
 	<h1>%L</h1>
 	<p>%v</p>
 </div>`, "hello", 42).String()
 // -> "<div class='container'>
 //     	<h1>Hello</h1>
-//     	<p>42</p>
-//     </div>"
-
-// 7. Multiline Component with explicit language
-Html(ES, `<div class='container'>
-	<h1>%L</h1>
-	<p>%v</p>
-</div>`, "hello", 42).String()
-// -> "<div class='container'>
-//     	<h1>Hola</h1>
 //     	<p>42</p>
 //     </div>"
 ```

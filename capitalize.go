@@ -34,7 +34,7 @@ func (t *Conv) capitalizeASCIIOptimized() {
 		ch := t.out[i]
 
 		// Use centralized word separator detection
-		if isWordSeparator(ch) {
+		if IsWordSeparator(ch) {
 			// Preserve all separator characters as-is
 			t.work = append(t.work, ch)
 			t.workLen++
@@ -72,7 +72,7 @@ func (t *Conv) capitalizeUnicode() *Conv {
 
 	for _, r := range str {
 		// Use centralized word separator detection
-		if isWordSeparator(r) {
+		if IsWordSeparator(r) {
 			// Preserve all separator characters as-is
 			t.WrString(BuffWork, string(r))
 			inWord = false

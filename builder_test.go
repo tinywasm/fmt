@@ -137,27 +137,6 @@ func TestBuilderPattern(t *testing.T) {
 	}
 }
 
-// TestTFunction tests the Translate translation function
-func TestTFunction(t *testing.T) {
-	RegisterWords([]DictEntry{
-		{EN: "Blorp", ES: "Blorpes"},
-		{EN: "Quux", ES: "Quuxes"},
-	})
-	out := Translate("blorp", "quux").String()
-	if out == "" {
-		t.Error("Translate function returned empty string")
-	}
-
-	result2 := Translate(ES, "blorp", "quux").String()
-	if result2 == "" {
-		t.Error("Translate function with language returned empty string")
-	}
-
-	if out == result2 {
-		t.Errorf("Translate function should return different translations: %q vs %q", out, result2)
-	}
-}
-
 // TestErrFunction tests the refactored Err function
 func TestErrFunction(t *testing.T) {
 	err := Err("rawfmt", "rawval")

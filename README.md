@@ -7,7 +7,7 @@ fmt is a lightweight Go library that provides comprehensive string manipulation,
 
 - 🚀 **Fluid and chainable API** - Easy to use and readable operations
 - 📝 **Complete string toolkit** - Transformations, conversions, formatting, and error handling
-- 🌍 **Multilingual error messages** - Built-in dictionary system with 9 languages
+- 🌍 **Multilingual error messages** - Opt-in dictionary system with 9 languages via `fmt/lang`
 - 🧵 **Concurrency safe** - Thread-safe operations for concurrent environments
 - 📦 **Zero dependencies** - No `fmt`, `strings`, `strconv`, or `errors` imports
 - 🎯 **TinyGo optimized** - Manual implementations for minimal binary size
@@ -85,6 +85,7 @@ foundAny := MatchesAny("Hello World", "hello", "xyz") // out: true
 - [Strconv Package Equivalents](docs/API_STRCONV.md) - Replace strconv package functions
 - [Struct Tag Extraction](docs/STRUCT_TAGS.md) - Extract values from struct tags
 - [Translation Guide](docs/TRANSLATE.md) - Multilingual error messages
+- [Language Package (i18n)](lang/README.md) - Subpackage for multilingual support
 
 
 ## Benchmarking

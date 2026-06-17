@@ -1,25 +1,6 @@
 package fmt
 
 // EscapeAttr returns a string safe to place inside an HTML attribute value.
-//
-// It escapes the following characters:
-//
-//	& -> &amp;
-//	" -> &quot;
-//	' -> &#39;
-//	< -> &lt;
-//	> -> &gt;
-//
-// Example:
-//
-//	s := Convert(`Tom & Jerry's "House" <tag>`).EscapeAttr()
-//	// s == `Tom &amp; Jerry&#39;s &quot;House&quot; &lt;tag&gt;`
-//
-// Note: this method performs plain string replacements and does not detect
-// existing HTML entities. Calling EscapeAttr on a string that already
-// contains entities (for example `&amp;`) will produce double-escaped
-// output (`&amp;amp;`). This behavior is intentional and matches a simple
-// escape-for-attribute semantics.
 func (c *Conv) EscapeAttr() string {
 	return c.Replace("&", "&amp;").
 		Replace("\"", "&quot;").
@@ -30,22 +11,6 @@ func (c *Conv) EscapeAttr() string {
 }
 
 // EscapeHTML returns a string safe for inclusion into HTML content.
-//
-// It escapes the following characters:
-//
-//	& -> &amp;
-//	< -> &lt;
-//	> -> &gt;
-//	" -> &quot;
-//	' -> &#39;
-//
-// Example:
-//
-//	s := Convert(`<div class="x">Tom & Jerry's</div>`).EscapeHTML()
-//	// s == `&lt;div class=&quot;x&quot;&gt;Tom &amp; Jerry&#39;s&lt;/div&gt;`
-//
-// Like EscapeAttr, this method uses simple replacements and will double-escape
-// existing entities.
 func (c *Conv) EscapeHTML() string {
 	return c.Replace("&", "&amp;").
 		Replace("<", "&lt;").
@@ -58,13 +23,45 @@ func (c *Conv) EscapeHTML() string {
 // Html creates a string for HTML content, similar to Translate but without automatic spacing.
 // It supports two modes:
 // 1. Format mode: If the first argument is a string containing '%', it behaves like Fmt.
-// 2. Concatenation mode: Otherwise, it concatenates arguments (translating LocStr) without spaces.
-//
-// Usage:
-// Html("div", "span").String() -> "divspan"
-// Html("<div class='%s'>", "foo").String() -> "<div class='foo'>"
+// 2. Concatenation mode: Otherwise, it concatenates arguments (translating with hook) without spaces.
 func Html(values ...any) *Conv {
-	// Use unified smart processing
-	// separator="", allowStringCode=false (to support 2-letter tags), detectFormat=true
-	return GetConv().SmartArgs(BuffOut, "", false, true, values...)
+	c := GetConv()
+	if len(values) == 0 {
+		return c
+	}
+
+	// PASO 1: Detección de formato
+	if format, ok := values[0].(string); ok {
+		// Simple check for % to detect format string
+		hasFormat := false
+		for i := 0; i < len(format)-1; i++ {
+			if format[i] == '%' {
+				if c.isValidWriteFormatChar(rune(format[i+1])) {
+					hasFormat = true
+					break
+				}
+			}
+		}
+
+		if hasFormat {
+			// Use Fmt logic
+			return c.wrFormat(BuffOut, format, values[1:]...)
+		}
+	}
+
+	// PASO 2: Concatenación sin espacios
+	for _, val := range values {
+		switch v := val.(type) {
+		case string:
+			c.WrString(BuffOut, tr(v))
+		default:
+			c.AnyToBuff(BuffWork, v)
+			if c.hasContent(BuffWork) {
+				c.WrString(BuffOut, c.GetString(BuffWork))
+				c.ResetBuffer(BuffWork)
+			}
+		}
+	}
+
+	return c
 }

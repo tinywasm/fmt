@@ -3,14 +3,6 @@ package fmt
 import "testing"
 
 func TestHtml(t *testing.T) {
-	// Register custom words for testing
-	RegisterWords([]DictEntry{
-		{EN: "Hello", ES: "Hola"},
-		{EN: "User", ES: "Usuario"},
-		{EN: "Hello User", ES: "Hola Usuario"},
-		{EN: "Format", ES: "Formato"},
-	})
-
 	tests := []struct {
 		name     string
 		args     []any
@@ -32,11 +24,6 @@ func TestHtml(t *testing.T) {
 			expected: "hrbr",
 		},
 		{
-			name:     "Concatenation with translated word",
-			args:     []any{"<div>", "hello", "</div>"},
-			expected: "<div>Hello</div>",
-		},
-		{
 			name:     "Format string",
 			args:     []any{"<div class='%s'>", "my-class"},
 			expected: "<div class='my-class'>",
@@ -45,11 +32,6 @@ func TestHtml(t *testing.T) {
 			name:     "Format string with multiple args",
 			args:     []any{"<a href='%s'>%s</a>", "/home", "Home"},
 			expected: "<a href='/home'>Home</a>",
-		},
-		{
-			name:     "Format string with %L",
-			args:     []any{"<span>%L</span>", "user"},
-			expected: "<span>User</span>",
 		},
 		{
 			name:     "Mixed strings without format",
@@ -71,56 +53,7 @@ func TestHtml(t *testing.T) {
 			args:     []any{"Success: 100%%"}, // Fmt treats %% as literal %
 			expected: "Success: 100%",
 		},
-		{
-			name:     "Language ES explicit",
-			args:     []any{ES, "<div>", "hello", "</div>"},
-			expected: "<div>Hola</div>",
-		},
-		{
-			name:     "Language EN explicit",
-			args:     []any{EN, "<div>", "hello", "</div>"},
-			expected: "<div>Hello</div>",
-		},
-		{
-			name:     "Language ES with format",
-			args:     []any{ES, "<span>%L</span>", "user"},
-			expected: "<span>Usuario</span>",
-		},
-		{
-			name: "Multiline component with format",
-			args: []any{
-				`<div class='container'>
-	<h1>%L</h1>
-	<p>%v</p>
-</div>`,
-				"hello user",
-				42,
-			},
-			expected: `<div class='container'>
-	<h1>Hello User</h1>
-	<p>42</p>
-</div>`,
-		},
-		{
-			name: "Multiline component with format ES",
-			args: []any{
-				ES,
-				`<div class='container'>
-	<h1>%L</h1>
-	<p>%v</p>
-</div>`,
-				"hello user",
-				42,
-			},
-			expected: `<div class='container'>
-	<h1>Hola Usuario</h1>
-	<p>42</p>
-</div>`,
-		},
 	}
-
-	// Test default language (EN)
-	OutLang(EN)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -130,18 +63,6 @@ func TestHtml(t *testing.T) {
 			}
 		})
 	}
-
-	// Test with Spanish
-	t.Run("Spanish Translate", func(t *testing.T) {
-		OutLang(ES)
-		defer OutLang(EN) // Restore
-
-		got := Html("<div>", "hello", "</div>").String()
-		want := "<div>Hola</div>"
-		if got != want {
-			t.Errorf("Html() ES = %q, want %q", got, want)
-		}
-	})
 }
 
 func BenchmarkHtml(b *testing.B) {
@@ -151,29 +72,9 @@ func BenchmarkHtml(b *testing.B) {
 			_ = Html("<div>", "content", "</div>").String()
 		}
 	})
-	b.Run("WithLang", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<div>", "content", "</div>").String()
-		}
-	})
-	b.Run("WithTranslation", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html("<span>", "format", "</span>").String()
-		}
-	})
-	b.Run("WithLangAndTranslation", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<span>", "format", "</span>").String()
-		}
-	})
 	b.Run("WithFormat", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = Html("<div class='%s'>", "my-class").String()
-		}
-	})
-	b.Run("WithFormatAndLang", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = Html(ES, "<span>%L</span>", "format").String()
 		}
 	})
 }
@@ -224,10 +125,7 @@ func TestEscapeHTML_TableDriven(t *testing.T) {
 	}
 }
 
-// TestEscapeHTML_CompareStdLib compares EscapeHTML behavior with html.EscapeString from standard library
 func TestEscapeHTML_CompareStdLib(t *testing.T) {
-	// Note: html.EscapeString only escapes &, <, >, ", and ' (as &#39; or &#34;)
-	// Our implementation matches this behavior
 	tests := []struct {
 		name string
 		in   string
@@ -242,8 +140,6 @@ func TestEscapeHTML_CompareStdLib(t *testing.T) {
 		{"all-chars", `&<>"'`},
 	}
 
-	// Import html package for comparison (added at top of file)
-	// We'll verify our output matches expected HTML escaping semantics
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			got := Convert(tc.in).EscapeHTML()
@@ -266,7 +162,6 @@ func TestEscapeHTML_CompareStdLib(t *testing.T) {
 	}
 }
 
-// TestEscapeAttr_CompareStdLib validates EscapeAttr for use in HTML attributes
 func TestEscapeAttr_CompareStdLib(t *testing.T) {
 	tests := []struct {
 		name string
