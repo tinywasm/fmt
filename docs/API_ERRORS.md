@@ -22,18 +22,19 @@ err := Errf("invalid value: %s at position %d", "abc", 5)
 
 ## Multilingual Error Messages
 
-For multilingual error messages using dictionary terms that can be translated into multiple languages, see the [Translation Guide](TRANSLATE.md).
+Multilingual error support is **opt-in**. To enable translations, you must import `github.com/tinywasm/fmt/lang`.
 
 ```go
-// Using dictionary terms for translatable errors
-// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
-err := Err("format", "invalid")
-// → "format invalid" (in English) or translated based on global language setting
+import "github.com/tinywasm/fmt/lang"
 
-// Force specific language
-err := Err(ES, "format", "invalid")
-// → "formato inválido"
+// Translation requires the lang package to be imported
+// Note: Err no longer accepts language constants like ES as an argument.
+// Use lang.OutLang(lang.ES) to change the global language.
+err := Err("format", "invalid")
+// → "formato inválido" (if lang.OutLang(lang.ES) was called)
 ```
+
+For more details on multilingual support, see the [Translation Guide](TRANSLATE.md).
 
 ## Error Wrapping
 

@@ -6,26 +6,25 @@ import (
 	"syscall/js"
 )
 
-// getSystemLang detects browser language from navigator.language
-func (c *Conv) getSystemLang() lang {
-	// Get browser language
-	navigator := js.Global().Get("navigator")
-	if navigator.IsUndefined() {
-		return EN
-	}
-
-	language := navigator.Get("language")
-	if language.IsUndefined() {
-		return EN
-	}
-
-	// Use the centralized parser.
-	return c.langParser(language.String())
-}
-
 // Println prints arguments to console.log (like fmt.Println)
 func Println(args ...any) {
-	js.Global().Get("console").Call("log", GetConv().SmartArgs(BuffOut, " ", false, false, args...).String())
+	c := GetConv()
+	for i, arg := range args {
+		if i > 0 {
+			c.WrString(BuffOut, " ")
+		}
+		switch v := arg.(type) {
+		case string:
+			c.WrString(BuffOut, tr(v))
+		default:
+			c.AnyToBuff(BuffWork, v)
+			if c.hasContent(BuffWork) {
+				c.WrString(BuffOut, c.GetString(BuffWork))
+				c.ResetBuffer(BuffWork)
+			}
+		}
+	}
+	js.Global().Get("console").Call("log", c.String())
 }
 
 // Printf prints formatted output to console.log (like fmt.Printf)

@@ -1,6 +1,6 @@
 //go:build !wasm
 
-package fmt
+package lang
 
 import "sync"
 

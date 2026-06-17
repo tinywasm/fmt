@@ -1,9 +1,7 @@
-package fmt_test
+package fmt
 
 import (
 	"testing"
-
-	. "github.com/tinywasm/fmt"
 )
 
 func TestParseKeyValue(t *testing.T) {
@@ -26,7 +24,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "invalid-string",
 			delimiter:   "",
 			wantValue:   "",
-			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
+			wantErrText: "format invalid delimiter not found",
 		},
 		{
 			name:        "Custom delimiter",
@@ -47,7 +45,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "",
 			delimiter:   "",
 			wantValue:   "",
-			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
+			wantErrText: "format invalid delimiter not found",
 		},
 		{
 			name:        "Only delimiter",
@@ -68,7 +66,7 @@ func TestParseKeyValue(t *testing.T) {
 			input:       "key:value",
 			delimiter:   "=",
 			wantValue:   "",
-			wantErrText: Translate("format", "invalid", "delimiter", "not", "found").String(),
+			wantErrText: "format invalid delimiter not found",
 		},
 		{
 			name:        "Empty delimiter uses default",
@@ -216,6 +214,7 @@ func TestTagValue(t *testing.T) {
 		})
 	}
 }
+
 func TestTagPairs(t *testing.T) {
 	testCases := []struct {
 		name      string

@@ -3,16 +3,14 @@
 fmt provides automatic message type classification to help identify the nature of text content. The system detects common message types like errors, warnings, success messages, and information using zero-allocation buffer-based pattern matching.
 
 ```go
-// Before: messagetype library usage
-message := Translate(msgs...).String()
-msgType := messagetype.DetectMessageType(message)
-
-// After: tinystring Single operation with StringType() (zero allocations)
-message, msgType := Translate(msgs...).StringType()
+// Using StringType() (zero allocations)
+message, msgType := Convert("Operation failed").StringType()
+// message: "Operation failed", msgType: Msg.Error
 
 // Real example - Progress callback with message classification
+// Note: Requires import "github.com/tinywasm/fmt/lang" for Translate
 progressCallback := func(msgs ...any) {
-    message, msgType := Translate(msgs...).StringType()
+    message, msgType := lang.Translate(msgs...).StringType()
     if msgType.IsError() {
         handleError(message)
     } else {

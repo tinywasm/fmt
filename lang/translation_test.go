@@ -1,6 +1,8 @@
-package fmt
+package lang
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestT_LanguageDetection(t *testing.T) {
 	// With new API, EN IS the lookup key (case-insensitive)
@@ -100,19 +102,19 @@ func BenchmarkTranslate(b *testing.B) {
 	b.Run("Simple", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			c := Translate("format")
-			c.putConv()
+			c.PutConv()
 		}
 	})
 	b.Run("WithLang", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			c := Translate(ES, "format")
-			c.putConv()
+			c.PutConv()
 		}
 	})
 	b.Run("Complex", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			c := Translate(ES, "format", ":", "invalid")
-			c.putConv()
+			c.PutConv()
 		}
 	})
 }

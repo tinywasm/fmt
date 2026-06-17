@@ -6,6 +6,7 @@ import (
 	"syscall/js"
 
 	. "github.com/tinywasm/fmt"
+	"github.com/tinywasm/fmt/lang"
 )
 
 func main() {
@@ -63,7 +64,7 @@ func main() {
 	body.Call("appendChild", dom)
 
 	logger := func(msg ...any) {
-		js.Global().Get("console").Call("log", Translate(msg...).String())
+		js.Global().Get("console").Call("log", lang.Translate(msg...).String())
 	}
 
 	logger("hello tinystring:", 123, 45.67, true, []string{"a", "b", "c"})

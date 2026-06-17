@@ -10,7 +10,7 @@ import "io"
 // Example: Sprintf("Hello %s", "world") returns "Hello world"
 func Sprintf(format string, args ...any) string {
 	// Inline unifiedFormat logic - eliminated wrapper function
-	return GetConv().wrFormat(BuffOut, getCurrentLang(), format, args...).String()
+	return GetConv().wrFormat(BuffOut, format, args...).String()
 }
 
 // Fprintf formats according to a format specifier and writes to w.
@@ -22,7 +22,7 @@ func Fprintf(w io.Writer, format string, args ...any) (n int, err error) {
 	defer c.putConv() // Ensure cleanup
 
 	// Use existing wrFormat to populate buffer
-	c.wrFormat(BuffOut, getCurrentLang(), format, args...)
+	c.wrFormat(BuffOut, format, args...)
 
 	// Check for formatting errors
 	if c.hasContent(BuffErr) {
@@ -83,7 +83,7 @@ func (c *Conv) applyWidthAndAlignment(str string, width int, leftAlign bool, zer
 
 // wrFormat applies printf-style formatting to arguments and writes to specified buffer destination.
 // Universal method with dest-first parameter order - follows buffer API architecture
-func (c *Conv) wrFormat(dest BuffDest, currentLang lang, format string, args ...any) *Conv {
+func (c *Conv) wrFormat(dest BuffDest, format string, args ...any) *Conv {
 	eSz := 0
 	for _, arg := range args {
 		switch arg.(type) {
@@ -128,7 +128,7 @@ func (c *Conv) wrFormat(dest BuffDest, currentLang lang, format string, args ...
 
 			// Format value using shared helper
 			arg := args[argIndex]
-			str := c.formatValue(arg, formatChar, param, formatSpec, currentLang)
+			str := c.formatValue(arg, formatChar, param, formatSpec)
 			if c.hasContent(BuffErr) {
 				return c
 			}
@@ -289,7 +289,7 @@ func (c *Conv) wrInvalidTypeErr(formatSpec string) {
 }
 
 // formatValue formats a single value according to format character
-func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec string, currentLang lang) string {
+func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec string) string {
 	switch formatChar {
 	case 'c':
 		// Character formatting: accept rune, byte, int
@@ -472,12 +472,9 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 			return c.GetString(BuffWork)
 		}
 	case 'L':
-		// Localized string formatting using lookup
+		// Localized string formatting using hook
 		if strVal, ok := arg.(string); ok {
-			if translated, ok := lookupWord(strVal, currentLang); ok {
-				return translated
-			}
-			return strVal
+			return tr(strVal)
 		}
 		c.wrInvalidTypeErr(formatSpec)
 		return ""

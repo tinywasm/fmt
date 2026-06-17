@@ -100,7 +100,7 @@ func (p Permitted) hasCharRules() bool {
 }
 
 // isAllowed checks if a rune is permitted using ASCII ranges and slice lookups.
-// Follows the same pattern as mapping.go (toUpperRune, isWordSeparatorChar).
+// Follows the same pattern as mapping.go (toUpperRune, IsWordSeparatorChar).
 func (p Permitted) isAllowed(r rune) bool {
 	// ASCII letters: a-z, A-Z (fast path)
 	if p.Letters {

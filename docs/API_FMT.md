@@ -46,12 +46,13 @@ var word string
 n, err := Sscanf("!3F U+003F question", "!%x U+%x %s", &code, &unicode, &word)
 // n = 3, code = 63, unicode = 63, word = "question", err = nil
 
-// Localized string formatting
-// Uses the current global language or default (EN)
-// Note: requires import _ "github.com/tinywasm/fmt/dictionary"
+// Localized string formatting (%L)
+// Requires importing "github.com/tinywasm/fmt/lang"
+import "github.com/tinywasm/fmt/lang"
+
 Sprintf("Error: %L", "invalid")
 // out (EN): "Error: invalid"
-// out (ES): "Error: inválido"
+// out (ES): "Error: inválido" (if lang.OutLang(lang.ES) was called)
 ```
 
 For more details on translation see [TRANSLATE.md](TRANSLATE.md).

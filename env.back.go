@@ -6,20 +6,25 @@ import (
 	"os"
 )
 
-// getSystemLang detects system language from environment variables
-func (c *Conv) getSystemLang() lang {
-	// Use the centralized parser with common environment variables.
-	return c.langParser(
-		os.Getenv("LANG"),
-		os.Getenv("LANGUAGE"),
-		os.Getenv("LC_ALL"),
-		os.Getenv("LC_MESSAGES"),
-	)
-}
-
 // Println prints arguments to stdout followed by newline (like fmt.Println)
 func Println(args ...any) {
-	os.Stdout.WriteString(GetConv().SmartArgs(BuffOut, " ", false, false, args...).String() + "\n")
+	c := GetConv()
+	for i, arg := range args {
+		if i > 0 {
+			c.WrString(BuffOut, " ")
+		}
+		switch v := arg.(type) {
+		case string:
+			c.WrString(BuffOut, tr(v))
+		default:
+			c.AnyToBuff(BuffWork, v)
+			if c.hasContent(BuffWork) {
+				c.WrString(BuffOut, c.GetString(BuffWork))
+				c.ResetBuffer(BuffWork)
+			}
+		}
+	}
+	os.Stdout.WriteString(c.String() + "\n")
 }
 
 // Printf prints formatted output to stdout (like fmt.Printf)

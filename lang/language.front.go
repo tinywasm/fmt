@@ -1,6 +1,6 @@
 //go:build wasm
 
-package fmt
+package lang
 
 // WASM is single-threaded: no mutex needed
 func setDefaultLang(l lang) {

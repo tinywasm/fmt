@@ -1,4 +1,4 @@
-package fmt
+package lang
 
 // DictEntry describes one translatable word.
 // EN serves as lookup key (case-insensitive) and English display value.
@@ -30,7 +30,6 @@ func RegisterWords(entries []DictEntry) {
 			continue
 		}
 		// Skip entries whose EN is a known language code (len==2):
-		// detectLanguage would consume it before lookupWord ever sees it.
 		if len(de.EN) == 2 {
 			c1, c2 := de.EN[0]|32, de.EN[1]|32
 			switch [2]byte{c1, c2} {
