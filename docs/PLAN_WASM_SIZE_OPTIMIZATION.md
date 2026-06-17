@@ -1,5 +1,18 @@
 # WASM Binary Size Optimization: Eliminating `reflect` and `sync`
 
+> **Estado: ✅ DONE (verificado 2026-06-17).** Ejecutado en su totalidad: existen los 10
+> archivos `*.back.go`/`*.front.go`; los archivos agnósticos (`memory.go`, `language.go`,
+> `convert.go`, `num_int.go`, `num_float.go`) ya no importan `reflect` ni `sync`. El build
+> wasm de `fmt` **no incluye `reflect`**. El `sync` residual proviene de `io` y `syscall/js`
+> (stdlib que `fmt` necesita en wasm) y es inherente — fuera del alcance de este plan.
+>
+> Verificación:
+> ```bash
+> GOOS=js GOARCH=wasm go list -deps . | grep -E '^reflect$'   # → vacío
+> for f in $(grep -rl '"reflect"\|"sync"' . --include=*.go | grep -v _test | grep -v /benchmark/); do
+>   head -1 "$f" | grep -q 'go:build !wasm' || echo "FUGA: $f"; done   # → vacío
+> ```
+
 ## Problem
 
 The `web/client.go` example (a simple counter) compiles to **88.9 KB** in TinyGo mode S. This is excessive for a ~70-line application. The root cause is that `tinywasm/fmt` imports `reflect` (~30-40 KB) and `sync` (~5-10 KB), which are the two heaviest standard library packages in TinyGo WASM.
