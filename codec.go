@@ -13,8 +13,8 @@ type FieldWriter interface {
 	Null(name string)
 	// Anidado: objeto hijo que también es Encodable.
 	Object(name string, val Encodable)
-	// Arrays tipados sin []any: el writer abre el array y el valor empuja elementos.
-	Array(name string, n int, each func(i int, a ArrayWriter))
+	// Arrays tipados sin []any: retorna ArrayWriter directo para evitar closures.
+	Array(name string, n int) ArrayWriter
 }
 
 // ArrayWriter empuja elementos tipados de un array (sin []any).
@@ -30,6 +30,7 @@ type ArrayWriter interface {
 // Encodable: un valor que sabe escribir SUS campos (lo genera ormc).
 type Encodable interface {
 	EncodeFields(w FieldWriter)
+	IsNil() bool
 }
 
 // FieldReader entrega los campos por nombre, TIPADOS. El bool indica presencia.
@@ -59,4 +60,20 @@ type ArrayReader interface {
 // Decodable: un valor que sabe leer SUS campos (lo genera ormc).
 type Decodable interface {
 	DecodeFields(r FieldReader) error
+	IsNil() bool
+}
+
+// IsNil comprueba de forma segura y portable si un valor es nil o
+// si es un puntero nil dentro de una interfaz Encodable o Decodable.
+func IsNil(v any) bool {
+	if v == nil {
+		return true
+	}
+	if enc, ok := v.(Encodable); ok {
+		return enc.IsNil()
+	}
+	if dec, ok := v.(Decodable); ok {
+		return dec.IsNil()
+	}
+	return false
 }

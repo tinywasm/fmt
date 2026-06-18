@@ -8,10 +8,13 @@ import (
 type mockFieldWriter struct {
 	buf  *bytes.Buffer
 	conv *Conv // reused across all fields — keeps the writer 0-alloc (GetConv allocates in WASM)
+	aw   mockArrayWriter
 }
 
 func newMockFieldWriter(buf *bytes.Buffer) *mockFieldWriter {
-	return &mockFieldWriter{buf: buf, conv: GetConv()}
+	w := &mockFieldWriter{buf: buf, conv: GetConv()}
+	w.aw.m = w
+	return w
 }
 
 func (m *mockFieldWriter) String(name, val string) {
@@ -78,46 +81,81 @@ func (m *mockFieldWriter) Object(name string, val Encodable) {
 	m.buf.WriteString("};")
 }
 
-func (m *mockFieldWriter) Array(name string, n int, each func(i int, a ArrayWriter)) {
+func (m *mockFieldWriter) Array(name string, n int) ArrayWriter {
 	m.buf.WriteString(name)
 	m.buf.WriteString("=[")
-	aw := &mockArrayWriter{m}
-	for i := 0; i < n; i++ {
-		if i > 0 {
-			m.buf.WriteByte(',')
-		}
-		each(i, aw)
+	if n == 0 {
+		m.buf.WriteString("];")
+		return nil
 	}
-	m.buf.WriteString("];")
+	m.aw.n = n
+	m.aw.written = 0
+	return &m.aw
 }
 
 type mockArrayWriter struct {
-	m *mockFieldWriter
+	m       *mockFieldWriter
+	n       int
+	written int
 }
 
-func (a *mockArrayWriter) String(val string)    { a.m.buf.WriteString(val) }
-func (a *mockArrayWriter) Int(val int64)       {
+func (a *mockArrayWriter) checkComma() {
+	if a.written > 0 {
+		a.m.buf.WriteByte(',')
+	}
+	a.written++
+}
+
+func (a *mockArrayWriter) checkEnd() {
+	if a.written == a.n {
+		a.m.buf.WriteString("];")
+	}
+}
+
+func (a *mockArrayWriter) String(val string) {
+	a.checkComma()
+	a.m.buf.WriteString(val)
+	a.checkEnd()
+}
+
+func (a *mockArrayWriter) Int(val int64) {
+	a.checkComma()
 	a.m.conv.ResetBuffer(BuffWork)
 	a.m.conv.wrIntBase(BuffWork, val, 10, true)
 	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
+	a.checkEnd()
 }
-func (a *mockArrayWriter) Float(val float64)   {
+
+func (a *mockArrayWriter) Float(val float64) {
+	a.checkComma()
 	a.m.conv.ResetBuffer(BuffWork)
 	a.m.conv.wrFloat64(BuffWork, val)
 	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
+	a.checkEnd()
 }
-func (a *mockArrayWriter) Bool(val bool)       {
+
+func (a *mockArrayWriter) Bool(val bool) {
+	a.checkComma()
 	if val {
 		a.m.buf.WriteString("true")
 	} else {
 		a.m.buf.WriteString("false")
 	}
+	a.checkEnd()
 }
-func (a *mockArrayWriter) Bytes(val []byte)    { a.m.buf.Write(val) }
+
+func (a *mockArrayWriter) Bytes(val []byte) {
+	a.checkComma()
+	a.m.buf.Write(val)
+	a.checkEnd()
+}
+
 func (a *mockArrayWriter) Object(val Encodable) {
+	a.checkComma()
 	a.m.buf.WriteByte('{')
 	val.EncodeFields(a.m)
 	a.m.buf.WriteByte('}')
+	a.checkEnd()
 }
 
 type mockFieldReader struct {
@@ -262,9 +300,10 @@ func (u *sampleUser) EncodeFields(w FieldWriter) {
 	w.String("name", u.Name)
 	w.Int("age", int64(u.Age))
 	if len(u.Tags) > 0 {
-		w.Array("tags", len(u.Tags), func(i int, a ArrayWriter) {
-			a.String(u.Tags[i])
-		})
+		arr := w.Array("tags", len(u.Tags))
+		for _, tag := range u.Tags {
+			arr.String(tag)
+		}
 	}
 }
 
@@ -282,6 +321,10 @@ func (u *sampleUser) DecodeFields(r FieldReader) error {
 		}
 	}
 	return nil
+}
+
+func (u *sampleUser) IsNil() bool {
+	return u == nil
 }
 
 func TestCodecRoundTrip(t *testing.T) {
