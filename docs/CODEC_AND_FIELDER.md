@@ -1,9 +1,7 @@
 # Codec tipado vs. `Field`/`Fielder` — separación de responsabilidades
 
-> **Estado:** documento de diseño de referencia. Describe la arquitectura objetivo del codec
-> tipado (`Encodable`/`Decodable`) y su relación con `Field`/`Fielder`. Lo implementan las fases
-> H/H1/H2/H3 (ver `~/Dev/Project/tinywasm/docs/SIZE_OPTIMIZATION_MASTER_PLAN.md`). Mantener este
-> documento en sincronía cuando el codec aterrice.
+> **Estado:** IMPLEMENTADO. Define la arquitectura del codec tipado (`Encodable`/`Decodable`)
+> y su relación con `Field`/`Fielder`.
 
 ## Principio
 

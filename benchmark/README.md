@@ -9,22 +9,22 @@ Automated benchmark tools to measure and compare performance between standard Go
 [Standard Library Example](bench-binary-size/standard-lib/main.go) | [fmt Example](bench-binary-size/tinystring-lib/main.go)
 
 <!-- This table is automatically generated from build-and-measure.sh -->
-*Last updated: 2026-02-11 07:51:43*
+*Last updated: 2026-06-18 13:13:20*
 
 | Build Type | Parameters | Standard Library<br/>`go build` | fmt<br/>`tinygo build` | Size Reduction | Performance |
 |------------|------------|------------------|------------|----------------|-------------|
-| 🖥️ **Default Native** | `-ldflags="-s -w"` | 1.4 MB | 1.3 MB | **-132.0 KB** | ➖ **8.9%** |
-| 🌐 **Default WASM** | `(default -opt=z)` | 606.9 KB | 271.1 KB | **-335.9 KB** | ✅ **55.3%** |
-| 🌐 **Ultra WASM** | `-no-debug -panic=trap -scheduler=none -gc=leaking -target wasm` | 155.6 KB | 30.4 KB | **-125.1 KB** | 🏆 **80.4%** |
-| 🌐 **Speed WASM** | `-opt=2 -target wasm` | 868.5 KB | 441.6 KB | **-426.9 KB** | ✅ **49.2%** |
-| 🌐 **Debug WASM** | `-opt=0 -target wasm` | 1.8 MB | 872.3 KB | **-973.5 KB** | ✅ **52.7%** |
+| 🖥️ **Default Native** | `-ldflags="-s -w"` | 1.4 MB | 1.3 MB | **-156.0 KB** | ➖ **10.5%** |
+| 🌐 **Default WASM** | `(default -opt=z)` | 697.2 KB | 284.5 KB | **-412.7 KB** | ✅ **59.2%** |
+| 🌐 **Ultra WASM** | `-no-debug -panic=trap -scheduler=none -gc=leaking -target wasm` | 156.0 KB | 24.7 KB | **-131.4 KB** | 🏆 **84.2%** |
+| 🌐 **Speed WASM** | `-opt=2 -target wasm` | 948.5 KB | 408.5 KB | **-540.0 KB** | ✅ **56.9%** |
+| 🌐 **Debug WASM** | `-opt=0 -target wasm` | 1.9 MB | 818.7 KB | **-1.1 MB** | ✅ **58.6%** |
 
 ### 🎯 Performance Summary
 
-- 🏆 **Peak Reduction: 80.4%** (Best optimization)
-- ✅ **Average WebAssembly Reduction: 59.4%**
-- ✅ **Average Native Reduction: 8.9%**
-- 📦 **Total Size Savings: 1.9 MB across all builds**
+- 🏆 **Peak Reduction: 84.2%** (Best optimization)
+- ✅ **Average WebAssembly Reduction: 64.7%**
+- ✅ **Average Native Reduction: 10.5%**
+- 📦 **Total Size Savings: 2.3 MB across all builds**
 
 #### Performance Legend
 - ❌ Poor (<5% reduction)
@@ -38,18 +38,18 @@ Automated benchmark tools to measure and compare performance between standard Go
 [Standard Library Example](bench-memory-alloc/standard) | [fmt Example](bench-memory-alloc/tinystring)
 
 <!-- This table is automatically generated from memory-benchmark.sh -->
-*Last updated: 2026-02-11 07:51:58*
+*Last updated: 2026-06-18 13:13:35*
 
 Performance benchmarks comparing memory allocation patterns between standard Go library and fmt:
 
 | 🧪 **Benchmark Category** | 📚 **Library** | 💾 **Memory/Op** | 🔢 **Allocs/Op** | ⏱️ **Time/Op** | 📈 **Memory Trend** | 🎯 **Alloc Trend** | 🏆 **Performance** |
 |----------------------------|----------------|-------------------|-------------------|-----------------|---------------------|---------------------|--------------------|
-| 📝 **String Processing** | 📊 Standard | `808 B / 523.990 OP` | `32` | `2.1μs` | - | - | - |
-| | 🚀 fmt | `464 B / 227.250 OP` | `17` | `5.5μs` | 🏆 **42.6% less** | 🏆 **46.9% less** | 🏆 **Excellent** |
-| 🔢 **Number Processing** | 📊 Standard | `720 B / 527.766 OP` | `34` | `2.3μs` | - | - | - |
-| | 🚀 fmt | `320 B / 523.962 OP` | `17` | `2.2μs` | 🏆 **55.6% less** | 🏆 **50.0% less** | 🏆 **Excellent** |
-| 🔄 **Mixed Operations** | 📊 Standard | `368 B / 772.447 OP` | `20` | `1.5μs` | - | - | - |
-| | 🚀 fmt | `192 B / 469.515 OP` | `12` | `2.6μs` | 🏆 **47.8% less** | 🏆 **40.0% less** | 🏆 **Excellent** |
+| 📝 **String Processing** | 📊 Standard | `808 B / 596.048 OP` | `32` | `2.2μs` | - | - | - |
+| | 🚀 fmt | `464 B / 218.416 OP` | `17` | `5.4μs` | 🏆 **42.6% less** | 🏆 **46.9% less** | 🏆 **Excellent** |
+| 🔢 **Number Processing** | 📊 Standard | `720 B / 566.374 OP` | `34` | `2.3μs` | - | - | - |
+| | 🚀 fmt | `320 B / 567.528 OP` | `17` | `2.0μs` | 🏆 **55.6% less** | 🏆 **50.0% less** | 🏆 **Excellent** |
+| 🔄 **Mixed Operations** | 📊 Standard | `368 B / 713.047 OP` | `20` | `1.4μs` | - | - | - |
+| | 🚀 fmt | `192 B / 444.537 OP` | `12` | `2.6μs` | 🏆 **47.8% less** | 🏆 **40.0% less** | 🏆 **Excellent** |
 
 ### 🎯 Performance Summary
 
