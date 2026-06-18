@@ -71,6 +71,8 @@ foundAny := MatchesAny("Hello World", "hello", "xyz") // out: true
 
 ## Documentation
 
+- [Codec API](docs/API_CODEC.md) - Typed serialization contract (0-alloc)
+- [Codec vs Field/Fielder](docs/CODEC_AND_FIELDER.md) - Architectural separation
 - [Errors Package Equivalents](docs/API_ERRORS.md) - Replace errors package functions
 - [Field and Fielder](docs/API_FIELD.md) - Schema metadata and reflection-less access
 - [Filepath Package Equivalents](docs/API_FILEPATH.md) - Replace filepath package functions
