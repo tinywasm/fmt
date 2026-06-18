@@ -6,7 +6,12 @@ import (
 )
 
 type mockFieldWriter struct {
-	buf *bytes.Buffer
+	buf  *bytes.Buffer
+	conv *Conv // reused across all fields — keeps the writer 0-alloc (GetConv allocates in WASM)
+}
+
+func newMockFieldWriter(buf *bytes.Buffer) *mockFieldWriter {
+	return &mockFieldWriter{buf: buf, conv: GetConv()}
 }
 
 func (m *mockFieldWriter) String(name, val string) {
@@ -19,30 +24,27 @@ func (m *mockFieldWriter) String(name, val string) {
 func (m *mockFieldWriter) Int(name string, val int64) {
 	m.buf.WriteString(name)
 	m.buf.WriteByte('=')
-	c := GetConv()
-	c.wrIntBase(BuffWork, val, 10, true)
-	m.buf.Write(c.getBytes(BuffWork))
-	c.PutConv()
+	m.conv.ResetBuffer(BuffWork)
+	m.conv.wrIntBase(BuffWork, val, 10, true)
+	m.buf.Write(m.conv.getBytes(BuffWork))
 	m.buf.WriteByte(';')
 }
 
 func (m *mockFieldWriter) Uint(name string, val uint64) {
 	m.buf.WriteString(name)
 	m.buf.WriteByte('=')
-	c := GetConv()
-	c.wrIntBase(BuffWork, int64(val), 10, false)
-	m.buf.Write(c.getBytes(BuffWork))
-	c.PutConv()
+	m.conv.ResetBuffer(BuffWork)
+	m.conv.wrIntBase(BuffWork, int64(val), 10, false)
+	m.buf.Write(m.conv.getBytes(BuffWork))
 	m.buf.WriteByte(';')
 }
 
 func (m *mockFieldWriter) Float(name string, val float64) {
 	m.buf.WriteString(name)
 	m.buf.WriteByte('=')
-	c := GetConv()
-	c.wrFloat64(BuffWork, val)
-	m.buf.Write(c.getBytes(BuffWork))
-	c.PutConv()
+	m.conv.ResetBuffer(BuffWork)
+	m.conv.wrFloat64(BuffWork, val)
+	m.buf.Write(m.conv.getBytes(BuffWork))
 	m.buf.WriteByte(';')
 }
 
@@ -95,16 +97,14 @@ type mockArrayWriter struct {
 
 func (a *mockArrayWriter) String(val string)    { a.m.buf.WriteString(val) }
 func (a *mockArrayWriter) Int(val int64)       {
-	c := GetConv()
-	c.wrIntBase(BuffWork, val, 10, true)
-	a.m.buf.Write(c.getBytes(BuffWork))
-	c.PutConv()
+	a.m.conv.ResetBuffer(BuffWork)
+	a.m.conv.wrIntBase(BuffWork, val, 10, true)
+	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
 }
 func (a *mockArrayWriter) Float(val float64)   {
-	c := GetConv()
-	c.wrFloat64(BuffWork, val)
-	a.m.buf.Write(c.getBytes(BuffWork))
-	c.PutConv()
+	a.m.conv.ResetBuffer(BuffWork)
+	a.m.conv.wrFloat64(BuffWork, val)
+	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
 }
 func (a *mockArrayWriter) Bool(val bool)       {
 	if val {
@@ -287,7 +287,7 @@ func (u *sampleUser) DecodeFields(r FieldReader) error {
 func TestCodecRoundTrip(t *testing.T) {
 	user := &sampleUser{Name: "Alice", Age: 30, Tags: []string{"go", "wasm"}}
 	buf := bytes.NewBuffer(nil)
-	writer := &mockFieldWriter{buf: buf}
+	writer := newMockFieldWriter(buf)
 
 	user.EncodeFields(writer)
 
@@ -314,7 +314,7 @@ func TestCodecRoundTrip(t *testing.T) {
 func TestCodecAllocations(t *testing.T) {
 	user := &sampleUser{Name: "Alice", Age: 30}
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
-	writer := &mockFieldWriter{buf: buf}
+	writer := newMockFieldWriter(buf)
 
 	allocs := testing.AllocsPerRun(100, func() {
 		buf.Reset()
