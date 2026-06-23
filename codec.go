@@ -11,6 +11,8 @@ type FieldWriter interface {
 	Bool(name string, val bool)
 	Bytes(name string, val []byte)
 	Null(name string)
+	// Raw emite el valor directamente sin escapar.
+	Raw(name, val string)
 	// Anidado: objeto hijo que también es Encodable.
 	Object(name string, val Encodable)
 	// Arrays tipados sin []any: retorna ArrayWriter directo para evitar closures.
@@ -25,6 +27,8 @@ type ArrayWriter interface {
 	Bool(val bool)
 	Bytes(val []byte)
 	Object(val Encodable)
+	// Close finaliza el array.
+	Close()
 }
 
 // Encodable: un valor que sabe escribir SUS campos (lo genera ormc).
@@ -44,6 +48,8 @@ type FieldReader interface {
 	Bytes(name string) ([]byte, bool)
 	Object(name string, into Decodable) bool
 	Array(name string) (ArrayReader, bool)
+	// Raw devuelve el valor crudo asociado al nombre.
+	Raw(name string) (string, bool)
 }
 
 // ArrayReader recorre un array tipado.
