@@ -71,6 +71,13 @@ func (m *mockFieldWriter) Null(name string) {
 	m.buf.WriteString("=null;")
 }
 
+func (m *mockFieldWriter) Raw(name, val string) {
+	m.buf.WriteString(name)
+	m.buf.WriteByte('=')
+	m.buf.WriteString(val)
+	m.buf.WriteByte(';')
+}
+
 func (m *mockFieldWriter) Object(name string, val Encodable) {
 	m.buf.WriteString(name)
 	m.buf.WriteString("={")
@@ -78,46 +85,60 @@ func (m *mockFieldWriter) Object(name string, val Encodable) {
 	m.buf.WriteString("};")
 }
 
-func (m *mockFieldWriter) Array(name string, n int, each func(i int, a ArrayWriter)) {
+func (m *mockFieldWriter) Array(name string, n int) ArrayWriter {
 	m.buf.WriteString(name)
 	m.buf.WriteString("=[")
-	aw := &mockArrayWriter{m}
-	for i := 0; i < n; i++ {
-		if i > 0 {
-			m.buf.WriteByte(',')
-		}
-		each(i, aw)
-	}
-	m.buf.WriteString("];")
+	return &mockArrayWriter{m: m, first: true}
 }
 
 type mockArrayWriter struct {
-	m *mockFieldWriter
+	m     *mockFieldWriter
+	first bool
 }
 
-func (a *mockArrayWriter) String(val string)    { a.m.buf.WriteString(val) }
-func (a *mockArrayWriter) Int(val int64)       {
+func (a *mockArrayWriter) maybeComma() {
+	if !a.first {
+		a.m.buf.WriteByte(',')
+	}
+	a.first = false
+}
+
+func (a *mockArrayWriter) String(val string) {
+	a.maybeComma()
+	a.m.buf.WriteString(val)
+}
+func (a *mockArrayWriter) Int(val int64) {
+	a.maybeComma()
 	a.m.conv.ResetBuffer(BuffWork)
 	a.m.conv.wrIntBase(BuffWork, val, 10, true)
 	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
 }
-func (a *mockArrayWriter) Float(val float64)   {
+func (a *mockArrayWriter) Float(val float64) {
+	a.maybeComma()
 	a.m.conv.ResetBuffer(BuffWork)
 	a.m.conv.wrFloat64(BuffWork, val)
 	a.m.buf.Write(a.m.conv.getBytes(BuffWork))
 }
-func (a *mockArrayWriter) Bool(val bool)       {
+func (a *mockArrayWriter) Bool(val bool) {
+	a.maybeComma()
 	if val {
 		a.m.buf.WriteString("true")
 	} else {
 		a.m.buf.WriteString("false")
 	}
 }
-func (a *mockArrayWriter) Bytes(val []byte)    { a.m.buf.Write(val) }
+func (a *mockArrayWriter) Bytes(val []byte) {
+	a.maybeComma()
+	a.m.buf.Write(val)
+}
 func (a *mockArrayWriter) Object(val Encodable) {
+	a.maybeComma()
 	a.m.buf.WriteByte('{')
 	val.EncodeFields(a.m)
 	a.m.buf.WriteByte('}')
+}
+func (a *mockArrayWriter) Close() {
+	a.m.buf.WriteString("];")
 }
 
 type mockFieldReader struct {
@@ -202,6 +223,10 @@ func (r *mockFieldReader) Array(name string) (ArrayReader, bool) {
 	return &mockArrayReader{data: val[1 : len(val)-1]}, true
 }
 
+func (r *mockFieldReader) Raw(name string) (string, bool) {
+	return r.String(name)
+}
+
 type mockArrayReader struct {
 	data []byte
 }
@@ -262,9 +287,11 @@ func (u *sampleUser) EncodeFields(w FieldWriter) {
 	w.String("name", u.Name)
 	w.Int("age", int64(u.Age))
 	if len(u.Tags) > 0 {
-		w.Array("tags", len(u.Tags), func(i int, a ArrayWriter) {
-			a.String(u.Tags[i])
-		})
+		aw := w.Array("tags", len(u.Tags))
+		for i := 0; i < len(u.Tags); i++ {
+			aw.String(u.Tags[i])
+		}
+		aw.Close()
 	}
 }
 
