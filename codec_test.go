@@ -212,7 +212,8 @@ func (r *mockFieldReader) Object(name string, into Decodable) bool {
 		return false
 	}
 	innerReader := newMockFieldReader(val[1 : len(val)-1])
-	return into.DecodeFields(innerReader) == nil
+	into.DecodeFields(innerReader)
+	return true
 }
 
 func (r *mockFieldReader) Array(name string) (ArrayReader, bool) {
@@ -274,7 +275,8 @@ func (r *mockArrayReader) Object(i int, into Decodable) bool {
 		return false
 	}
 	innerReader := newMockFieldReader(val[1 : len(val)-1])
-	return into.DecodeFields(innerReader) == nil
+	into.DecodeFields(innerReader)
+	return true
 }
 
 type sampleUser struct {
@@ -295,7 +297,7 @@ func (u *sampleUser) EncodeFields(w FieldWriter) {
 	}
 }
 
-func (u *sampleUser) DecodeFields(r FieldReader) error {
+func (u *sampleUser) DecodeFields(r FieldReader) {
 	if v, ok := r.String("name"); ok {
 		u.Name = v
 	}
@@ -308,7 +310,6 @@ func (u *sampleUser) DecodeFields(r FieldReader) error {
 			u.Tags[i] = ar.String(i)
 		}
 	}
-	return nil
 }
 
 func TestCodecRoundTrip(t *testing.T) {
@@ -328,10 +329,7 @@ func TestCodecRoundTrip(t *testing.T) {
 
 	reader := newMockFieldReader(encoded)
 	decodedUser := &sampleUser{}
-	err := decodedUser.DecodeFields(reader)
-	if err != nil {
-		t.Fatal(err)
-	}
+	decodedUser.DecodeFields(reader)
 
 	if decodedUser.Name != user.Name || decodedUser.Age != user.Age || len(decodedUser.Tags) != len(user.Tags) {
 		t.Errorf("decoded user mismatch: %+v", decodedUser)

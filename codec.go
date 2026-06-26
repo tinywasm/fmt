@@ -65,7 +65,7 @@ type ArrayReader interface {
 
 // Decodable: un valor que sabe leer SUS campos (lo genera ormc).
 type Decodable interface {
-	DecodeFields(r FieldReader) error
+	DecodeFields(r FieldReader)
 	IsNil() bool
 }
 

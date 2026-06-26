@@ -20,9 +20,14 @@ A type that knows how to read its own fields from a `FieldReader`.
 
 ```go
 type Decodable interface {
-    DecodeFields(r FieldReader) error
+    DecodeFields(r FieldReader)
+    IsNil() bool
 }
 ```
+
+`DecodeFields` only **populates** — it never fails. Structural errors (malformed input) are accumulated by
+the reader and returned by the entrypoint (e.g. `json.Decode`). Missing or wrong-type fields produce
+`ok=false` from the reader and are silently skipped. Semantic validation lives in `Validate()`.
 
 ## Field Access
 
@@ -87,10 +92,9 @@ func (u *User) EncodeFields(w fmt.FieldWriter) {
     }
 }
 
-func (u *User) DecodeFields(r fmt.FieldReader) error {
+func (u *User) DecodeFields(r fmt.FieldReader) {
     if v, ok := r.String("name"); ok { u.Name = v }
     if v, ok := r.Int("age"); ok { u.Age = int(v) }
-    return nil
 }
 ```
 
