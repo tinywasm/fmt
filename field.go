@@ -161,11 +161,18 @@ type Validator interface {
 	Validate(action byte) error
 }
 
+// ModuleNaming is the minimal identity contract shared across the ecosystem: a
+// stable model name used as route key, nav hash and DOM id. Consumers that need only
+// identity (routing, layout shells) embed this; data models embed the richer Model.
+type ModuleNaming interface {
+	ModelName() string
+}
+
 // Model describes a resource with a schema and a name.
 // Standard interface used by DB, Form, and API layers.
 type Model interface {
 	Fielder
-	ModelName() string
+	ModuleNaming
 }
 
 // SafeFields combines schema access with validation.
