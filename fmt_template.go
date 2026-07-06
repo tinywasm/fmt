@@ -30,7 +30,7 @@ func Fprintf(w io.Writer, format string, args ...any) (n int, err error) {
 	}
 
 	// Write to io.Writer
-	data := c.getBytes(BuffOut)
+	data := c.GetBytes(BuffOut)
 	return w.Write(data)
 }
 
@@ -327,7 +327,7 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 		if ok {
 			code := int(r)
 			c.ResetBuffer(BuffWork)
-			c.wrIntBase(BuffWork, int64(code), 16, false, true)
+			c.WrIntBase(BuffWork, int64(code), 16, false, true)
 			// Pad to at least 4 digits by checking buffer length directly
 			for c.workLen < 4 {
 				// Prepend '0' by shifting existing content
@@ -414,9 +414,9 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 			// Use uppercase for 'X', 'O', 'B'
 			upper := formatChar == 'X' || formatChar == 'O' || formatChar == 'B'
 			if param == 10 {
-				c.wrIntBase(BuffWork, intVal, 10, true, upper)
+				c.WrIntBase(BuffWork, intVal, 10, true, upper)
 			} else {
-				c.wrIntBase(BuffWork, intVal, param, true, upper)
+				c.WrIntBase(BuffWork, intVal, param, true, upper)
 			}
 			return c.GetString(BuffWork)
 		} else {
@@ -438,7 +438,7 @@ func (c *Conv) formatValue(arg any, formatChar rune, param int, formatSpec strin
 			if param >= 0 {
 				c.wrFloatWithPrecision(BuffWork, floatVal, param)
 			} else {
-				c.wrFloat64(BuffWork, floatVal)
+				c.WrFloat64(BuffWork, floatVal)
 			}
 			return c.GetString(BuffWork)
 		} else {

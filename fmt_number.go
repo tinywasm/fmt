@@ -27,9 +27,9 @@ func (t *Conv) Thousands(anglo ...bool) *Conv {
 			if !t.hasContent(BuffErr) {
 				t.ResetBuffer(BuffOut)
 				if floatVal == float64(int64(floatVal)) {
-					t.wrIntBase(BuffOut, int64(floatVal), 10, true)
+					t.WrIntBase(BuffOut, int64(floatVal), 10, true)
 				} else {
-					t.wrFloat64(BuffOut, floatVal)
+					t.WrFloat64(BuffOut, floatVal)
 					t.removeTrailingZeros(BuffOut)
 				}
 			}

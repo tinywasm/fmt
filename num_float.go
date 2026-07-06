@@ -175,7 +175,7 @@ func (c *Conv) wrFloat32(dest BuffDest, val float32) {
 }
 
 // wrFloat64 writes a float64 to the buffer destination.
-func (c *Conv) wrFloat64(dest BuffDest, val float64) {
+func (c *Conv) WrFloat64(dest BuffDest, val float64) {
 	c.wrFloatBase(dest, float64(val), 1.7976931348623157e+308)
 }
 
@@ -210,7 +210,7 @@ func (c *Conv) wrFloatBase(dest BuffDest, val float64, maxInf float64) {
 
 	// Check if it's effectively an integer
 	if val < 1e15 && val == float64(int64(val)) {
-		c.wrIntBase(dest, int64(val), 10, false)
+		c.WrIntBase(dest, int64(val), 10, false)
 		return
 	}
 
@@ -223,7 +223,7 @@ func (c *Conv) wrFloatBase(dest BuffDest, val float64, maxInf float64) {
 	fracPart := rounded % 1000000
 
 	// Write integer part
-	c.wrIntBase(dest, intPart, 10, false)
+	c.WrIntBase(dest, intPart, 10, false)
 
 	// Write fractional part if non-zero
 	if fracPart > 0 {
@@ -254,5 +254,5 @@ func (c *Conv) wrFloatBase(dest BuffDest, val float64, maxInf float64) {
 
 // WriteFloat writes a float64 as decimal text to the output buffer.
 func (c *Conv) WriteFloat(v float64) {
-	c.wrFloat64(BuffOut, v)
+	c.WrFloat64(BuffOut, v)
 }

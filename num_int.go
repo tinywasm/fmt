@@ -144,7 +144,7 @@ func (c *Conv) toInt64(arg any) (int64, bool) {
 }
 
 // wrIntBase writes an integer in the given base to the buffer, with optional uppercase digits
-func (c *Conv) wrIntBase(dest BuffDest, val int64, base int, signed bool, upper ...bool) {
+func (c *Conv) WrIntBase(dest BuffDest, val int64, base int, signed bool, upper ...bool) {
 	if base < 2 || base > 36 {
 		c.wrErr("Base", "invalid")
 		return

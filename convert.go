@@ -78,32 +78,32 @@ func (c *Conv) AnyToBuff(dest BuffDest, value any) {
 	// K.Float64
 	case float64:
 		c.kind = K.Float64
-		c.wrFloat64(dest, v)
+		c.WrFloat64(dest, v)
 
 	// K.Int
 	case int:
 		c.kind = K.Int
-		c.wrIntBase(dest, int64(v), 10, true)
+		c.WrIntBase(dest, int64(v), 10, true)
 
 	// K.Int8
 	case int8:
 		c.kind = K.Int8
-		c.wrIntBase(dest, int64(v), 10, true)
+		c.WrIntBase(dest, int64(v), 10, true)
 
 	// K.Int16
 	case int16:
 		c.kind = K.Int16
-		c.wrIntBase(dest, int64(v), 10, true)
+		c.WrIntBase(dest, int64(v), 10, true)
 
 	// K.Int32
 	case int32:
 		c.kind = K.Int32
-		c.wrIntBase(dest, int64(v), 10, true)
+		c.WrIntBase(dest, int64(v), 10, true)
 
 	// K.Int64
 	case int64:
 		c.kind = K.Int64
-		c.wrIntBase(dest, v, 10, true)
+		c.WrIntBase(dest, v, 10, true)
 
 	// K.Pointer - Only *string pointer supported
 	case *string:
@@ -130,27 +130,27 @@ func (c *Conv) AnyToBuff(dest BuffDest, value any) {
 	// K.Uint
 	case uint:
 		c.kind = K.Uint
-		c.wrIntBase(dest, int64(v), 10, false)
+		c.WrIntBase(dest, int64(v), 10, false)
 
 	// K.Uint8
 	case uint8:
 		c.kind = K.Uint8
-		c.wrIntBase(dest, int64(v), 10, false)
+		c.WrIntBase(dest, int64(v), 10, false)
 
 	// K.Uint16
 	case uint16:
 		c.kind = K.Uint16
-		c.wrIntBase(dest, int64(v), 10, false)
+		c.WrIntBase(dest, int64(v), 10, false)
 
 	// K.Uint32
 	case uint32:
 		c.kind = K.Uint32
-		c.wrIntBase(dest, int64(v), 10, false)
+		c.WrIntBase(dest, int64(v), 10, false)
 
 	// K.Uint64
 	case uint64:
 		c.kind = K.Uint64
-		c.wrIntBase(dest, int64(v), 10, false)
+		c.WrIntBase(dest, int64(v), 10, false)
 
 	// Special cases
 	case error:
@@ -198,7 +198,7 @@ func (c *Conv) String() string {
 
 // Bytes returns the content of the Conv as a byte slice
 func (c *Conv) Bytes() []byte {
-	return c.getBytes(BuffOut)
+	return c.GetBytes(BuffOut)
 }
 
 // IsZero reports whether v is the zero value for its type.

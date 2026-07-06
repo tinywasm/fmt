@@ -3,6 +3,7 @@
 
 fmt is a lightweight Go library that provides comprehensive string manipulation, type conversion, formatting, and multilingual error handling with a fluid API, specifically designed for small devices and web applications using TinyGo as the target compiler.
 
+
 ## Key Features
 
 - 🚀 **Fluid and chainable API** - Easy to use and readable operations
@@ -71,20 +72,22 @@ foundAny := MatchesAny("Hello World", "hello", "xyz") // out: true
 
 ## Documentation
 
-- [Codec API](docs/API_CODEC.md) - Typed serialization contract (0-alloc)
-- [Codec vs Field/Fielder](docs/CODEC_AND_FIELDER.md) - Architectural separation
-- [Errors Package Equivalents](docs/API_ERRORS.md) - Replace errors package functions
-- [Field and Fielder](docs/API_FIELD.md) - Schema metadata and reflection-less access
-- [Filepath Package Equivalents](docs/API_FILEPATH.md) - Replace filepath package functions
+### String Manipulation & Conversion
+
 - [Fmt Package Equivalents](docs/API_FMT.md) - Replace fmt package functions
+- [Strings Package Equivalents](docs/API_STRINGS.md) - Replace strings package functions
+- [Strconv Package Equivalents](docs/API_STRCONV.md) - Replace strconv package functions
+- [Filepath Package Equivalents](docs/API_FILEPATH.md) - Replace filepath package functions
+- [Errors Package Equivalents](docs/API_ERRORS.md) - Replace errors package functions
+
+### Utilities & Helpers
+
 - [HTML Generation & Escaping](docs/API_HTML.md) - HTML generation and escaping utilities
-- [ID and Primary Key Detection](docs/ID_PRIMARY_KEY.md) - Field naming conventions
 - [JSON Utilities](docs/API_JSON_ESCAPE.md) - JSON escaping and zero-value detection
 - [Key-Value Parsing](docs/API_PARSING.md) - Parse key-value strings
 - [Message Types](docs/MESSAGE_TYPES.md) - Message classification system
 - [Smart Truncation](docs/TRUNCATION.md) - Text truncation utilities
-- [Strings Package Equivalents](docs/API_STRINGS.md) - Replace strings package functions
-- [Strconv Package Equivalents](docs/API_STRCONV.md) - Replace strconv package functions
+- [ID and Primary Key Detection](docs/ID_PRIMARY_KEY.md) - Field naming conventions
 - [Struct Tag Extraction](docs/STRUCT_TAGS.md) - Extract values from struct tags
 - [Translation Guide](docs/TRANSLATE.md) - Multilingual error messages
 - [Language Package (i18n)](lang/README.md) - Subpackage for multilingual support

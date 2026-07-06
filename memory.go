@@ -115,7 +115,7 @@ func (c *Conv) GetString(dest BuffDest) string {
 // UNSAFE: Returned string shares underlying buffer - do not modify buffer after calling
 // SAFE for: Immediate use where buffer is not modified until string is no longer needed
 func (c *Conv) GetStringZeroCopy(dest BuffDest) string {
-	data := c.getBytes(dest)
+	data := c.GetBytes(dest)
 	if len(data) == 0 {
 		return ""
 	}
@@ -125,7 +125,7 @@ func (c *Conv) GetStringZeroCopy(dest BuffDest) string {
 
 // getBytes returns []byte content from specified buffer destination
 // OPTIMIZED: Returns slice directly without string conversion for io.Writer compatibility
-func (c *Conv) getBytes(dest BuffDest) []byte {
+func (c *Conv) GetBytes(dest BuffDest) []byte {
 	switch dest {
 	case BuffOut:
 		return c.out[:c.outLen]
@@ -242,7 +242,7 @@ func (c *Conv) bytesEqual(dest BuffDest, target []byte) bool {
 
 // bufferContainsPattern checks if any pattern is present in the buffer (no allocations)
 func (c *Conv) bufferContainsPattern(dest BuffDest, patterns [][]byte) bool {
-	bufData := c.getBytes(dest)
+	bufData := c.GetBytes(dest)
 	for _, pattern := range patterns {
 		if bytesContain(bufData, pattern) {
 			return true

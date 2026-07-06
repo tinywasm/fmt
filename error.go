@@ -55,7 +55,7 @@ func (c *Conv) wrErr(msgs ...any) *Conv {
 			case int32: val = int64(i)
 			case int64: val = i
 			}
-			c.wrIntBase(BuffWork, val, 10, true, false)
+			c.WrIntBase(BuffWork, val, 10, true, false)
 			c.WrString(BuffErr, c.GetString(BuffWork))
 		case uint, uint8, uint16, uint32, uint64:
 			c.ResetBuffer(BuffWork)
