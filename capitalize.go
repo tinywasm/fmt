@@ -286,17 +286,18 @@ func (t *Conv) toCaseTransformMinimal(firstWordLower bool, separator string) *Co
 	wordIndex := 0
 	prevWasSpace := false
 	prevWasLower := false
+	prevWasUpper := false
 	prevWasDigit := false
 
 	for i := 0; i < t.outLen; i++ {
 		char := t.out[i]
 
-		// For CamelCase, only whitespace characters are true separators
-		isWhitespace := char == ' ' || char == '\t' || char == '\n' || char == '\r'
+		// Unified separator detection: treat whitespace, underscores and hyphens as separators
+		isSeparator := char == ' ' || char == '\t' || char == '\n' || char == '\r' || char == '_' || char == '-'
 
-		if isWhitespace {
+		if isSeparator {
 			prevWasSpace = true
-			continue // Skip whitespace separators
+			continue // Skip separators
 		}
 
 		// Determine if starting new word
@@ -304,24 +305,26 @@ func (t *Conv) toCaseTransformMinimal(firstWordLower bool, separator string) *Co
 		if i == 0 {
 			isNewWord = true // First character is always start of first word
 		} else if prevWasSpace {
-			isNewWord = true // After whitespace
-		} else if separator != "" {
-			// For snake_case: more aggressive word splitting
-			if (prevWasLower && char >= 'A' && char <= 'Z') || // camelCase transition
-				(prevWasDigit && ((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z'))) { // digit to letter
-				isNewWord = true
-			}
+			isNewWord = true // After whitespace or separator
 		} else {
-			// For CamelCase/PascalCase: Split on common word boundaries
-			if prevWasLower && char >= 'A' && char <= 'Z' { // lowercase-to-uppercase (camelCase)
-				isNewWord = true
-			} else if prevWasDigit && char >= 'A' && char <= 'Z' { // digit-to-uppercase
-				// For CamelLow: digit-to-uppercase is NOT a word boundary ("User123Name" → "user123name")
-				// For CamelUp: digit-to-uppercase IS a word boundary ("User123Name" → "User123Name")
-				if !firstWordLower {
-					isNewWord = true // PascalCase (CamelUp) - treat as word boundary
+			// Internal word boundaries (no separator in input)
+			isUpper := char >= 'A' && char <= 'Z'
+			isLower := char >= 'a' && char <= 'z'
+
+			if prevWasLower && isUpper {
+				isNewWord = true // camelCase transition
+			} else if prevWasDigit && (isUpper || (separator != "" && isLower)) {
+				// Digit to Letter:
+				// In Snake mode: always split (user123name -> user_123_name)
+				// In Camel mode: split if PascalCase (User123Name) or Subsequent words
+				if separator != "" {
+					isNewWord = true
+				} else if !firstWordLower && isUpper {
+					isNewWord = true
 				}
-				// For camelCase (CamelLow) - don't treat as word boundary
+			} else if prevWasUpper && isUpper && i+1 < t.outLen && t.out[i+1] >= 'a' && t.out[i+1] <= 'z' {
+				// acronym run split: APIResponse -> API|Response
+				isNewWord = true
 			}
 		}
 
@@ -356,6 +359,7 @@ func (t *Conv) toCaseTransformMinimal(firstWordLower bool, separator string) *Co
 		// Update state
 		prevWasSpace = false
 		prevWasLower = (char >= 'a' && char <= 'z')
+		prevWasUpper = (char >= 'A' && char <= 'Z')
 		prevWasDigit = (char >= '0' && char <= '9')
 	}
 
