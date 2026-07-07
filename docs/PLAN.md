@@ -63,18 +63,8 @@ Result:
 - `Convert("sku").CamelUp()` → `Sku`
 - `Convert("first_name").CamelLow()` → `firstName`
 
-### 2.2 (Optional) intent-revealing aliases
-
-If a self-documenting name is wanted at call sites, add thin wrappers (no new logic):
-
-```go
-// GoExport returns an exported Go identifier from a snake/kebab/spaced name.
-func (t *Conv) GoExport() *Conv { return t.CamelUp() }
-// GoUnexport returns an unexported (camelCase) Go identifier.
-func (t *Conv) GoUnexport() *Conv { return t.CamelLow() }
-```
-
-Decide during review; not required for correctness.
+No new methods. `CamelUp`/`CamelLow` already are the public API; after §2.1 they handle snake/kebab
+input directly. Call site stays `fmt.Convert(col).CamelUp().String()`.
 
 ## 3. Consumer migration (`tinywasm/orm/ormc`, separate repo, after publish)
 
