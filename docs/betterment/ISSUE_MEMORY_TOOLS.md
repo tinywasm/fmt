@@ -37,14 +37,14 @@ import _ "net/http/pprof"
 import "net/http"
 
 go func() {
-  log.Println(http.ListenAndServe("localhost:6060", nil))
+  log.Println(http.ListenAndServe("localhost:8080", nil))
 }()
 ```
 
 3. Run app, then collect profile:
 
 ```bash
-go tool pprof http://localhost:6060/debug/pprof/heap
+go tool pprof http://localhost:8080/debug/pprof/heap
 ```
 
 **Visualize:**
