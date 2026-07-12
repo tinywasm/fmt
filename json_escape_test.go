@@ -15,6 +15,12 @@ func TestJSONEscape(t *testing.T) {
 		{"Newlines", "line1\nline2\rline3\tline4", `line1\nline2\rline3\tline4`},
 		{"ControlChars", "\x00\x1f", `\u0000\u001f`},
 		{"Unicode", "José", "José"},
+		{"StartsWithSpecial", "\"abc", `\"abc`},
+		{"EndsWithSpecial", "abc\"", `abc\"`},
+		{"OnlySpecial", "\"\\\n", `\"\\\n`},
+		{"ConsecutiveSpecial", "a\"\"b", `a\"\"b`},
+		{"SingleSafeByte", "a", "a"},
+		{"SingleSpecialByte", "\"", `\"`},
 	}
 
 	for _, tt := range tests {

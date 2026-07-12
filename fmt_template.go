@@ -128,8 +128,13 @@ func (c *Conv) wrFormat(dest BuffDest, format string, args ...any) *Conv {
 
 			// Format value using shared helper
 			arg := args[argIndex]
+			// Only a GROWTH of the error buffer means formatValue itself failed. Testing
+			// hasContent(BuffErr) instead would be a false positive whenever dest IS
+			// BuffErr (Errf): the literal text already written would look like a failure,
+			// and the message would be silently truncated at the first verb.
+			errLenBefore := c.errLen
 			str := c.formatValue(arg, formatChar, param, formatSpec)
-			if c.hasContent(BuffErr) {
+			if c.errLen > errLenBefore {
 				return c
 			}
 
