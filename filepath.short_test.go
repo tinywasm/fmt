@@ -180,8 +180,8 @@ func TestPathRelativeTo(t *testing.T) {
 			// a daemon whose own CWD doesn't track the project root can still
 			// shorten its output path for display using its known root.
 			name: "ddlc export path relative to project root",
-			base: "/home/cesar/Dev/Project/tinywasm/layout/platform",
-			path: "/home/cesar/Dev/Project/tinywasm/layout/platform/config/db.sql",
+			base: "/home/user/project",
+			path: "/home/user/project/config/db.sql",
 			want: "./config/db.sql",
 		},
 	}
