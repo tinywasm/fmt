@@ -123,6 +123,79 @@ func TestPathShort(t *testing.T) {
 	}
 }
 
+// TestPathRelativeTo proves shortenAgainst behaves identically whether reached
+// via PathShort's cached pathBase global or via PathRelativeTo's explicit
+// base parameter — same cases as TestPathShort, called directly instead.
+func TestPathRelativeTo(t *testing.T) {
+	tests := []struct {
+		name string
+		base string
+		path string
+		want string
+	}{
+		{
+			name: "relative from manual base",
+			base: "/home/user/project",
+			path: "/home/user/project/modules/test.js",
+			want: "./modules/test.js",
+		},
+		{
+			name: "exactly same as base",
+			base: "/home/user/project",
+			path: "/home/user/project",
+			want: ".",
+		},
+		{
+			name: "different path",
+			base: "/home/user/project",
+			path: "/etc/passwd",
+			want: "/etc/passwd",
+		},
+		{
+			name: "prefix but not subpath",
+			base: "/home/user/pro",
+			path: "/home/user/project",
+			want: "/home/user/project",
+		},
+		{
+			name: "subpath with trailing slash in input",
+			base: "/home/user/project",
+			path: "/home/user/project/web/",
+			want: "./web/",
+		},
+		{
+			name: "manually set base as root",
+			base: "/",
+			path: "/etc/passwd",
+			want: "./etc/passwd",
+		},
+		{
+			name: "multiple occurrences",
+			base: "/home/user/project",
+			path: "moving /home/user/project/a to /home/user/project/b",
+			want: "moving ./a to ./b",
+		},
+		{
+			// The case that matters for tinywasm/ddlc's daemon-side Label():
+			// a daemon whose own CWD doesn't track the project root can still
+			// shorten its output path for display using its known root.
+			name: "ddlc export path relative to project root",
+			base: "/home/cesar/Dev/Project/tinywasm/layout/platform",
+			path: "/home/cesar/Dev/Project/tinywasm/layout/platform/config/db.sql",
+			want: "./config/db.sql",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := PathRelativeTo(tc.path, tc.base)
+			if got != tc.want {
+				t.Errorf("%s: PathRelativeTo(%q, %q) = %q; want %q", tc.name, tc.path, tc.base, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestPathShortWindows(t *testing.T) {
 	// Manual test for windows-style paths even on linux
 	// since pathClean and PathJoin handle them conceptually

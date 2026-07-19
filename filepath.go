@@ -245,6 +245,32 @@ func (c *Conv) PathShort() *Conv {
 		return c
 	}
 
+	return c.shortenAgainst(pathBase)
+}
+
+// PathRelativeTo shortens path's occurrences of base into "./"-relative form,
+// using the same algorithm as PathShort but with the base given explicitly —
+// for callers that track their own reference directory instead of relying on
+// SetPathBase/GetPathBase's process-CWD auto-detection (e.g. a daemon whose
+// own working directory does not track the project root it is serving).
+//
+// Example: PathRelativeTo("/home/user/project/config/db.sql", "/home/user/project")
+// -> "./config/db.sql"
+func PathRelativeTo(path, base string) string {
+	cleanedBase, _ := pathClean(base)
+	if cleanedBase == "" {
+		return path
+	}
+
+	c := GetConv()
+	c.WrString(BuffOut, path)
+	return c.shortenAgainst(cleanedBase).String()
+}
+
+// shortenAgainst is the shared algorithm behind PathShort and PathRelativeTo:
+// it rewrites occurrences of base in the Conv's current BuffOut into "./"-
+// relative form. base must already be cleaned (see pathClean).
+func (c *Conv) shortenAgainst(base string) *Conv {
 	src := c.GetStringZeroCopy(BuffOut)
 	if src == "" {
 		return c
@@ -255,7 +281,7 @@ func (c *Conv) PathShort() *Conv {
 
 	start := 0
 	for {
-		idx := Index(src[start:], pathBase)
+		idx := Index(src[start:], base)
 		if idx == -1 {
 			c.WrString(BuffWork, src[start:])
 			break
@@ -265,8 +291,8 @@ func (c *Conv) PathShort() *Conv {
 		c.WrString(BuffWork, src[start:matchIdx])
 
 		// Validate match boundary
-		endIdx := matchIdx + len(pathBase)
-		isRoot := len(pathBase) == 1 && (pathBase[0] == '/' || pathBase[0] == '\\')
+		endIdx := matchIdx + len(base)
+		isRoot := len(base) == 1 && (base[0] == '/' || base[0] == '\\')
 
 		valid := false
 		if isRoot {
@@ -315,7 +341,7 @@ func (c *Conv) PathShort() *Conv {
 			}
 		} else {
 			// Not a valid path boundary, just copy the match and continue
-			c.WrString(BuffWork, pathBase)
+			c.WrString(BuffWork, base)
 			start = endIdx
 		}
 	}
