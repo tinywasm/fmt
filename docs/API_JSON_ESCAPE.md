@@ -20,6 +20,11 @@ func JSONEscape(s string, b *fmt.Builder)
 - Control characters (< 0x20) → `\u00XX` (hexadecimal)
 - All other characters (including UTF-8) are written unescaped.
 
+> The safe-byte path (characters that need no escaping) is bulk-copied in
+> contiguous runs via a single `WriteString` per run, instead of one
+> `WriteByte` per character. No observable difference to callers — escaping
+> rules are identical.
+
 ### Usage
 
 The caller is responsible for writing the surrounding double quotes. This allows composing JSON strings without extra allocations.

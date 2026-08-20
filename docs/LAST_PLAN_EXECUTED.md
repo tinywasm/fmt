@@ -1,5 +1,10 @@
 # PLAN — `tinywasm/fmt`: bulk-copy safe runs in `JSONEscape` (profiled fix, low priority)
 
+> ✅ **EJECUTADO** — implementación (quote.go), tests (json_escape_test.go) y nota
+> de docs (API_JSON_ESCAPE.md) cerrados. Publicado en v0.25.5. Perfil post-fix
+> verificado: 753 → 718 ns/op en BenchmarkEncode_tinywasm; JSONEscape 43.75% →
+> 28.57% cum. El re-perfil end-to-end vive en `json/docs/PLAN.md` (fuera de este repo).
+
 > This plan is dispatched via the CodeJob workflow. See skill: agents-workflow.
 > Not urgent — performance only, no bug/breakage. Dispatch whenever convenient.
 > Repo rules: `AGENTS.md` at this repo's root — read it first.
