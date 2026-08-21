@@ -1,6 +1,12 @@
 package fmt
 
-import "io"
+// Writer es io.Writer redeclarado aquí. Es estructuralmente idéntico, así que
+// cualquier io.Writer lo satisface sin que el llamador cambie una línea — pero
+// importar io arrastra errors, y con él internal/reflectlite, a todo binario
+// del ecosistema.
+type Writer interface {
+	Write(p []byte) (n int, err error)
+}
 
 // =============================================================================
 // FORMAT TEMPLATE SYSTEM - Printf-style formatting operations
@@ -16,7 +22,7 @@ func Sprintf(format string, args ...any) string {
 // Fprintf formats according to a format specifier and writes to w.
 // It returns the number of bytes written and any write error encountered.
 // Example: Fprintf(os.Stdout, "Hello %s\n", "world")
-func Fprintf(w io.Writer, format string, args ...any) (n int, err error) {
+func Fprintf(w Writer, format string, args ...any) (n int, err error) {
 	// Obtain converter from pool
 	c := GetConv()
 	defer c.putConv() // Ensure cleanup
