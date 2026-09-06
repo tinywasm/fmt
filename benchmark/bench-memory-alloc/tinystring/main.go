@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "github.com/tinywasm/fmt"
+	. "webtyp.com/fmt"
 )
 
 // processTextWithTinyString simulates text processing using fmt (equivalent to standard lib)

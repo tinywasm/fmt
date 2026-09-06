@@ -62,20 +62,20 @@ func TestPathShort(t *testing.T) {
 		},
 		{
 			name: "embedded path in log message",
-			base: "/home/user/Dev/Pkg/tinywasm/app/example",
-			path: "Compiling WASM due to /home/user/Dev/Pkg/tinywasm/app/example/web/client.go change... ",
+			base: "/home/user/Dev/Pkg/webtyp/app/example",
+			path: "Compiling WASM due to /home/user/Dev/Pkg/webtyp/app/example/web/client.go change... ",
 			want: "Compiling WASM due to ./web/client.go change... ",
 		},
 		{
 			name: "another embedded path in log message",
-			base: "/home/user/Dev/Pkg/tinywasm/app/example",
-			path: " 13:07:52  ASSETS  .js create ... /home/user/Dev/Pkg/tinywasm/app/example/modules/users/newfile.js",
+			base: "/home/user/Dev/Pkg/webtyp/app/example",
+			path: " 13:07:52  ASSETS  .js create ... /home/user/Dev/Pkg/webtyp/app/example/modules/users/newfile.js",
 			want: " 13:07:52  ASSETS  .js create ... ./modules/users/newfile.js",
 		},
 		{
 			name: "path at the end of sentence",
-			base: "/home/user/Dev/Pkg/tinywasm/app/example",
-			path: "WASM source file already exists at /home/user/Dev/Pkg/tinywasm/app/example/web/client.go , skipping generation",
+			base: "/home/user/Dev/Pkg/webtyp/app/example",
+			path: "WASM source file already exists at /home/user/Dev/Pkg/webtyp/app/example/web/client.go , skipping generation",
 			want: "WASM source file already exists at ./web/client.go , skipping generation",
 		},
 		{
@@ -176,7 +176,7 @@ func TestPathRelativeTo(t *testing.T) {
 			want: "moving ./a to ./b",
 		},
 		{
-			// The case that matters for tinywasm/ddlc's daemon-side Label():
+			// The case that matters for webtyp/ddlc's daemon-side Label():
 			// a daemon whose own CWD doesn't track the project root can still
 			// shorten its output path for display using its known root.
 			name: "ddlc export path relative to project root",

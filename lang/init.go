@@ -1,6 +1,6 @@
 package lang
 
-import "github.com/tinywasm/fmt"
+import "webtyp.com/fmt"
 
 func init() {
 	fmt.SetTranslator(func(word string) (string, bool) {

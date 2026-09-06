@@ -47,8 +47,8 @@ n, err := Sscanf("!3F U+003F question", "!%x U+%x %s", &code, &unicode, &word)
 // n = 3, code = 63, unicode = 63, word = "question", err = nil
 
 // Localized string formatting (%L)
-// Requires importing "github.com/tinywasm/fmt/lang"
-import "github.com/tinywasm/fmt/lang"
+// Requires importing "webtyp.com/fmt/lang"
+import "webtyp.com/fmt/lang"
 
 Sprintf("Error: %L", "invalid")
 // out (EN): "Error: invalid"

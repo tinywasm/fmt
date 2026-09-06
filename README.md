@@ -21,13 +21,13 @@ fmt is a lightweight Go library that provides comprehensive string manipulation,
 ## Installation
 
 ```bash
-go get github.com/tinywasm/fmt
+go get webtyp.com/fmt
 ```
 
 ## Usage
 
 ```go
-import . "github.com/tinywasm/fmt"
+import . "webtyp.com/fmt"
 
 // Quick start - Basic conversion and transformation
 text := Convert("Hóla Múndo").Tilde().ToLower().String() // out: "hola mundo"
@@ -101,6 +101,6 @@ foundAny := MatchesAny("Hello World", "hello", "xyz") // out: true
 - [WebAssembly Html Code](example/web/client.go)
 
 ---
-## [Contributing](https://github.com/tinywasm/cdvelop/blob/main/CONTRIBUTING.md)
+## [Contributing](https://github.com/webtyp/cdvelop/blob/main/CONTRIBUTING.md)
 ---
 ## [License](LICENSE)

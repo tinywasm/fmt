@@ -4,7 +4,7 @@ package lang
 
 import (
 	"syscall/js"
-	"github.com/tinywasm/fmt"
+	"webtyp.com/fmt"
 )
 
 // getSystemLang detects browser language from navigator.language

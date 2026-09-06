@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	. "github.com/tinywasm/fmt"
+	. "webtyp.com/fmt"
 )
 
 // BenchmarkResult stores benchmark results for memory analysis

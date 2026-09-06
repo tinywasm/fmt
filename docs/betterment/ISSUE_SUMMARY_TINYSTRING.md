@@ -27,7 +27,7 @@ Enable Go WebAssembly adoption by reducing binary size while providing essential
 ## Basic Usage Pattern
 
 ```go
-import "github.com/tinywasm/fmt"
+import "webtyp.com/fmt"
 
 // Basic string processing
 result := tinystring.Convert("MÍ téxtO").Tilde().String()
@@ -89,7 +89,7 @@ tinystring.Convert(&text).Tilde().CamelLow().Apply()
 ## Installation
 
 ```bash
-go get github.com/tinywasm/fmt
+go get webtyp.com/fmt
 ```
 
 ## Architecture Notes

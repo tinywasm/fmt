@@ -6,7 +6,7 @@ REVIEWER: none
 
 > Este plan se despacha con el flujo CodeJob. Ver skill: agents-workflow.
 
-# Plan — `tinywasm/fmt`: cerrar la puerta a `io`
+# Plan — `webtyp/fmt`: cerrar la puerta a `io`
 
 ## El problema
 
@@ -35,7 +35,7 @@ Se hace por otra razón, que sí está medida y es la que importa:
 > **El impuesto de la stdlib lo cobra la última puerta que quede abierta.**
 
 En un Worker real, `unicode` y `bytes` entraban por dos caminos distintos. Cerrar
-uno solo rendía 2.119 bytes; cerrar los dos, 93.733. Mientras `tinywasm/fmt`
+uno solo rendía 2.119 bytes; cerrar los dos, 93.733. Mientras `webtyp/fmt`
 —que está en **todos** los binarios del ecosistema— mantenga abierta la vía
 `io → errors`, cualquier otro paquete que empiece a usar `errors.Is` o un
 `bytes.Buffer` reabre el grifo sin que la guarda del grafo lo note como

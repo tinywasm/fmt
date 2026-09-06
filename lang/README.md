@@ -1,6 +1,6 @@
 # fmt/lang
 
-The `lang` package provides multilingual support and translation services for the `tinywasm/fmt` library.
+The `lang` package provides multilingual support and translation services for the `webtyp/fmt` library.
 
 ## Features
 
@@ -13,7 +13,7 @@ The `lang` package provides multilingual support and translation services for th
 ## Installation
 
 ```bash
-import "github.com/tinywasm/fmt/lang"
+import "webtyp.com/fmt/lang"
 ```
 
 Simply importing the package activates translation for `fmt.Err()`, `fmt.Html()`, and `%L` formatting in `fmt.Sprintf()`.

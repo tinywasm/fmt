@@ -24,7 +24,7 @@ Html("<div class='%s'>", "my-class").String()
 // -> "<div class='my-class'>"
 
 // 3. Localization (using dictionary keys)
-// Note: requires import "github.com/tinywasm/fmt/lang"
+// Note: requires import "webtyp.com/fmt/lang"
 Html("<span>", "user", "</span>").String()
 // -> "<span>User</span>" (EN)
 // -> "<span>Usuario</span>" (ES)

@@ -1,6 +1,6 @@
 package lang
 
-import "github.com/tinywasm/fmt"
+import "webtyp.com/fmt"
 
 // Private global configuration
 var (

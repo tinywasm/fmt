@@ -15,7 +15,7 @@
 
 ## Problem
 
-The `web/client.go` example (a simple counter) compiles to **88.9 KB** in TinyGo mode S. This is excessive for a ~70-line application. The root cause is that `tinywasm/fmt` imports `reflect` (~30-40 KB) and `sync` (~5-10 KB), which are the two heaviest standard library packages in TinyGo WASM.
+The `web/client.go` example (a simple counter) compiles to **88.9 KB** in TinyGo mode S. This is excessive for a ~70-line application. The root cause is that `webtyp/fmt` imports `reflect` (~30-40 KB) and `sync` (~5-10 KB), which are the two heaviest standard library packages in TinyGo WASM.
 
 ## Root Cause Analysis
 
@@ -41,7 +41,7 @@ The `web/client.go` example (a simple counter) compiles to **88.9 KB** in TinyGo
 ### Why `!wasm` instead of separate WASM files?
 
 > [!IMPORTANT]
-> Following the user's direction: concurrency (sync) belongs **only to backend** (`!wasm`). This way developers use the same `tinywasm/fmt` package everywhere without worrying about which import to use. The library handles it transparently.
+> Following the user's direction: concurrency (sync) belongs **only to backend** (`!wasm`). This way developers use the same `webtyp/fmt` package everywhere without worrying about which import to use. The library handles it transparently.
 
 ### Alternatives Considered
 
@@ -355,8 +355,8 @@ Reduction: **~55-65 KB (~60-70%)** by eliminating `reflect` and `sync` from WASM
 
 ### Automated Tests
 
-go install github.com/tinywasm/devflow/cmd/gotest@latest
+go install webtyp.com/devflow/cmd/gotest@latest
 
-1. `gotest` in `tinywasm/fmt` — all existing tests (backend StdLib + WASM) must pass
+1. `gotest` in `webtyp/fmt` — all existing tests (backend StdLib + WASM) must pass
 
 2. Verify concurrency tests still pass (they run only in `!wasm` via `gotest`)

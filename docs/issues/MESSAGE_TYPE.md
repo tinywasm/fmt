@@ -20,7 +20,7 @@ message, msgType := Translate(msgs...).StringType()
 ## CURRENT STATE ANALYSIS
 
 ### MessageType Library Structure
-- **Package**: `github.com/tinywasm/messagetype`
+- **Package**: `webtyp.com/messagetype`
 - **Core Type**: `Type uint8` with constants: `Normal(0)`, `Info(1)`, `Error(2)`, `Warning(3)`, `Success(4)`
 - **Main Function**: `DetectMessageType(args ...any) Type`
 - **Dependencies**: Uses `tinystring.Convert().ToLower().String()` and `tinystring.Contains()`

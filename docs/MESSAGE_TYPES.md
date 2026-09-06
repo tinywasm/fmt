@@ -8,7 +8,7 @@ message, msgType := Convert("Operation failed").StringType()
 // message: "Operation failed", msgType: Msg.Error
 
 // Real example - Progress callback with message classification
-// Note: Requires import "github.com/tinywasm/fmt/lang" for Translate
+// Note: Requires import "webtyp.com/fmt/lang" for Translate
 progressCallback := func(msgs ...any) {
     message, msgType := lang.Translate(msgs...).StringType()
     if msgType.IsError() {

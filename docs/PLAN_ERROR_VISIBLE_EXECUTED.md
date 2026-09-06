@@ -32,7 +32,7 @@ fmt.Sprint(err)        // ""                                    ← BUG
 fmt.Sprintf("%v", err) // "web/public está versionado — …"      ← correcto
 ```
 
-Reproducible con este programa contra `github.com/tinywasm/fmt v0.25.5`:
+Reproducible con este programa contra `webtyp.com/fmt v0.25.5`:
 
 ```go
 package main
@@ -40,7 +40,7 @@ package main
 import (
 	"errors"
 	stdfmt "fmt"
-	twfmt "github.com/tinywasm/fmt"
+	twfmt "webtyp.com/fmt"
 )
 
 func main() {
@@ -82,7 +82,7 @@ caso más frecuente que va a recibir: un `error`.
 
 ## 3. El daño aguas abajo (contexto, no se arregla aquí)
 
-`tinywasm/app` construye **todas** las líneas del TUI y del canal SSE así
+`webtyp/app` construye **todas** las líneas del TUI y del canal SSE así
 (`app/logs.go:45`, `SprintMessages`):
 
 ```go

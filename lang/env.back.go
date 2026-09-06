@@ -4,7 +4,7 @@ package lang
 
 import (
 	"os"
-	"github.com/tinywasm/fmt"
+	"webtyp.com/fmt"
 )
 
 // getSystemLang detects system language from environment variables

@@ -1,4 +1,4 @@
-# AGENTS.md — tinywasm/fmt
+# AGENTS.md — webtyp/fmt
 
 Working notes for AI agents operating in this library. For end-user docs see [README.md](README.md).
 Plans for code changes live in [docs/PLAN.md](docs/PLAN.md) and link back here for the standing
@@ -6,7 +6,7 @@ rules below (do not duplicate them in plans).
 
 ## Mission
 
-`tinywasm/fmt` is the **foundation** of the ecosystem: string manipulation, type conversion,
+`webtyp/fmt` is the **foundation** of the ecosystem: string manipulation, type conversion,
 formatting, error handling, schema contracts, and the typed serialization codec — all
 **reflection-free** and **TinyGo/WASM-optimized**. It is the stdlib replacement: nothing in the
 ecosystem imports `fmt`, `strings`, `strconv`, or `errors` — they use this package.
@@ -40,7 +40,7 @@ ecosystem imports `fmt`, `strings`, `strconv`, or `errors` — they use this pac
 ## Testing
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest   # once
+go install webtyp.com/devflow/cmd/gotest@latest   # once
 gotest            # vet + race + cover + wasm + badges (NOT `go test`)
 gotest -run TestX
 ```
@@ -56,7 +56,7 @@ gopush 'message'   # tests + tag + push + dependency bumps (NOT git commit/push 
 
 ## Related
 
-- [`tinywasm/orm`](https://github.com/tinywasm/orm) — `ormc` generates `Schema()`/`Pointers()`
+- [`webtyp/orm`](https://github.com/webtyp/orm) — `ormc` generates `Schema()`/`Pointers()`
   and the codec's `EncodeFields`/`DecodeFields`.
-- [`tinywasm/json`](https://github.com/tinywasm/json), [`tinywasm/jsvalue`](https://github.com/tinywasm/jsvalue)
+- [`webtyp/json`](https://github.com/webtyp/json), [`webtyp/jsvalue`](https://github.com/webtyp/jsvalue)
   — concrete codec encoders (JSON, JS).

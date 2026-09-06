@@ -2,7 +2,7 @@ package lang
 
 import (
 	"testing"
-	"github.com/tinywasm/fmt"
+	"webtyp.com/fmt"
 )
 
 func TestHtmlWithTranslation(t *testing.T) {

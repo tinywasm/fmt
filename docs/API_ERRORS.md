@@ -22,10 +22,10 @@ err := Errf("invalid value: %s at position %d", "abc", 5)
 
 ## Multilingual Error Messages
 
-Multilingual error support is **opt-in**. To enable translations, you must import `github.com/tinywasm/fmt/lang`.
+Multilingual error support is **opt-in**. To enable translations, you must import `webtyp.com/fmt/lang`.
 
 ```go
-import "github.com/tinywasm/fmt/lang"
+import "webtyp.com/fmt/lang"
 
 // Translation requires the lang package to be imported
 // Note: Err no longer accepts language constants like ES as an argument.

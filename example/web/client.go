@@ -5,8 +5,8 @@ package main
 import (
 	"syscall/js"
 
-	. "github.com/tinywasm/fmt"
-	"github.com/tinywasm/fmt/lang"
+	. "webtyp.com/fmt"
+	"webtyp.com/fmt/lang"
 )
 
 func main() {

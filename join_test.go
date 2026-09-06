@@ -3,7 +3,7 @@ package fmt_test
 import (
 	"testing"
 
-	. "github.com/tinywasm/fmt"
+	. "webtyp.com/fmt"
 )
 
 func TestJoinMethod(t *testing.T) {

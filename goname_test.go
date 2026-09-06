@@ -2,7 +2,7 @@ package fmt_test
 
 import (
 	"testing"
-	tf "github.com/tinywasm/fmt"
+	tf "webtyp.com/fmt"
 )
 
 func TestCamelCase(t *testing.T) {

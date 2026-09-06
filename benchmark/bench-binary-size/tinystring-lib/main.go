@@ -1,6 +1,6 @@
 package main
 
-import "github.com/tinywasm/fmt"
+import "webtyp.com/fmt"
 
 func main() {
 	// EQUIVALENT FUNCTIONALITY TEST - Same operations, same complexity

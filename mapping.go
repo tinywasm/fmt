@@ -17,11 +17,11 @@ const (
 
 // Index-based character mapping for maximum efficiency
 var (
-	// Accented characters (lowercase) — exported for tinywasm/model
+	// Accented characters (lowercase) — exported for webtyp/model
 	AL = []rune{'á', 'à', 'ã', 'â', 'ä', 'é', 'è', 'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ó', 'ò', 'õ', 'ô', 'ö', 'ú', 'ù', 'û', 'ü', 'ý'}
 	// Base characters (lowercase)
 	bL = []rune{'a', 'a', 'a', 'a', 'a', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y'}
-	// Accented characters (uppercase) — exported for tinywasm/model
+	// Accented characters (uppercase) — exported for webtyp/model
 	AU = []rune{'Á', 'À', 'Ã', 'Â', 'Ä', 'É', 'È', 'Ê', 'Ë', 'Í', 'Ì', 'Î', 'Ï', 'Ó', 'Ò', 'Õ', 'Ô', 'Ö', 'Ú', 'Ù', 'Û', 'Ü', 'Ý'}
 	// Base characters (uppercase)
 	bU = []rune{'A', 'A', 'A', 'A', 'A', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y'}

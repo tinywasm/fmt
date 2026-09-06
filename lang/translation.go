@@ -1,6 +1,6 @@
 package lang
 
-import "github.com/tinywasm/fmt"
+import "webtyp.com/fmt"
 
 // Translate creates a translated string with support for multilingual translations.
 // EN words are lookup keys (case-insensitive). Pass-through occurs if missing from dictionary.

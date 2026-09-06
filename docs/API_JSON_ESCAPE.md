@@ -1,6 +1,6 @@
 # JSON Utilities
 
-Utilities for JSON encoding and zero-value detection. These are used by `tinywasm/json` and other packages to minimize binary size by sharing common logic.
+Utilities for JSON encoding and zero-value detection. These are used by `webtyp/json` and other packages to minimize binary size by sharing common logic.
 
 ## JSONEscape
 

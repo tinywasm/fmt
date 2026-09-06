@@ -5,7 +5,7 @@ Opt-in translation engine for composable i18n messages (EN/ES built-in, Wasm-rea
 ## Setup
 Multilingual support is provided by the `fmt/lang` subpackage.
 
-1. **Import `lang`**: `import "github.com/tinywasm/fmt/lang"` to enable the translation hook in the core `fmt` package.
+1. **Import `lang`**: `import "webtyp.com/fmt/lang"` to enable the translation hook in the core `fmt` package.
 2. **Language Selection**: `lang.OutLang(lang.ES)` sets the global language. `lang.OutLang()` auto-detects system language.
 3. **Word Order**: ALWAYS use **Noun + Adjective** (e.g., `"format", "invalid"` -> ES: *"Formato Inválido"*, EN: *"Format Invalid"*).
 
@@ -35,8 +35,8 @@ Unknown words (e.g. `"Go"`, version numbers, paths) pass through unchanged in bo
 
 ```go
 import (
-    "github.com/tinywasm/fmt"
-    "github.com/tinywasm/fmt/lang"
+    "webtyp.com/fmt"
+    "webtyp.com/fmt/lang"
 )
 
 // 1. Normal usage (global lang)

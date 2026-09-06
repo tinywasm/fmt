@@ -261,7 +261,7 @@ err := tinystring.Err("invalid input").Error()
 
 #### Translated Errors
 ```go
-import . "github.com/tinywasm/fmt"
+import . "webtyp.com/fmt"
 
 // Configure default language
 OutLang(ES) // Spanish
@@ -777,7 +777,7 @@ type Conv struct {
 - Optional: Replace string literals with `D.*` references
 
 ### For New Users
-- Use `import . "github.com/tinywasm/fmt"` idiom
+- Use `import . "webtyp.com/fmt"` idiom
 - Configure language with `OutLang()`
 - Use dictionary entries for consistent translations
 
