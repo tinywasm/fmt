@@ -1,4 +1,4 @@
-# fmt
+# webtyp/fmt
 <img src="docs/img/badges.svg">
 
 fmt is a lightweight Go library that provides comprehensive string manipulation, type conversion, formatting, and multilingual error handling with a fluid API, specifically designed for small devices and web applications using TinyGo as the target compiler.
