@@ -4,7 +4,7 @@ go 1.25.2
 
 require (
 	benchmark/shared v0.0.0
-	webtyp.com/fmt v0.25.7
+	webtyp.com/fmt v0.25.8
 )
 
 // Use local fmt module
